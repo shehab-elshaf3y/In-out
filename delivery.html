@@ -302,7 +302,9 @@
 
     <script>
         // سحب اسم الموظف المخزن مسبقاً من الصفحة الرئيسية
-        const currentEmployee = localStorage.getItem('userName') || '';
+        const sessionData = JSON.parse(localStorage.getItem('userSession') || '{}');
+        const currentEmployee = sessionData.name || localStorage.getItem('userName') || '';
+        
         document.getElementById('employeeWelcome').innerText = `مرحباً بك، ${currentEmployee} (مندوب توصيل وعمليات)`;
         document.getElementById('hiddenPersonName').value = currentEmployee;
 
@@ -322,31 +324,17 @@
             document.getElementById('pageTitle').innerText = titles[tabId];
         }
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyq4OmBFUkLBbBT57lDehAQ4dX6IIxCfNgRr-4IVkzIT23m0a_FqQ1udCjDjozW5peK/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxyI81cnuuK_fOs8Ly6lvqRvP1y7E8TKH0BkIQkJqkKGKXIHpDqcCPC_RLgwc8eCRed/exec';
 
-        // إعداد الرسم البياني وجلب البيانات من الشيت
-        let dailyChart;
-        function loadDashboardData() {
-            fetch(scriptURL)
-                .then(res => res.json())
-                .then(data => {
-                    // إذا كان السكريبت يرجع ملخص لكل موظف
-                    if (data[currentEmployee]) {
-                        document.getElementById('totalTasksCount').innerText = data[currentEmployee].totalOperations || 0;
-                    }
-                })
-                .catch(err => console.log('جاري تحميل المؤشرات...'));
-        }
-
-        // رسم الـ Chart المبدئي
+        // رسم الـ Chart المبدئي (بقيم فارغة لحين جلب البيانات الحقيقية)
         const ctx = document.getElementById('dailyActivityChart').getContext('2d');
-        dailyChart = new Chart(ctx, {
-            type: 'bar',
+        let dailyChart = new Chart(ctx, {
+             type: 'bar',
             data: {
                 labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
                 datasets: [{
                     label: 'عدد العمليات والحركات',
-                    data: [2, 4, 3, 5, 6, 4, 3], // بيانات تجريبية تتحدث مع الشيت
+                    data: [0, 0, 0, 0, 0, 0, 0], 
                     backgroundColor: '#34d399',
                     borderRadius: 8,
                 }]
@@ -357,11 +345,41 @@
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { ticks: { color: '#9ca3af' }, grid: { display: false } },
-                    y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
                 }
             }
         });
 
+        // جلب البيانات المخصصة للموظف الحالي وتحديث العداد والـ Chart من السيرفر
+        function loadDashboardData() {
+            fetch(`${scriptURL}?employee=${encodeURIComponent(currentEmployee)}`)
+                .then(res => res.json())
+                .then(data => {
+                    // تحديث إجمالي العمليات (العداد) للموظف فقط
+                    if (data.totalOperations !== undefined) {
+                        document.getElementById('totalTasksCount').innerText = data.totalOperations;
+                    }
+                    
+                    // تحديث بيانات الرسم البياني (Chart) بالأيام الحقيقية للموظف
+                    if (data.chartData) {
+                        const weeklyValues = [
+                            data.chartData["السبت"] || 0,
+                            data.chartData["الأحد"] || 0,
+                            data.chartData["الإثنين"] || 0,
+                            data.chartData["الثلاثاء"] || 0,
+                            data.chartData["الأربعاء"] || 0,
+                            data.chartData["الخميس"] || 0,
+                            data.chartData["الجمعة"] || 0
+                        ];
+                        
+                        dailyChart.data.datasets[0].data = weeklyValues;
+                        dailyChart.update();
+                    }
+                })
+                .catch(err => console.log('جاري تحميل المؤشرات...', err));
+        }
+
+        // تشغيل الدالة فور تحميل الصفحة
         loadDashboardData();
 
         // دالة الحضور والانصراف
@@ -399,7 +417,7 @@
                         alert('✅ تم حفظ الحركة بنجاح وتحديث الشيت!');
                         form.reset();
                         document.getElementById('hiddenPersonName').value = currentEmployee;
-                        loadDashboardData();
+                        loadDashboardData(); // تحديث العداد والـ Chart فوراً بعد إضافة عملية جديدة
                     } else if (data.result === 'dispute_detected') {
                         alert('⚠️ تنبيه: تم رصد تكرار ونزاع في الـ OP، وتم إرسال إشعار للإدارة!');
                     } else {
@@ -414,6 +432,6 @@
                     submitBtn.innerText = 'حفظ وإرسال الحركة للشيت';
                 });
         });
-    </script>
+</script>
 </body>
 </html>
