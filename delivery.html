@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - مندوب التوصيل والعمليات</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <!-- مكتبة الرسوم البيانية Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --sidebar-bg: #111827;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-green: #34d399;
+            --accent-blue: #3b82f6;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* القائمة الجانبية (Sidebar) */
+        .sidebar {
+            width: 80px;
+            background-color: var(--sidebar-bg);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 20px;
+        }
+
+        .sidebar-logo img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        .nav-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            font-size: 20px;
+            background: transparent;
+            border: none;
+        }
+
+        .nav-icon:hover, .nav-icon.active {
+            background-color: rgba(52, 211, 153, 0.15);
+            color: var(--accent-green);
+        }
+
+        /* محتوى الصفحة الرئيسي */
+        .main-container {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: radial-gradient(circle at top right, #064e3b15, transparent 50%);
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header-title h2 {
+            margin: 0;
+            font-size: 20px;
+            color: var(--text-main);
+        }
+
+        .header-title p {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* أقسام المحتوى (Tabs) */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* الكروت والجريد */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--accent-green);
+            margin-bottom: 15px;
+            border-right: 3px solid var(--accent-green);
+            padding-right: 10px;
+        }
+
+        /* النماذج والإدخالات */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(2, 44, 34, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-green);
+        }
+        option { background-color: #111827; }
+
+        .btn-row {
+            display: flex;
+            gap: 15px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        .btn-in { background: linear-gradient(135deg, #059669, #10b981); }
+        .btn-out { background: linear-gradient(135deg, #dc2626, #ef4444); }
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #059669, #34d399);
+            color: #0b0f19;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* الرسم البياني */
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- القائمة الجانبية الأيقونات -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <img src="logo.png" alt="Logo">
+        </div>
+        <button class="nav-icon active" onclick="switchTab('dashboard', this)" title="لوحة المؤشرات والرسوم البيانية">📊</button>
+        <button class="nav-icon" onclick="switchTab('attendance', this)" title="تسجيل الحضور والانصراف">⏰</button>
+        <button class="nav-icon" onclick="switchTab('tasks', this)" title="تسجيل الحركة والعمليات">📝</button>
+    </div>
+
+    <!-- محتوى الصفحة -->
+    <div class="main-container">
+        
+        <div class="header-bar">
+            <div class="header-title">
+                <h2 id="pageTitle">لوحة المؤشرات والرسوم البيانية</h2>
+                <p id="employeeWelcome">مرحباً بك، جاري التحميل...</p>
+            </div>
+            <div style="font-size: 14px; color: var(--accent-green); background: rgba(52,211,153,0.1); padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+                نشط الآن 🟢
+            </div>
+        </div>
+
+        <!-- 1. قسم لوحة المؤشرات والـ Chart -->
+        <div id="dashboard" class="tab-content active">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">إحصائية الحركات اليومية (عدد العمليات في كل يوم)</div>
+                    <div class="chart-container">
+                        <canvas id="dailyActivityChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">ملخص سريع</div>
+                    <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">
+                        من هنا يمكنك متابعة حجم إنجازك اليومي والاطلاع على الرسم البياني الذي يوضح عدد الحركات التي أنجزتها خلال الأيام الماضية بدقة متناهية.
+                    </p>
+                    <div style="background: rgba(52,211,153,0.05); padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); margin-top: 20px; text-align: center;">
+                        <span style="font-size: 24px; font-weight: bold; color: var(--accent-green);" id="totalTasksCount">0</span>
+                        <div style="font-size: 13px; color: var(--text-muted); margin-top: 5px;">إجمالي الحركات المسجلة</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. قسم تسجيل الحضور والانصراف -->
+        <div id="attendance" class="tab-content">
+            <div class="card" style="max-width: 500px; margin: 0 auto;">
+                <div class="card-title">تسجيل الحضور والانصراف اليومي</div>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">يرجى تسجيل حالتك عند بدء ونهاية يوم العمل بدقة.</p>
+                <div class="btn-row">
+                    <button type="button" class="action-btn btn-in" onclick="recordAttendance('حضور')">تسجيل حضور 🟢</button>
+                    <button type="button" class="action-btn btn-out" onclick="recordAttendance('انصراف')">تسجيل انصراف 🔴</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. قسم تسجيل الحركة والعمليات -->
+        <div id="tasks" class="tab-content">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <div class="card-title">نموذج تسجيل حركة جديدة</div>
+                <form id="deliveryForm">
+                    <div class="form-group">
+                        <label>تاريخ العملية</label>
+                        <input type="date" name="exitDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>اسم المستشفى</label>
+                        <input type="text" name="hospitalName" placeholder="اكتب اسم المستشفى هنا" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع الحالة</label>
+                        <select name="caseType" required>
+                            <option value="">اختر نوع الحالة</option>
+                            <option value="HIP">HIP</option>
+                            <option value="KNEE">KNEE</option>
+                            <option value="BIPOLAR">BIPOLAR</option>
+                            <option value="TRIPOLAR">TRIPOLAR</option>
+                            <option value="Spacer">Spacer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم العملية (OP)</label>
+                        <input type="text" name="opNumber" placeholder="أدخل رقم الـ OP يدوياً" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع المهمة</label>
+                        <select name="stockPrep" required>
+                            <option value="">اختر المهمة</option>
+                            <option value="تحضير استوك">تحضير استوك</option>
+                            <option value="توصيل عمليات">توصيل عمليات</option>
+                            <option value="إرجاع عمليات">إرجاع عمليات</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtn">حفظ وإرسال الحركة للشيت</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // استرجاع اسم الموظف
+        const currentEmployee = localStorage.getItem('userName') || 'أ:مغاوري';
+        document.getElementById('employeeWelcome').innerText = `مرحباً بك، ${currentEmployee} (مندوب توصيل وعمليات)`;
+
+        // التنقل بين الأقسام (Tabs) عبر الأيقونات
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+
+            const titles = {
+                'dashboard': 'لوحة المؤشرات والرسوم البيانية',
+                'attendance': 'تسجيل الحضور والانصراف',
+                'tasks': 'تسجيل الحركة والعمليات'
+            };
+            document.getElementById('pageTitle').innerText = titles[tabId];
+        }
+
+        // إعداد الرسم البياني (Chart.js)
+        const ctx = document.getElementById('dailyActivityChart').getContext('2d');
+        const dailyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['1 أگسطس', '2 أگسطس', '3 أگسطس', '4 أگسطس', '5 أگسطس', '6 أگسطس', '7 أگسطس'],
+                datasets: [{
+                    label: 'عدد الحركات',
+                    data: [3, 5, 2, 6, 4, 7, 5], // بيانات تجريبية قابلة للربط لاحقاً بالبيانات الحقيقية
+                    backgroundColor: '#34d399',
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#9ca3af' }, grid: { display: false } },
+                    y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            }
+        });
+
+        const scriptURL = 'رابط_الـ_Google_Apps_Script_هنا';
+
+        // دالة الحضور والانصراف
+        function recordAttendance(statusType) {
+            const attendanceData = new FormData();
+            attendanceData.append('action', 'attendance');
+            attendanceData.append('employeeName', currentEmployee);
+            attendanceData.append('status', statusType);
+            attendanceData.append('timestamp', new Date().toLocaleString());
+
+            fetch(scriptURL, { method: 'POST', body: attendanceData })
+                .then(res => res.json())
+                .then(data => {
+                    alert(`✅ تم تسجيل (${statusType}) بنجاح للموظف: ${currentEmployee}`);
+                })
+                .catch(err => {
+                    alert('⚠️ تم الإرسال، برجاء التأكد من حالة الاتصال.');
+                });
+        }
+
+        // إرسال تفاصيل الحركة
+        const form = document.getElementById('deliveryForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.innerText = '🔄 جاري الحفظ ومنع التكرار...';
+
+            const formData = new FormData(form);
+            formData.append('action', 'task');
+            formData.append('employeeName', currentEmployee);
+
+            fetch(scriptURL, { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        alert('✅ تم حفظ الحركة بنجاح وتحديث الشيت!');
+                        form.reset();
+                    } else if (data.result === 'dispute_detected') {
+                        alert('⚠️ تنبيه: رقم الـ OP مدخل مسبقاً، وتم إبلاغ الإدارة بالنزاع!');
+                    } else {
+                        alert('❌ حدث خطأ، يرجى المحاولة.');
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'حفظ وإرسال الحركة للشيت';
+                })
+                .catch(error => {
+                    alert('حدث خطأ في الاتصال بالخادم.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'حفظ وإرسال الحركة للشيت';
+                });
+        });
+    </script>
+</body>
+</html>
