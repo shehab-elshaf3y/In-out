@@ -471,7 +471,8 @@
     }
 
     function changeRoleAvatar(role) {
-      document.getElementById('display-role').innerText = role;
+  document.getElementById('display-role').innerText = role + " (طلب معلق)";
+
     }
 
     // 4. معالجة التسجيل
@@ -496,14 +497,14 @@
       })
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
-          showStatus(data.message, 'success');
-          localStorage.setItem('userSession', JSON.stringify(data));
-          setTimeout(() => {
-            alert('تم تسجيلك بنجاح! سيتم تحويلك لصفحة تسجيل الدخول.');
-            switchTab('login');
-          }, 2000);
-        } else {
+       if (data.success) {
+        showStatus(data.message, 'success');
+        localStorage.setItem('userSession', JSON.stringify(data));
+        setTimeout(() => {
+          alert('تم إرسال طلب إنشاء الحساب بنجاح! سيقوم الآدمن بمراجعة طلبك والموافقة على الصلاحية قبل التمكن من تسجيل الدخول.');
+          switchTab('login');
+        }, 2000);
+      } else {
           showStatus(data.message, 'error');
         }
       })
