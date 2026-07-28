@@ -538,7 +538,11 @@
             
             if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
               window.location.href = './admin.html';
-            } else {
+            }// 2. لو مندوب توصيل أو أي دور تاني يروّح لصفحة التوصيل delivery.html
+            else if (userRole === 'مندوب توصيل' || userRole === 'مندوب' || userRole === 'Delivery') {
+              window.location.href = './delivery.html';
+            }
+            else {
               alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك إلى مهامك (${userRole}).`);
             }
           }, 1000);
