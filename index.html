@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>نظام الشركة الموحد | Portal</title>
+  <title>Vita Shop | Portal</title>
   <style>
     :root {
       --bg-dark: #06110d;
@@ -230,6 +230,17 @@
       box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5);
     }
 
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+    .btn-secondary:hover {
+      background: rgba(16, 185, 129, 0.1);
+      color: #fff;
+    }
+
     .id-badge {
       background: rgba(16, 185, 129, 0.1);
       border: 1px dashed var(--emerald-primary);
@@ -251,6 +262,7 @@
     }
     .msg-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid var(--emerald-primary); }
     .msg-error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+    .msg-info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
 
     @keyframes pulseGlow {
       from { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); transform: scale(0.98); }
@@ -300,7 +312,7 @@
 
     <!-- الجانب الأيمن: النماذج -->
     <div class="form-side">
-      <div class="nav-tabs">
+      <div class="nav-tabs" id="main-tabs">
         <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">تسجيل الدخول</button>
         <button class="tab-btn" id="tab-register" onclick="switchTab('register')">إنشاء حساب (أول مرة)</button>
       </div>
@@ -316,11 +328,26 @@
           <input type="password" id="login-pin" placeholder="••••" maxlength="6" inputmode="numeric" required>
         </div>
         <div style="text-align: left; margin-top: -5px; margin-bottom: 15px;">
-  <a href="#" onclick="openResetPinSection()" style="color: #00d2d3; font-size: 13px; text-decoration: none;">
-    نسيت الـ PIN / تغيير الـ PIN؟
-  </a>
-</div>
+          <a href="#" onclick="openResetPinSection(event)" style="color: #00d2d3; font-size: 13px; text-decoration: none;">
+            نسيت الـ PIN / تغيير الـ PIN؟
+          </a>
+        </div>
         <button type="submit" class="btn-submit">دخول النظام</button>
+      </form>
+
+      <!-- نموذج تغيير/إعادة تعيين الـ PIN -->
+      <form id="form-reset-pin" style="display: none;" onsubmit="handlePinResetSubmit(event)">
+        <h3 style="color: var(--text-main); font-size: 1.1rem; margin-bottom: 15px;">تغيير رمز الـ PIN</h3>
+        <div class="form-group">
+          <label>كود الموظف (Employee ID) أو رقم الهاتف</label>
+          <input type="text" id="empIdInput" placeholder="أدخل الكود الخاص بك" required>
+        </div>
+        <div class="form-group">
+          <label>رمز الـ PIN الجديد (4 إلى 6 أرقام)</label>
+          <input type="password" id="newPinInput" placeholder="••••" maxlength="6" inputmode="numeric" required>
+        </div>
+        <button type="submit" class="btn-submit">حفظ الـ PIN الجديد</button>
+        <button type="button" class="btn-submit btn-secondary" onclick="switchTab('login')">إلغاء والعودة للدخول</button>
       </form>
 
       <!-- نموذج إنشاء حساب جديد -->
@@ -393,7 +420,6 @@
   </div>
 
   <script>
-    // ضع هنا رابط Web App الخاص بك بعد النشر
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxkXVBmmRMRvP9yVTY8wdTjIYnafDoYi0EeIhniuws_hB8c-eLP65qKFW4CZibIxeQ/exec";
     let selectedAvatarSeed = 'Cyber1';
 
@@ -410,8 +436,11 @@
     function switchTab(tab) {
       document.getElementById('tab-login').classList.toggle('active', tab === 'login');
       document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+      
       document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
       document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+      document.getElementById('form-reset-pin').style.display = 'none'; // إخفاء نموذج التعيين عند التبديل
+      
       hideStatus();
     }
 
@@ -463,7 +492,6 @@
       .then(data => {
         if (data.success) {
           showStatus(data.message, 'success');
-          // حفظ بيانات الجلسة محلياً للتحويل للصفحة الرئيسية
           localStorage.setItem('userSession', JSON.stringify(data));
           setTimeout(() => {
             alert('تم تسجيلك بنجاح! سيتم تحويلك لصفحة تسجيل الدخول.');
@@ -496,7 +524,6 @@
         if (data.success) {
           showStatus(data.message, 'success');
           localStorage.setItem('userSession', JSON.stringify(data.employee));
-          // هنا يمكنك إضافة كود التحويل لصفحة المهام وحساب الحضور
           setTimeout(() => {
             alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك الآن لمهامك.`);
           }, 1000);
@@ -507,16 +534,13 @@
       .catch(() => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
     }
 
+    // 6. دوال إظهار وإخفاء الحالة (Status Messages)
     function showStatus(text, type) {
       const el = document.getElementById('status-msg');
-      el.className = type === 'success' ? 'msg-success' : 'msg-error';
-      el.innerText = text;
-      el.style.display = 'block';
-    }
-
-    function showStatus(text, type) {
-      const el = document.getElementById('status-msg');
-      el.className = type === 'success' ? 'msg-success' : 'msg-error';
+      if (type === 'success') el.className = 'msg-success';
+      else if (type === 'info') el.className = 'msg-info';
+      else el.className = 'msg-error';
+      
       el.innerText = text;
       el.style.display = 'block';
     }
@@ -525,13 +549,16 @@
       document.getElementById('status-msg').style.display = 'none';
     }
 
-    // 1. دالة إخفاء نموذج الدخول وإظهار نموذج الـ PIN
-    function openResetPinSection() {
+    // 7. دالة فتح قسم تغيير الـ PIN
+    function openResetPinSection(e) {
+      if (e) e.preventDefault();
       document.getElementById("form-login").style.display = "none";
+      document.getElementById("form-register").style.display = "none";
       document.getElementById("form-reset-pin").style.display = "block";
+      hideStatus();
     }
 
-    // 2. دالة إرسال الـ PIN الجديد للسيرفر
+    // 8. دالة إرسال الـ PIN الجديد للـ Backend
     async function handlePinResetSubmit(e) {
       if (e) e.preventDefault();
       
@@ -553,6 +580,9 @@
         const result = await response.json();
         if (result.success) {
           showStatus(result.message, "success");
+          setTimeout(() => {
+            switchTab('login');
+          }, 2000);
         } else {
           showStatus(result.message, "error");
         }
