@@ -529,19 +529,22 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setTimeout(() => {
-        const userRole = data.employee.role.trim();
+      showStatus(data.message, 'success');
+      localStorage.setItem('userSession', JSON.stringify(data.employee));
+      
+      setTimeout(() => {
+        const userRole = data.employee.role ? data.employee.role.trim() : '';
         
         if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
           window.location.href = './admin/';
         } else {
           alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك إلى مهامك (${userRole}).`);
-          // window.location.href = './dashboard.html'; // مكان صفحة الموظف لاحقاً
         }
       }, 1000);
-          }, 1000);
-        } else {
-          showStatus(data.message, 'error');
+      
+    } else {
+      showStatus(data.message, 'error');
+    }
         }
       })
       .catch(() => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
