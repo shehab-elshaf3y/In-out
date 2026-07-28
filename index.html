@@ -532,15 +532,15 @@
       showStatus(data.message, 'success');
       localStorage.setItem('userSession', JSON.stringify(data.employee));
       
-      setTimeout(() => {
-        const userRole = data.employee.role ? data.employee.role.trim() : '';
-        
-        if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
-          window.location.href = './admin/';
-        } else {
-          alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك إلى مهامك (${userRole}).`);
-        }
-      }, 1000);
+     setTimeout(() => {
+      const userRole = data.employee && data.employee.role ? String(data.employee.role).trim() : '';
+      
+      if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
+        window.location.href = './admin/';
+      } else {
+        alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك إلى مهامك (${userRole}).`);
+      }
+    }, 1000);
       
     } else {
       showStatus(data.message, 'error');
