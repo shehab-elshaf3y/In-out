@@ -315,6 +315,11 @@
           <label>رمز PIN السرية</label>
           <input type="password" id="login-pin" placeholder="••••" maxlength="6" inputmode="numeric" required>
         </div>
+        <div style="text-align: left; margin-top: -5px; margin-bottom: 15px;">
+  <a href="#" onclick="openResetPinSection()" style="color: #00d2d3; font-size: 13px; text-decoration: none;">
+    نسيت الـ PIN / تغيير الـ PIN؟
+  </a>
+</div>
         <button type="submit" class="btn-submit">دخول النظام</button>
       </form>
 
@@ -509,8 +514,51 @@
       el.style.display = 'block';
     }
 
+    function showStatus(text, type) {
+      const el = document.getElementById('status-msg');
+      el.className = type === 'success' ? 'msg-success' : 'msg-error';
+      el.innerText = text;
+      el.style.display = 'block';
+    }
+
     function hideStatus() {
       document.getElementById('status-msg').style.display = 'none';
+    }
+
+    // 1. دالة إخفاء نموذج الدخول وإظهار نموذج الـ PIN
+    function openResetPinSection() {
+      document.getElementById("form-login").style.display = "none";
+      document.getElementById("form-reset-pin").style.display = "block";
+    }
+
+    // 2. دالة إرسال الـ PIN الجديد للسيرفر
+    async function handlePinResetSubmit(e) {
+      if (e) e.preventDefault();
+      
+      const empId = document.getElementById("empIdInput").value;
+      const newPin = document.getElementById("newPinInput").value;
+
+      showStatus("جاري تحديث الـ PIN...", "info");
+
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "resetPin",
+            employeeId: empId,
+            newPin: newPin
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          showStatus(result.message, "success");
+        } else {
+          showStatus(result.message, "error");
+        }
+      } catch (error) {
+        showStatus("حدث خطأ في الاتصال بالخادم", "error");
+      }
     }
   </script>
 </body>
