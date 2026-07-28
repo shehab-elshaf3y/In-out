@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام الحضور والانصراف</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body {
+      background-color: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+    }
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 400px;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    h2 { margin-bottom: 8px; color: #1e293b; }
+    p.subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 24px; }
+    .form-group { margin-bottom: 20px; text-align: right; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; color: #334155; }
+    input[type="password"] {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.2rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      text-align: center;
+      letter-spacing: 4px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="password"]:focus { border-color: #2563eb; }
+    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+    button {
+      flex: 1;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-in { background-color: #16a34a; color: white; }
+    .btn-out { background-color: #dc2626; color: white; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    #status {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      display: none;
+    }
+    .status-success { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .status-error { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .status-info { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>تسجيل الحضور والانصراف</h2>
+  <p class="subtitle">يرجى إدخال رمز PIN للتحقق من الهوية والموقع</p>
+
+  <div class="form-group">
+    <label for="pin">رمز PIN الخاصة بك</label>
+    <input type="password" id="pin" placeholder="••••" maxlength="6" inputmode="numeric">
+  </div>
+
+  <div class="btn-group">
+    <button class="btn-in" onclick="processAttendance('checkIn')">دخول</button>
+    <button class="btn-out" onclick="processAttendance('checkOut')">انصراف</button>
+  </div>
+
+  <div id="status"></div>
+</div>
+
+<script>
+  // استبدل هذا الرابط برابط الـ Web App الخاص بك بعد النشر
+  const SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+
+  function showStatus(text, type) {
+    const el = document.getElementById('status');
+    el.className = 'status-' + type;
+    el.innerText = text;
+    el.style.display = 'block';
+  }
+
+  function processAttendance(action) {
+    const pin = document.getElementById('pin').value.trim();
+    if (!pin) {
+      showStatus('يرجى إدخال رمز PIN أولاً.', 'error');
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      showStatus('المتصفح لديك لا يدعم تحديد الموقع الجغرافي.', 'error');
+      return;
+    }
+
+    showStatus('جاري التحقق من موقعك الحالي...', 'info');
+    toggleButtons(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const payload = {
+          action: action,
+          pin: pin,
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+
+        sendData(payload);
+      },
+      (error) => {
+        toggleButtons(false);
+        showStatus('فشل الحصول على الموقع. يرجى تفعيل الـ GPS والسماح بالوصول للموقع.', 'error');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
+  function sendData(payload) {
+    showStatus('جاري إرسال البيانات...', 'info');
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+      toggleButtons(false);
+      if (data.success) {
+        showStatus(data.message, 'success');
+        document.getElementById('pin').value = '';
+      } else {
+        showStatus(data.message, 'error');
+      }
+    })
+    .catch(err => {
+      toggleButtons(false);
+      showStatus('حدث خطأ في الاتصال بالخادم.', 'error');
+    });
+  }
+
+  function toggleButtons(disabled) {
+    document.querySelectorAll('button').forEach(btn => btn.disabled = disabled);
+  }
+</script>
+
+</body>
+</html>
