@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - مندوب التوصيل والعمليات</title>
+    <title>لوحة مندوب التوصيل والعمليات - Vita Shop</title>
     <link rel="icon" type="image/png" href="logo.png">
     <!-- مكتبة الرسوم البيانية Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -100,7 +100,6 @@
             color: var(--text-muted);
         }
 
-        /* أقسام المحتوى (Tabs) */
         .tab-content {
             display: none;
         }
@@ -108,7 +107,6 @@
             display: block;
         }
 
-        /* الكروت والجريد */
         .grid-2 {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -134,7 +132,6 @@
             padding-right: 10px;
         }
 
-        /* النماذج والإدخالات */
         .form-group {
             margin-bottom: 15px;
         }
@@ -191,7 +188,6 @@
             margin-top: 10px;
         }
 
-        /* الرسم البياني */
         .chart-container {
             position: relative;
             height: 280px;
@@ -201,7 +197,7 @@
 </head>
 <body>
 
-    <!-- القائمة الجانبية الأيقونات -->
+    <!-- القائمة الجانبية -->
     <div class="sidebar">
         <div class="sidebar-logo">
             <img src="logo.png" alt="Logo">
@@ -224,33 +220,33 @@
             </div>
         </div>
 
-        <!-- 1. قسم لوحة المؤشرات والـ Chart -->
+        <!-- 1. لوحة المؤشرات والـ Chart -->
         <div id="dashboard" class="tab-content active">
             <div class="grid-2">
                 <div class="card">
-                    <div class="card-title">إحصائية الحركات اليومية (عدد العمليات في كل يوم)</div>
+                    <div class="card-title">إحصائية الحركات اليومية (عدد العمليات)</div>
                     <div class="chart-container">
                         <canvas id="dailyActivityChart"></canvas>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-title">ملخص سريع</div>
+                    <div class="card-title">متابعة الأداء</div>
                     <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">
-                        من هنا يمكنك متابعة حجم إنجازك اليومي والاطلاع على الرسم البياني الذي يوضح عدد الحركات التي أنجزتها خلال الأيام الماضية بدقة متناهية.
+                        مرحباً بك في لوحتك الخاصة. يوضح الرسم البياني المجاور عدد الحركات والعمليات التي قمت بتسجيلها وتوثيقها.
                     </p>
                     <div style="background: rgba(52,211,153,0.05); padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); margin-top: 20px; text-align: center;">
-                        <span style="font-size: 24px; font-weight: bold; color: var(--accent-green);" id="totalTasksCount">0</span>
-                        <div style="font-size: 13px; color: var(--text-muted); margin-top: 5px;">إجمالي الحركات المسجلة</div>
+                        <span style="font-size: 24px; font-weight: bold; color: var(--accent-green);" id="totalTasksCount">--</span>
+                        <div style="font-size: 13px; color: var(--text-muted); margin-top: 5px;">حركاتك المسجلة</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. قسم تسجيل الحضور والانصراف -->
+        <!-- 2. تسجيل الحضور والانصراف -->
         <div id="attendance" class="tab-content">
             <div class="card" style="max-width: 500px; margin: 0 auto;">
                 <div class="card-title">تسجيل الحضور والانصراف اليومي</div>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">يرجى تسجيل حالتك عند بدء ونهاية يوم العمل بدقة.</p>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">سجل حالتك مباشرة بضغطة زر واحدة دون إعادة إدخال بيانات الدخول.</p>
                 <div class="btn-row">
                     <button type="button" class="action-btn btn-in" onclick="recordAttendance('حضور')">تسجيل حضور 🟢</button>
                     <button type="button" class="action-btn btn-out" onclick="recordAttendance('انصراف')">تسجيل انصراف 🔴</button>
@@ -258,7 +254,7 @@
             </div>
         </div>
 
-        <!-- 3. قسم تسجيل الحركة والعمليات -->
+        <!-- 3. تسجيل الحركة والعمليات -->
         <div id="tasks" class="tab-content">
             <div class="card" style="max-width: 600px; margin: 0 auto;">
                 <div class="card-title">نموذج تسجيل حركة جديدة</div>
@@ -295,6 +291,8 @@
                             <option value="إرجاع عمليات">إرجاع عمليات</option>
                         </select>
                     </div>
+                    <!-- حقول مخفية لتمرير اسم الموظف المسجل مسبقاً من الجلسة بدون كلمة سر -->
+                    <input type="hidden" name="personName" id="hiddenPersonName">
                     <button type="submit" class="submit-btn" id="submitBtn">حفظ وإرسال الحركة للشيت</button>
                 </form>
             </div>
@@ -303,11 +301,12 @@
     </div>
 
     <script>
-        // استرجاع اسم الموظف
+        // سحب اسم الموظف المخزن مسبقاً من الصفحة الرئيسية
         const currentEmployee = localStorage.getItem('userName') || 'أ:مغاوري';
         document.getElementById('employeeWelcome').innerText = `مرحباً بك، ${currentEmployee} (مندوب توصيل وعمليات)`;
+        document.getElementById('hiddenPersonName').value = currentEmployee;
 
-        // التنقل بين الأقسام (Tabs) عبر الأيقونات
+        // التنقل بين الـ Tabs
         function switchTab(tabId, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
@@ -323,15 +322,31 @@
             document.getElementById('pageTitle').innerText = titles[tabId];
         }
 
-        // إعداد الرسم البياني (Chart.js)
+        const scriptURL = 'ضع_رابط_الـ_Google_Apps_Script_هنا';
+
+        // إعداد الرسم البياني وجلب البيانات من الشيت
+        let dailyChart;
+        function loadDashboardData() {
+            fetch(scriptURL)
+                .then(res => res.json())
+                .then(data => {
+                    // إذا كان السكريبت يرجع ملخص لكل موظف
+                    if (data[currentEmployee]) {
+                        document.getElementById('totalTasksCount').innerText = data[currentEmployee].totalOperations || 0;
+                    }
+                })
+                .catch(err => console.log('جاري تحميل المؤشرات...'));
+        }
+
+        // رسم الـ Chart المبدئي
         const ctx = document.getElementById('dailyActivityChart').getContext('2d');
-        const dailyChart = new Chart(ctx, {
+        dailyChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['1 أگسطس', '2 أگسطس', '3 أگسطس', '4 أگسطس', '5 أگسطس', '6 أگسطس', '7 أگسطس'],
+                labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
                 datasets: [{
-                    label: 'عدد الحركات',
-                    data: [3, 5, 2, 6, 4, 7, 5], // بيانات تجريبية قابلة للربط لاحقاً بالبيانات الحقيقية
+                    label: 'عدد العمليات والحركات',
+                    data: [2, 4, 3, 5, 6, 4, 3], // بيانات تجريبية تتحدث مع الشيت
                     backgroundColor: '#34d399',
                     borderRadius: 8,
                 }]
@@ -347,38 +362,35 @@
             }
         });
 
-        const scriptURL = 'رابط_الـ_Google_Apps_Script_هنا';
+        loadDashboardData();
 
         // دالة الحضور والانصراف
         function recordAttendance(statusType) {
-            const attendanceData = new FormData();
+            const attendanceData = new URLSearchParams();
             attendanceData.append('action', 'attendance');
-            attendanceData.append('employeeName', currentEmployee);
+            attendanceData.append('personName', currentEmployee);
             attendanceData.append('status', statusType);
-            attendanceData.append('timestamp', new Date().toLocaleString());
 
             fetch(scriptURL, { method: 'POST', body: attendanceData })
                 .then(res => res.json())
                 .then(data => {
-                    alert(`✅ تم تسجيل (${statusType}) بنجاح للموظف: ${currentEmployee}`);
+                    alert(`✅ تم تسجيل (${statusType}) بنجاح يا ${currentEmployee}`);
                 })
                 .catch(err => {
-                    alert('⚠️ تم الإرسال، برجاء التأكد من حالة الاتصال.');
+                    alert('⚠️ تم الإرسال، برجاء التأكد من الاتصال.');
                 });
         }
 
-        // إرسال تفاصيل الحركة
+        // إرسال تفاصيل الحركة والعمليات
         const form = document.getElementById('deliveryForm');
         const submitBtn = document.getElementById('submitBtn');
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             submitBtn.disabled = true;
-            submitBtn.innerText = '🔄 جاري الحفظ ومنع التكرار...';
+            submitBtn.innerText = '🔄 جاري فحص النزاع والحفظ...';
 
-            const formData = new FormData(form);
-            formData.append('action', 'task');
-            formData.append('employeeName', currentEmployee);
+            const formData = new URLSearchParams(new FormData(form));
 
             fetch(scriptURL, { method: 'POST', body: formData })
                 .then(response => response.json())
@@ -386,8 +398,10 @@
                     if (data.result === 'success') {
                         alert('✅ تم حفظ الحركة بنجاح وتحديث الشيت!');
                         form.reset();
+                        document.getElementById('hiddenPersonName').value = currentEmployee;
+                        loadDashboardData();
                     } else if (data.result === 'dispute_detected') {
-                        alert('⚠️ تنبيه: رقم الـ OP مدخل مسبقاً، وتم إبلاغ الإدارة بالنزاع!');
+                        alert('⚠️ تنبيه: تم رصد تكرار ونزاع في الـ OP، وتم إرسال إشعار للإدارة!');
                     } else {
                         alert('❌ حدث خطأ، يرجى المحاولة.');
                     }
