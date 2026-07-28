@@ -537,7 +537,7 @@
             const userRole = data.employee && data.employee.role ? String(data.employee.role).trim() : '';
             
             if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
-              window.location.href = './admin/';
+              window.location.href = './admin.html';
             } else {
               alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك إلى مهامك (${userRole}).`);
             }
