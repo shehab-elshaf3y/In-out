@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام الشركة الموحد | Portal</title>
+  <style>
+    :root {
+      --bg-dark: #06110d;
+      --panel-bg: rgba(12, 31, 24, 0.65);
+      --emerald-primary: #10b981;
+      --emerald-glow: #059669;
+      --emerald-dark: #022c22;
+      --text-main: #ecfdf5;
+      --text-muted: #6ee7b7;
+      --glass-border: rgba(16, 185, 129, 0.2);
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+    
+    body {
+      background: #040d0a;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.12) 0px, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* 1. الشاشة الترحيبية المتحركة (Splash Screen) */
+    #splash-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-dark);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
+    .splash-logo {
+      width: 110px;
+      height: 110px;
+      background: linear-gradient(135deg, var(--emerald-primary), var(--emerald-dark));
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 50px rgba(16, 185, 129, 0.5);
+      animation: pulseGlow 2s infinite alternate ease-in-out;
+    }
+    .splash-title {
+      margin-top: 24px;
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      color: var(--text-main);
+      font-weight: 700;
+      opacity: 0;
+      animation: fadeInUp 1s 0.3s forwards;
+    }
+
+    /* 2. الحاوية الرئيسية (Main Glass Card) */
+    .app-card {
+      width: 92%;
+      max-width: 1000px;
+      min-height: 620px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.1);
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* الشعار أعلى يسار الكارت */
+    .company-logo-top {
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 10;
+    }
+    .company-logo-top img, .logo-icon-small {
+      width: 38px;
+      height: 38px;
+      background: var(--emerald-primary);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #000;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+
+    /* القسم الأيمن والأنير (Split Layout) */
+    .art-side {
+      flex: 1;
+      background: linear-gradient(180deg, rgba(6, 78, 59, 0.3) 0%, rgba(2, 44, 34, 0.6) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      border-left: 1px solid var(--glass-border);
+      position: relative;
+    }
+    .avatar-preview-box {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      border: 3px solid var(--emerald-primary);
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
+      overflow: hidden;
+      margin-bottom: 20px;
+      background: #021f18;
+      transition: transform 0.3s ease;
+    }
+    .avatar-preview-box:hover { transform: scale(1.03); }
+    .avatar-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+
+    .form-side {
+      flex: 1.2;
+      padding: 50px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding-bottom: 6px;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.3s;
+    }
+    .tab-btn.active {
+      color: var(--emerald-primary);
+    }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--emerald-primary);
+      border-radius: 2px;
+      box-shadow: 0 0 10px var(--emerald-primary);
+    }
+
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+    input, select {
+      width: 100%;
+      padding: 13px 16px;
+      background: rgba(4, 20, 15, 0.7);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.3s;
+    }
+    input:focus, select:focus {
+      border-color: var(--emerald-primary);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* شبكة اختيار الأفاتار */
+    .avatar-selector {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .avatar-opt {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      overflow: hidden;
+      opacity: 0.6;
+      transition: all 0.2s;
+    }
+    .avatar-opt.selected, .avatar-opt:hover {
+      border-color: var(--emerald-primary);
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+    .avatar-opt img { width: 100%; height: 100%; object-fit: cover; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      margin-top: 15px;
+      background: linear-gradient(135deg, var(--emerald-primary), var(--emerald-glow));
+      border: none;
+      border-radius: 12px;
+      color: #022c22;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+      transition: all 0.3s;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5);
+    }
+
+    .id-badge {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px dashed var(--emerald-primary);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--emerald-primary);
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    #status-msg {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      text-align: center;
+      display: none;
+    }
+    .msg-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid var(--emerald-primary); }
+    .msg-error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+
+    @keyframes pulseGlow {
+      from { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); transform: scale(0.98); }
+      to { box-shadow: 0 0 60px rgba(16, 185, 129, 0.7); transform: scale(1.05); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 850px) {
+      .app-card { flex-direction: column; min-height: auto; margin: 20px 0; }
+      .art-side { border-left: none; border-bottom: 1px solid var(--glass-border); padding: 30px; }
+      .avatar-preview-box { width: 140px; height: 140px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. الشاشة الترحيبية (Splash Screen) -->
+  <div id="splash-screen">
+    <div class="splash-logo">
+      <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <div class="splash-title">مرحباً بك في المنظومة</div>
+  </div>
+
+  <!-- 2. بطاقة الواجهة الزجاجية -->
+  <div class="app-card">
+    
+    <!-- اللوجو أعلى اليسار -->
+    <div class="company-logo-top">
+      <div class="logo-icon-small">🚀</div>
+      <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">COMPANY PORTAL</span>
+    </div>
+
+    <!-- الجانب الأيسر: عرض الأفاتار والمركز -->
+    <div class="art-side">
+      <div class="avatar-preview-box">
+        <img id="main-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber1" alt="Avatar">
+      </div>
+      <h3 id="display-role" style="color: var(--text-main); font-weight: 600;">موظف جديد</h3>
+      <p id="display-id-preview" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">ID: --</p>
+    </div>
+
+    <!-- الجانب الأيمن: النماذج -->
+    <div class="form-side">
+      <div class="nav-tabs">
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">تسجيل الدخول</button>
+        <button class="tab-btn" id="tab-register" onclick="switchTab('register')">إنشاء حساب (أول مرة)</button>
+      </div>
+
+      <!-- نموذج تسجيل الدخول (Default) -->
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>كود الموظف (Employee ID) أو رقم الهاتف</label>
+          <input type="text" id="login-key" placeholder="مثال: AA-34567 أو 0101234..." required>
+        </div>
+        <div class="form-group">
+          <label>رمز PIN السرية</label>
+          <input type="password" id="login-pin" placeholder="••••" maxlength="6" inputmode="numeric" required>
+        </div>
+        <button type="submit" class="btn-submit">دخول النظام</button>
+      </form>
+
+      <!-- نموذج إنشاء حساب جديد -->
+      <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>الاسم الأول (En)</label>
+            <input type="text" id="reg-fname" placeholder="Ahmed" oninput="updateIDPreview()" required>
+          </div>
+          <div class="form-group">
+            <label>اسم الأب (En)</label>
+            <input type="text" id="reg-lname" placeholder="Ali" oninput="updateIDPreview()" required>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>رقم الهاتف</label>
+            <input type="tel" id="reg-phone" placeholder="010..." required>
+          </div>
+          <div class="form-group">
+            <label>الرقم القومي (14 رقم)</label>
+            <input type="text" id="reg-nationalid" maxlength="14" placeholder="299..." oninput="updateIDPreview()" required>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>المركز الوظيفي</label>
+            <select id="reg-role" onchange="changeRoleAvatar(this.value)">
+              <option value="تطوير وبرمجة">تطوير وبرمجة</option>
+              <option value="تصميم وجرافيك">تصميم وجرافيك</option>
+              <option value="إدارة وتسويق">إدارة وتسويق</option>
+              <option value="دعم فني وتطبيقي">دعم فني وتطبيقي</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>رمز PIN (كلمة السر)</label>
+            <input type="password" id="reg-pin" placeholder="••••" maxlength="6" inputmode="numeric" required>
+          </div>
+        </div>
+
+        <!-- اختيار صورة الأفاتار -->
+        <div class="form-group">
+          <label>اختر صورة الأفاتار الخاصة بك</label>
+          <div class="avatar-selector">
+            <div class="avatar-opt selected" onclick="selectAvatar(this, 'Cyber1')">
+              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber1" alt="1">
+            </div>
+            <div class="avatar-opt" onclick="selectAvatar(this, 'Cyber2')">
+              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber2" alt="2">
+            </div>
+            <div class="avatar-opt" onclick="selectAvatar(this, 'Cyber3')">
+              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber3" alt="3">
+            </div>
+            <div class="avatar-opt" onclick="selectAvatar(this, 'Cyber4')">
+              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber4" alt="4">
+            </div>
+          </div>
+        </div>
+
+        <div class="id-badge" id="generated-id-box">كود الموظف المتوقع: XX-XXXXX</div>
+
+        <button type="submit" class="btn-submit">تأكيد وانشاء الحساب</button>
+      </form>
+
+      <div id="status-msg"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // ضع هنا رابط Web App الخاص بك بعد النشر
+    const SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+    let selectedAvatarSeed = 'Cyber1';
+
+    // 1. التحكم في الشاشة الترحيبية
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splash-screen');
+        splash.style.opacity = '0';
+        setTimeout(() => splash.style.visibility = 'hidden', 800);
+      }, 1800);
+    });
+
+    // 2. التبديل بين التبويبات (Login / Register)
+    function switchTab(tab) {
+      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+      document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+      document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+      hideStatus();
+    }
+
+    // 3. تحديث الأفاتار والـ ID المعاين حياً
+    function updateIDPreview() {
+      const f = document.getElementById('reg-fname').value.trim().charAt(0).toUpperCase() || 'X';
+      const l = document.getElementById('reg-lname').value.trim().charAt(0).toUpperCase() || 'X';
+      const nid = document.getElementById('reg-nationalid').value.trim();
+      const last5 = nid.length >= 5 ? nid.slice(-5) : 'XXXXX';
+      
+      const generatedId = `${f}${l}-${last5}`;
+      document.getElementById('generated-id-box').innerText = `كود الموظف المولد: ${generatedId}`;
+      document.getElementById('display-id-preview').innerText = `ID: ${generatedId}`;
+    }
+
+    function selectAvatar(el, seed) {
+      document.querySelectorAll('.avatar-opt').forEach(opt => opt.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedAvatarSeed = seed;
+      const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`;
+      document.getElementById('main-avatar').src = avatarUrl;
+    }
+
+    function changeRoleAvatar(role) {
+      document.getElementById('display-role').innerText = role;
+    }
+
+    // 4. معالجة التسجيل
+    function handleRegister(e) {
+      e.preventDefault();
+      showStatus('جاري تسجيل بياناتك وإنشاء الحساب...', 'info');
+
+      const payload = {
+        action: 'register',
+        firstNameEn: document.getElementById('reg-fname').value,
+        fatherNameEn: document.getElementById('reg-lname').value,
+        phone: document.getElementById('reg-phone').value,
+        nationalId: document.getElementById('reg-nationalid').value,
+        pin: document.getElementById('reg-pin').value,
+        role: document.getElementById('reg-role').value,
+        avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${selectedAvatarSeed}`
+      };
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          showStatus(data.message, 'success');
+          // حفظ بيانات الجلسة محلياً للتحويل للصفحة الرئيسية
+          localStorage.setItem('userSession', JSON.stringify(data));
+          setTimeout(() => {
+            alert('تم تسجيلك بنجاح! سيتم تحويلك لصفحة تسجيل الدخول.');
+            switchTab('login');
+          }, 2000);
+        } else {
+          showStatus(data.message, 'error');
+        }
+      })
+      .catch(() => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
+    }
+
+    // 5. معالجة تسجيل الدخول
+    function handleLogin(e) {
+      e.preventDefault();
+      showStatus('جاري التحقق من بيانات الدخول...', 'info');
+
+      const payload = {
+        action: 'login',
+        loginKey: document.getElementById('login-key').value,
+        pin: document.getElementById('login-pin').value
+      };
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          showStatus(data.message, 'success');
+          localStorage.setItem('userSession', JSON.stringify(data.employee));
+          // هنا يمكنك إضافة كود التحويل لصفحة المهام وحساب الحضور
+          setTimeout(() => {
+            alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك الآن لمهامك.`);
+          }, 1000);
+        } else {
+          showStatus(data.message, 'error');
+        }
+      })
+      .catch(() => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
+    }
+
+    function showStatus(text, type) {
+      const el = document.getElementById('status-msg');
+      el.className = type === 'success' ? 'msg-success' : 'msg-error';
+      el.innerText = text;
+      el.style.display = 'block';
+    }
+
+    function hideStatus() {
+      document.getElementById('status-msg').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
