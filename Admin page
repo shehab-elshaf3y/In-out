@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vita Shop | لوحة تحكم الآدمن</title>
+  <style>
+    :root {
+      --bg-dark: #040d0a;
+      --panel-bg: rgba(12, 31, 24, 0.85);
+      --emerald-primary: #10b981;
+      --emerald-glow: #059669;
+      --emerald-dark: #022c22;
+      --text-main: #ecfdf5;
+      --text-muted: #6ee7b7;
+      --glass-border: rgba(16, 185, 129, 0.2);
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; }
+    
+    body {
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.12) 0px, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      background: var(--panel-bg);
+      padding: 20px 30px;
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(15px);
+    }
+
+    h1 { font-size: 1.5rem; color: var(--emerald-primary); }
+
+    .card {
+      background: var(--panel-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 25px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      text-align: right;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--glass-border);
+      font-size: 0.9rem;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+      background: rgba(4, 20, 15, 0.4);
+    }
+
+    tr:hover { background: rgba(16, 185, 129, 0.05); }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+    .badge-active { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid var(--emerald-primary); }
+
+    .btn-approve {
+      background: linear-gradient(135deg, var(--emerald-primary), var(--emerald-glow));
+      border: none;
+      color: #022c22;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    .btn-approve:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.5);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>🛡️ لوحة تحكم الآدمن - إدارة الموظفين</h1>
+      <button class="btn-approve" onclick="loadEmployees()">🔄 تحديث القائمة</button>
+    </header>
+
+    <div class="card">
+      <h3 style="margin-bottom: 10px;">قائمة كافة الحسابات والطلبات</h3>
+      <div id="loading-msg" class="loading">جاري تحميل بيانات الموظفين...</div>
+      
+      <div style="overflow-x: auto;">
+        <table id="emp-table" style="display: none;">
+          <thead>
+            <tr>
+              <th>كود الموظف</th>
+              <th>الاسم الكامل</th>
+              <th>رقم الهاتف</th>
+              <th>الرقم القومي</th>
+              <th>الدور الحالي</th>
+              <th>الوظيفة المطلوبة</th>
+              <th>الإجراء</th>
+            </tr>
+          </thead>
+          <tbody id="emp-tbody">
+            <!-- يتم تعبئتها برمجياً -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "ضع هنا رابط Google Apps Script المنشور الخاص بك";
+
+    // جلب الموظفين عند تحميل الصفحة
+    window.addEventListener('load', loadEmployees);
+
+    function loadEmployees() {
+      const loadingEl = document.getElementById('loading-msg');
+      const tableEl = document.getElementById('emp-table');
+      
+      loadingEl.style.display = 'block';
+      tableEl.style.display = 'none';
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'getEmployees' })
+      })
+      .then(res => res.json())
+      .then(data => {
+        loadingEl.style.display = 'none';
+        if (data.success) {
+          renderTable(data.employees);
+          tableEl.style.display = 'table';
+        } else {
+          alert('فشل في جلب البيانات: ' + data.message);
+        }
+      })
+      .catch(err => {
+        loadingEl.style.display = 'none';
+        alert('حدث خطأ في الاتصال بالخادم.');
+      });
+    }
+
+    function renderTable(employees) {
+      const tbody = document.getElementById('emp-tbody');
+      tbody.innerHTML = '';
+
+      employees.forEach(emp => {
+        const isPending = emp.role === 'pending';
+        const roleBadge = isPending 
+          ? `<span class="badge badge-pending">معلق (Pending)</span>` 
+          : `<span class="badge badge-active">${emp.role}</span>`;
+
+        const actionBtn = isPending
+          ? `<button class="btn-approve" onclick="approveEmployee('${emp.id}', '${emp.requestedRole}')">موافقة وتفعيل (${emp.requestedRole})</button>`
+          : `<span style="color: var(--text-muted); font-size: 0.85rem;">مفعل مسبقاً</span>`;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${emp.id}</strong></td>
+          <td>${emp.firstName} ${emp.fatherName}</td>
+          <td>${emp.phone}</td>
+          <td>${emp.nationalId}</td>
+          <td>${roleBadge}</td>
+          <td>${emp.requestedRole}</td>
+          <td>${actionBtn}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function approveEmployee(employeeId, requestedRole) {
+      if (!confirm(`هل أنت متأكد من الموافقة على تفعيل الموظف (${employeeId}) بصلاحية (${requestedRole})؟`)) {
+        return;
+      }
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'updateRole',
+          employeeId: employeeId,
+          newRole: requestedRole
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert(data.message);
+          loadEmployees(); // إعادة تحميل الجدول لتحديث الحالة
+        } else {
+          alert('خطأ: ' + data.message);
+        }
+      })
+      .catch(() => alert('حدث خطأ أثناء الاتصال بالخادم.'));
+    }
+  </script>
+</body>
+</html>
