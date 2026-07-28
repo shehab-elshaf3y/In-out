@@ -529,10 +529,16 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          showStatus(data.message, 'success');
-          localStorage.setItem('userSession', JSON.stringify(data.employee));
           setTimeout(() => {
-            alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك الآن لمهامك.`);
+        const userRole = data.employee.role.trim();
+        
+        if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
+          window.location.href = './admin/';
+        } else {
+          alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك إلى مهامك (${userRole}).`);
+          // window.location.href = './dashboard.html'; // مكان صفحة الموظف لاحقاً
+        }
+      }, 1000);
           }, 1000);
         } else {
           showStatus(data.message, 'error');
