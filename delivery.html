@@ -302,7 +302,7 @@
 
     <script>
         // سحب اسم الموظف المخزن مسبقاً من الصفحة الرئيسية
-        const currentEmployee = localStorage.getItem('userName') ;
+        const currentEmployee = localStorage.getItem('userName') || '';
         document.getElementById('employeeWelcome').innerText = `مرحباً بك، ${currentEmployee} (مندوب توصيل وعمليات)`;
         document.getElementById('hiddenPersonName').value = currentEmployee;
 
