@@ -512,6 +512,7 @@
     }
 
     // 5. معالجة تسجيل الدخول
+    // 5. معالجة تسجيل الدخول
     function handleLogin(e) {
       e.preventDefault();
       showStatus('جاري التحقق من بيانات الدخول...', 'info');
@@ -529,22 +530,21 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-      showStatus(data.message, 'success');
-      localStorage.setItem('userSession', JSON.stringify(data.employee));
-      
-     setTimeout(() => {
-      const userRole = data.employee && data.employee.role ? String(data.employee.role).trim() : '';
-      
-      if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
-        window.location.href = './admin/';
-      } else {
-        alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك إلى مهامك (${userRole}).`);
-      }
-    }, 1000);
-      
-    } else {
-      showStatus(data.message, 'error');
-    }
+          showStatus(data.message, 'success');
+          localStorage.setItem('userSession', JSON.stringify(data.employee));
+          
+          setTimeout(() => {
+            const userRole = data.employee && data.employee.role ? String(data.employee.role).trim() : '';
+            
+            if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
+              window.location.href = './admin/';
+            } else {
+              alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك إلى مهامك (${userRole}).`);
+            }
+          }, 1000);
+          
+        } else {
+          showStatus(data.message, 'error');
         }
       })
       .catch(() => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
