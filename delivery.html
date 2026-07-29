@@ -394,25 +394,24 @@
             if (isProcessing) return;
             isProcessing = true;
 
-            const attendanceData = new URLSearchParams();
-            attendanceData.append('action', 'attendance');
-            attendanceData.append('personName', currentEmployee);
-            attendanceData.append('status', statusType);
+           const attendanceData = new FormData();
+attendanceData.append('action', 'attendance'); // أهم سطر كينقص السكريبت!
+attendanceData.append('personName', currentEmployee);
+attendanceData.append('status', statusType);
 
-            fetch(scriptURL, { method: 'POST', body: attendanceData })
-                .then(res => res.json())
-                .then(data => {
-                    alert(`✅ تم تسجيل (${statusType}) بنجاح يا ${currentEmployee}`);
-                })
-                .catch(err => {
-                    alert('⚠️ تم الإرسال، برجاء التأكد من الاتصال.');
-                })
-                .finally(() => {
-                    setTimeout(() => {
-                        isProcessing = false;
-                    }, 2000);
-                });
-        }
+fetch(scriptURL, { method: 'POST', body: attendanceData })
+  .then(res => res.json())
+  .then(data => {
+     alert(`تم تسجيل ${statusType} بنجاح يا ${currentEmployee}`);
+  })
+  .catch(err => {
+     alert('تم الإرسال، برجاء التأكد من الاتصال ⚠️');
+  })
+  .finally(() => {
+     setTimeout(() => {
+        isProcessing = false;
+     }, 2000);
+  });        }
 
         // إرسال تفاصيل الحركة والعمليات
         const form = document.getElementById('deliveryForm');
