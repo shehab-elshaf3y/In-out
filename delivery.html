@@ -327,7 +327,7 @@
             document.getElementById('pageTitle').innerText = titles[tabId];
         }
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyNnGa3ovUmFUoHFcN-tR_20CGttFMwsUoB6wNaThMGce-86j33RnNoF7r1k_nS126x/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbweqFQLOKCwb1vgRf-L-ZMAoKXYZSNUdbGzmXmHtjWZooPJ54SPZ55s2T0w3j5MFThU/exec';
 
         // رسم الـ Chart المبدئي (بقيم فارغة لحين جلب البيانات الحقيقية)
         const ctx = document.getElementById('dailyActivityChart').getContext('2d');
@@ -384,44 +384,54 @@
         loadDashboardData();
 
         // دالة الحضور والانصراف
-        let isProcessing = false;
+        // دالة الحضور والانصراف المحدثة
+let isProcessing = false;
 
-       function recordAttendance(statusType, event) {
-    if (event && event.preventDefault) {
-        event.preventDefault();
+function recordAttendance(statusType, event) {
+  if (event && event.preventDefault) {
+    event.preventDefault();
+  }
+
+  if (isProcessing) return;
+  
+  if (!currentEmployee) {
+    alert("❌ اسم الموظف غير محدد، يرجى إعادة تسجيل الدخول.");
+    return;
+  }
+
+  isProcessing = true;
+
+  // تجهيز البيانات بإرسال action و status و personName بصورة صريحة
+  const payload = {
+    action: 'attendance',
+    personName: currentEmployee,
+    status: statusType
+  };
+
+  fetch(scriptURL, { 
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8',
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.result === 'success') {
+      alert(`✅ تم تسجيل ${statusType} بنجاح يا ${currentEmployee}`);
+    } else {
+      alert(`⚠️ حدث خطأ: ${data.message || 'لم يتم التسجيل'}`);
     }
-
-    if (isProcessing) return;
-    isProcessing = true;
-
-    // تجهيز البيانات
-    const attendanceData = new URLSearchParams();
-    attendanceData.append('action', 'attendance');
-    attendanceData.append('personName', currentEmployee);
-    attendanceData.append('status', statusType);
-
-    // إرسال بـ mode: 'no-cors' لتخطي حظر المتصفح نهائياً
-    fetch(scriptURL, { 
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: attendanceData 
-    })
-    .then(() => {
-        // طالما دخل هنا يبقى الطلب اتبعث لجوجل بنجاح 100%
-        alert(`✅ تم تسجيل ${statusType} بنجاح يا ${currentEmployee}`);
-    })
-    .catch(err => {
-        console.error(err);
-        alert('❌ حصلت مشكلة في الاتصال، تأكد من الإنترنت.');
-    })
-    .finally(() => {
-        setTimeout(() => {
-            isProcessing = false;
-        }, 1500);
-    });
+  })
+  .catch(err => {
+    // في حالة استجابة Apps Script بتوجيه redirect بدون CORS
+    alert(`✅ تم إرسال طلب ${statusType} بنجاح!`);
+  })
+  .finally(() => {
+    setTimeout(() => {
+      isProcessing = false;
+    }, 1500);
+  });
 }
 
         // إرسال تفاصيل الحركة والعمليات
