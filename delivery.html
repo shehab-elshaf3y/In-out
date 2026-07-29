@@ -248,8 +248,9 @@
                 <div class="card-title">تسجيل الحضور والانصراف اليومي</div>
                 <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">سجل حالتك مباشرة بضغطة زر واحدة دون إعادة إدخال بيانات الدخول.</p>
                 <div class="btn-row">
-                    <button type="button" class="action-btn btn-in" onclick="recordAttendance('حضور')">تسجيل حضور 🟢</button>
-                    <button type="button" class="action-btn btn-out" onclick="recordAttendance('انصراف')">تسجيل انصراف 🔴</button>
+                    <!-- تمرير (event) مهم جداً -->
+<button type="button" onclick="recordAttendance('حضور', event)">تسجيل حضور</button>
+<button type="button" onclick="recordAttendance('انصراف', event)">تسجيل انصراف</button>
                 </div>
             </div>
         </div>
