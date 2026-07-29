@@ -327,7 +327,7 @@
             document.getElementById('pageTitle').innerText = titles[tabId];
         }
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxXuyQHEaKzFet1WNYt0NLaDszUvJnN2m1k8b5vtGDTH9bLENzPw_aj3-3RlNsKZjIM/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyJOvw8TACGsXTwtDFoFgUODvJDEMJm4nu69Cw3weTccr9rOZ2-cZo3ayGCvqWoalDJ/exec';
 
         // رسم الـ Chart المبدئي (بقيم فارغة لحين جلب البيانات الحقيقية)
         const ctx = document.getElementById('dailyActivityChart').getContext('2d');
@@ -422,7 +422,8 @@ fetch(scriptURL, { method: 'POST', body: attendanceData })
             submitBtn.disabled = true;
             submitBtn.innerText = '🔄 جاري فحص النزاع والحفظ...';
 
-            const formData = new URLSearchParams(new FormData(form));
+           const formData = new URLSearchParams(new FormData(form));
+                 formData.append('action', 'task'); // إضافة مُميّز نوع الحركة
 
             fetch(scriptURL, { method: 'POST', body: formData })
                 .then(response => response.json())
