@@ -318,7 +318,7 @@
 
             const titles = {
                 'dashboard': 'لوحة المؤشرات والرسوم البيانية',
-                'attendance': 'تسجيل الحضورر والانصراف',
+                'attendance': 'تسجيل الحضور والانصراف',
                 'tasks': 'تسجيل الحركة والعمليات'
             };
             document.getElementById('pageTitle').innerText = titles[tabId];
@@ -383,21 +383,39 @@
         loadDashboardData();
 
         // دالة الحضور والانصراف
-        function recordAttendance(statusType) {
-            const attendanceData = new URLSearchParams();
-            attendanceData.append('action', 'attendance');
-            attendanceData.append('personName', currentEmployee);
-            attendanceData.append('status', statusType);
+       // متغير خارج الدالة لمنع التكرار
+let isProcessing = false;
 
-            fetch(scriptURL, { method: 'POST', body: attendanceData })
-                .then(res => res.json())
-                .then(data => {
-                    alert(`✅ تم تسجيل (${statusType}) بنجاح يا ${currentEmployee}`);
-                })
-                .catch(err => {
-                    alert('⚠️ تم الإرسال، برجاء التأكد من الاتصال.');
-                });
-        }
+function recordAttendance(statusType, event) {
+    // 1. لو الزرار جوه Form يمنع الـ Submit التلقائي للمتصفح
+    if (event && event.preventDefault) {
+        event.preventDefault();
+    }
+
+    // 2. لو فيه طلب شغال حالياً، يوقف فوراً ولا يرسل مرة أخرى
+    if (isProcessing) return;
+    isProcessing = true;
+
+    const attendanceData = new URLSearchParams();
+    attendanceData.append('action', 'attendance');
+    attendanceData.append('personName', currentEmployee);
+    attendanceData.append('status', statusType);
+
+    fetch(scriptURL, { method: 'POST', body: attendanceData })
+        .then(res => res.json())
+        .then(data => {
+            alert(`✅ تم تسجيل (${statusType}) بنجاح يا ${currentEmployee}`);
+        })
+        .catch(err => {
+            alert('⚠️ تم الإرسال، برجاء التأكد من الاتصال.');
+        })
+        .finally(() => {
+            // يفتح الإمكانية للتسجيل مرة أخرى بعد ثانيتين
+            setTimeout(() => {
+                isProcessing = false;
+            }, 2000);
+        });
+}
 
         // إرسال تفاصيل الحركة والعمليات
         const form = document.getElementById('deliveryForm');
