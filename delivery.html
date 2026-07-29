@@ -171,7 +171,10 @@
             font-size: 15px;
             cursor: pointer;
             color: white;
-            transition: opacity 0.2s;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .action-btn:active {
+            transform: scale(0.98);
         }
         .btn-in { background: linear-gradient(135deg, #059669, #10b981); }
         .btn-out { background: linear-gradient(135deg, #dc2626, #ef4444); }
@@ -248,9 +251,8 @@
                 <div class="card-title">تسجيل الحضور والانصراف اليومي</div>
                 <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">سجل حالتك مباشرة بضغطة زر واحدة دون إعادة إدخال بيانات الدخول.</p>
                 <div class="btn-row">
-                    <!-- تمرير (event) مهم جداً -->
-<button type="button" onclick="recordAttendance('حضور', event)">تسجيل حضور</button>
-<button type="button" onclick="recordAttendance('انصراف', event)">تسجيل انصراف</button>
+                    <button type="button" class="action-btn btn-in" onclick="recordAttendance('حضور', event)">تسجيل حضور</button>
+                    <button type="button" class="action-btn btn-out" onclick="recordAttendance('انصراف', event)">تسجيل انصراف</button>
                 </div>
             </div>
         </div>
@@ -356,12 +358,10 @@
             fetch(`${scriptURL}?employee=${encodeURIComponent(currentEmployee)}`)
                 .then(res => res.json())
                 .then(data => {
-                    // تحديث إجمالي العمليات (العداد) للموظف فقط
                     if (data.totalOperations !== undefined) {
                         document.getElementById('totalTasksCount').innerText = data.totalOperations;
                     }
                     
-                    // تحديث بيانات الرسم البياني (Chart) بالأيام الحقيقية للموظف
                     if (data.chartData) {
                         const weeklyValues = [
                             data.chartData["السبت"] || 0,
@@ -384,39 +384,35 @@
         loadDashboardData();
 
         // دالة الحضور والانصراف
-       // متغير خارج الدالة لمنع التكرار
-let isProcessing = false;
+        let isProcessing = false;
 
-function recordAttendance(statusType, event) {
-    // 1. لو الزرار جوه Form يمنع الـ Submit التلقائي للمتصفح
-    if (event && event.preventDefault) {
-        event.preventDefault();
-    }
+        function recordAttendance(statusType, event) {
+            if (event && event.preventDefault) {
+                event.preventDefault();
+            }
 
-    // 2. لو فيه طلب شغال حالياً، يوقف فوراً ولا يرسل مرة أخرى
-    if (isProcessing) return;
-    isProcessing = true;
+            if (isProcessing) return;
+            isProcessing = true;
 
-    const attendanceData = new URLSearchParams();
-    attendanceData.append('action', 'attendance');
-    attendanceData.append('personName', currentEmployee);
-    attendanceData.append('status', statusType);
+            const attendanceData = new URLSearchParams();
+            attendanceData.append('action', 'attendance');
+            attendanceData.append('personName', currentEmployee);
+            attendanceData.append('status', statusType);
 
-    fetch(scriptURL, { method: 'POST', body: attendanceData })
-        .then(res => res.json())
-        .then(data => {
-            alert(`✅ تم تسجيل (${statusType}) بنجاح يا ${currentEmployee}`);
-        })
-        .catch(err => {
-            alert('⚠️ تم الإرسال، برجاء التأكد من الاتصال.');
-        })
-        .finally(() => {
-            // يفتح الإمكانية للتسجيل مرة أخرى بعد ثانيتين
-            setTimeout(() => {
-                isProcessing = false;
-            }, 2000);
-        });
-}
+            fetch(scriptURL, { method: 'POST', body: attendanceData })
+                .then(res => res.json())
+                .then(data => {
+                    alert(`✅ تم تسجيل (${statusType}) بنجاح يا ${currentEmployee}`);
+                })
+                .catch(err => {
+                    alert('⚠️ تم الإرسال، برجاء التأكد من الاتصال.');
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        isProcessing = false;
+                    }, 2000);
+                });
+        }
 
         // إرسال تفاصيل الحركة والعمليات
         const form = document.getElementById('deliveryForm');
@@ -436,7 +432,7 @@ function recordAttendance(statusType, event) {
                         alert('✅ تم حفظ الحركة بنجاح وتحديث الشيت!');
                         form.reset();
                         document.getElementById('hiddenPersonName').value = currentEmployee;
-                        loadDashboardData(); // تحديث العداد والـ Chart فوراً بعد إضافة عملية جديدة
+                        loadDashboardData();
                     } else if (data.result === 'dispute_detected') {
                         alert('⚠️ تنبيه: تم رصد تكرار ونزاع في الـ OP، وتم إرسال إشعار للإدارة!');
                     } else {
@@ -451,6 +447,6 @@ function recordAttendance(statusType, event) {
                     submitBtn.innerText = 'حفظ وإرسال الحركة للشيت';
                 });
         });
-</script>
+    </script>
 </body>
 </html>
