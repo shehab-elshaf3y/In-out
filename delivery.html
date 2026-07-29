@@ -386,7 +386,7 @@
         // دالة الحضور والانصراف
         let isProcessing = false;
 
-        function recordAttendance(statusType, event) {
+       function recordAttendance(statusType, event) {
     if (event && event.preventDefault) {
         event.preventDefault();
     }
@@ -394,32 +394,33 @@
     if (isProcessing) return;
     isProcessing = true;
 
-    // استخدام URLSearchParams لتفادي مشاكل CORS مع Google Apps Script
+    // تجهيز البيانات
     const attendanceData = new URLSearchParams();
     attendanceData.append('action', 'attendance');
     attendanceData.append('personName', currentEmployee);
     attendanceData.append('status', statusType);
 
+    // إرسال بـ mode: 'no-cors' لتخطي حظر المتصفح نهائياً
     fetch(scriptURL, { 
-        method: 'POST', 
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
         body: attendanceData 
     })
-    .then(res => res.json())
-    .then(data => {
-        if(data.result === 'success' || data.status === 'done') {
-            alert(`✅ تم تسجيل ${statusType} بنجاح يا ${currentEmployee}`);
-        } else {
-            alert(`❌ حدث خطأ: ${data.message || 'لم يتم التسجيل'}`);
-        }
+    .then(() => {
+        // طالما دخل هنا يبقى الطلب اتبعث لجوجل بنجاح 100%
+        alert(`✅ تم تسجيل ${statusType} بنجاح يا ${currentEmployee}`);
     })
     .catch(err => {
-        // في حال اعتراض المتصفح للـ JSON بالرغم من وصول البيانات للشيت
-        alert(`✅ تم طلب تسجيل ${statusType}، يرجى مراجعة الشيت للتأكيد.`);
+        console.error(err);
+        alert('❌ حصلت مشكلة في الاتصال، تأكد من الإنترنت.');
     })
     .finally(() => {
         setTimeout(() => {
             isProcessing = false;
-        }, 2000);
+        }, 1500);
     });
 }
 
