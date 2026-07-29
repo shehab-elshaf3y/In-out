@@ -249,7 +249,7 @@
         <div id="attendance" class="tab-content">
             <div class="card" style="max-width: 500px; margin: 0 auto;">
                 <div class="card-title">تسجيل الحضور والانصراف اليومي</div>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">سجل حالتك مباشرة بضغطة زر واحدة دون إعادة إدخال بيانات الدخول.</p>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">سجل حالتك مباشرة</p>
                 <div class="btn-row">
                     <button type="button" class="action-btn btn-in" onclick="recordAttendance('حضور', event)">تسجيل حضور</button>
                     <button type="button" class="action-btn btn-out" onclick="recordAttendance('انصراف', event)">تسجيل انصراف</button>
@@ -327,7 +327,7 @@
             document.getElementById('pageTitle').innerText = titles[tabId];
         }
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyJOvw8TACGsXTwtDFoFgUODvJDEMJm4nu69Cw3weTccr9rOZ2-cZo3ayGCvqWoalDJ/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyNnGa3ovUmFUoHFcN-tR_20CGttFMwsUoB6wNaThMGce-86j33RnNoF7r1k_nS126x/exec';
 
         // رسم الـ Chart المبدئي (بقيم فارغة لحين جلب البيانات الحقيقية)
         const ctx = document.getElementById('dailyActivityChart').getContext('2d');
