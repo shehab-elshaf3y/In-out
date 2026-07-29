@@ -387,31 +387,41 @@
         let isProcessing = false;
 
         function recordAttendance(statusType, event) {
-            if (event && event.preventDefault) {
-                event.preventDefault();
-            }
+    if (event && event.preventDefault) {
+        event.preventDefault();
+    }
 
-            if (isProcessing) return;
-            isProcessing = true;
+    if (isProcessing) return;
+    isProcessing = true;
 
-           const attendanceData = new FormData();
-attendanceData.append('action', 'attendance'); // أهم سطر كينقص السكريبت!
-attendanceData.append('personName', currentEmployee);
-attendanceData.append('status', statusType);
+    // استخدام URLSearchParams لتفادي مشاكل CORS مع Google Apps Script
+    const attendanceData = new URLSearchParams();
+    attendanceData.append('action', 'attendance');
+    attendanceData.append('personName', currentEmployee);
+    attendanceData.append('status', statusType);
 
-fetch(scriptURL, { method: 'POST', body: attendanceData })
-  .then(res => res.json())
-  .then(data => {
-     alert(`تم تسجيل ${statusType} بنجاح يا ${currentEmployee}`);
-  })
-  .catch(err => {
-     alert('تم الإرسال، برجاء التأكد من الاتصال ⚠️');
-  })
-  .finally(() => {
-     setTimeout(() => {
-        isProcessing = false;
-     }, 2000);
-  });        }
+    fetch(scriptURL, { 
+        method: 'POST', 
+        body: attendanceData 
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.result === 'success' || data.status === 'done') {
+            alert(`✅ تم تسجيل ${statusType} بنجاح يا ${currentEmployee}`);
+        } else {
+            alert(`❌ حدث خطأ: ${data.message || 'لم يتم التسجيل'}`);
+        }
+    })
+    .catch(err => {
+        // في حال اعتراض المتصفح للـ JSON بالرغم من وصول البيانات للشيت
+        alert(`✅ تم طلب تسجيل ${statusType}، يرجى مراجعة الشيت للتأكيد.`);
+    })
+    .finally(() => {
+        setTimeout(() => {
+            isProcessing = false;
+        }, 2000);
+    });
+}
 
         // إرسال تفاصيل الحركة والعمليات
         const form = document.getElementById('deliveryForm');
