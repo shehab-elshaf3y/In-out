@@ -438,9 +438,8 @@
 // دالة الحضور والانصراف المحدثة مع تقييد النطاق الجغرافي (Geofencing)
 // =========================================================================
 let isProcessing = false;
-
 // =========================================================================
-// دالة الحضور والانصراف المحدثة مع تقييد النطاق الجغرافي (Geofencing)
+// دالة الحضور والانصراف المحدثة لدعم (فروع متعددة) ونطاق 50 متر
 // =========================================================================
 let isProcessing = false;
 
@@ -456,7 +455,6 @@ function recordAttendance(statusType, event) {
     return;
   }
 
-  // التأكد من دعم المتصفح لتحديد الموقع
   if (!navigator.geolocation) {
       alert('⚠️ متصفحك لا يدعم خاصية تحديد الموقع الجغرافي!');
       return;
@@ -464,30 +462,48 @@ function recordAttendance(statusType, event) {
 
   isProcessing = true;
 
-  // جلب إحداثيات موقع الموظف الحالي
   navigator.geolocation.getCurrentPosition(
       function(position) {
           const userLat = position.coords.latitude;
           const userLng = position.coords.longitude;
-          const accuracy = position.coords.accuracy;
 
-          // 📍 إحداثيات مقر الشركة الأساسي (قم بتعديل هذه الأرقام بإحداثيات شركتك الحقيقية من خريطة جوجل)
-          const companyLat = 30.127790; 
-          const companyLng = 31.355616;
-          const allowedRadiusMeters = 150; // الحد الأقصى للمسافة المسموحة (بالمتر)
+          // 📍 قائمة الفروع المعتمدة (يمكنك إضافة أو تعديل إحداثيات فروعك هنا بكل سهولة)
+          const allowedLocations = [
+              { name: "فرع الشركة الرئيسي", lat: 30.127790, lng: 31.355616 },
+              // { name: "الفرع الثاني", lat: 30.056123, lng: 31.239456 }, <-- تقدر تضيف فروع تانية هنا بنفس الشكل
+          ];
 
-          // حساب المسافة بالأمتار
-          const distance = calculateDistance(userLat, userLng, companyLat, companyLng);
+          const allowedRadiusMeters = 50; // الحد الأقصى للمسافة المسموحة (50 متراً فقط)
+          let isWithinRange = false;
+          let nearestBranchName = "";
+          let shortestDistance = Infinity;
 
-          // 🛑 شرط الحظر إذا كان الموظف خارج النطاق
-          if (distance > allowedRadiusMeters) {
-              alert(`⚠️ عذراً، لا يمكنك تسجيل الحضور أو الانصراف وأنت خارج نطاق العمل!\n\nالمسافة بينك وبين الشركة: ${Math.round(distance)} متر.\n(الحد الأقصى المسموح: ${allowedRadiusMeters} متر)`);
-              isProcessing = false;
-              return; // إيقاف العملية تماماً
+          // حساب المسافة لكل فرع مسجل في القائمة
+          for (let i = 0; i < allowedLocations.length; i++) {
+              const branch = allowedLocations[i];
+              const distance = calculateDistance(userLat, userLng, branch.lat, branch.lng);
+              
+              if (distance < shortestDistance) {
+                  shortestDistance = distance;
+                  nearestBranchName = branch.name;
+              }
+
+              // لو الموظف في نطاق الـ 50 متر لأي فرع
+              if (distance <= allowedRadiusMeters) {
+                  isWithinRange = true;
+                  break;
+              }
           }
 
-          // لو في النطاق المسموح، يتم تجهيز البيانات وإرسالها مع إحداثيات الموقع
-          const locationString = `Lat: ${userLat}, Lng: ${userLng} (Distance: ${Math.round(distance)}m)`;
+          // 🛑 لو الموظف خارج نطاق الـ 50 متر لجميع الفروع
+          if (!isWithinRange) {
+              alert(`⚠️ عذراً، لا يمكنك تسجيل الحضور أو الانصراف وأنت خارج نطاق العمل!\n\nأقرب فرع لك (${nearestBranchName}) يبعد عنك مسافة: ${Math.round(shortestDistance)} متر.\n(الحد الأقصى المسموح: ${allowedRadiusMeters} متر)`);
+              isProcessing = false;
+              return; 
+          }
+
+          // لو داخل النطاق، إرسال البيانات مع اسم الفرع والمسافة
+          const locationString = `الموقع: ${nearestBranchName} (Lat: ${userLat}, Lng: ${userLng} - المسافة: ${Math.round(shortestDistance)}م)`;
 
           const payload = {
               action: 'attendance',
@@ -506,7 +522,7 @@ function recordAttendance(statusType, event) {
           .then(res => res.json())
           .then(data => {
               if (data.result === 'success') {
-                  alert(`✅ تم التحقق من موقعك وتسجيل ${statusType} بنجاح يا ${currentEmployee}`);
+                  alert(`✅ تم التحقق من وجودك في (${nearestBranchName}) وتسجيل ${statusType} بنجاح يا ${currentEmployee}`);
               } else {
                   alert(`⚠️ حدث خطأ: ${data.message || 'لم يتم التسجيل'}`);
               }
@@ -533,25 +549,9 @@ function recordAttendance(statusType, event) {
   );
 }
 
-// دالة مساعدة لحساب المسافة بين نقطتين جغرافيتين
+// دالة مساعدة لحساب المسافة بالأمتار بين نقطتين جغرافيتين (بدون تكرار)
 function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3; // نصف قطر الأرض بالأمتار
-    const φ1 = lat1 * Math.PI / 180;
-    const φ2 = lat2 * Math.PI / 180;
-    const Δφ = (lat2 - lat1) * Math.PI / 180;
-    const Δλ = (lon2 - lon1) * Math.PI / 180;
-
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-    return R * c; 
-}
-
-// دالة مساعدة لحساب المسافة بين نقطتين جغرافيتين
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3; // نصف قطر الأرض بالأمتار
+    const R = 6371e3; 
     const φ1 = lat1 * Math.PI / 180;
     const φ2 = lat2 * Math.PI / 180;
     const Δφ = (lat2 - lat1) * Math.PI / 180;
