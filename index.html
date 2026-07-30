@@ -65,6 +65,7 @@
     }
 
     /* 2. الحاوية الرئيسية (Main Glass Card) */
+    ./* 2. الحاوية الرئيسية (Main Glass Card) */
     .app-card {
       width: 92%;
       max-width: 1000px;
@@ -273,10 +274,29 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 850px) {
-      .app-card { flex-direction: column; min-height: auto; margin: 20px 0; }
-      .art-side { border-left: none; border-bottom: 1px solid var(--glass-border); padding: 30px; }
-      .avatar-preview-box { width: 140px; height: 140px; }
+   @media (max-width: 850px) {
+      body {
+        align-items: flex-start;
+        padding: 15px 10px;
+        overflow-y: auto;
+      }
+      .app-card { 
+        flex-direction: column; 
+        min-height: auto; 
+        width: 100%;
+        margin: 10px 0;
+        border-radius: 20px;
+      }
+      .art-side { 
+        border-left: none; 
+        border-bottom: 1px solid var(--glass-border); 
+        padding: 20px; 
+      }
+      .form-side {
+        padding: 25px 20px;
+      }
+      .avatar-preview-box { width: 110px; height: 110px; margin-bottom: 10px; }
+      .grid-2 { grid-template-columns: 1fr; gap: 0; } /* تحويل الحقول المزدوجة لعمود واحد على الفون لكي لا تضيق مساحة الكتابة */
     }
   </style>
 </head>
