@@ -346,13 +346,19 @@
     </div>
 
     <script>
-        // سحب اسم الموظف المخزن مسبقاً من الصفحة الرئيسية
+        // 🛡️ طبقة حماية صفحة المندوب والعمليات: التأكد من تسجيل الدخول
         const sessionData = JSON.parse(localStorage.getItem('userSession') || '{}');
         const currentEmployee = sessionData.name || localStorage.getItem('userName') || '';
-        
-        document.getElementById('employeeWelcome').innerText = `مرحباً بك، ${currentEmployee} (مندوب توصيل وعمليات)`;
-        document.getElementById('hiddenPersonName').value = currentEmployee;
+        const userRole = sessionData.role ? String(sessionData.role).trim() : '';
 
+        // لو المستخدم مش عامل تسجيل دخول أو مفيش اسم مسجل، يتم طرده فوراً لصفحة الدخول
+        if (!currentEmployee) {
+            alert('⚠️ يجب تسجيل الدخول أولاً للوصول إلى هذه اللوحة!');
+            window.location.href = './index.html';
+        }
+
+        document.getElementById('employeeWelcome').innerText = `مرحباً بك، ${currentEmployee} (${userRole || 'مندوب توصيل وعمليات'})`;
+        document.getElementById('hiddenPersonName').value = currentEmployee;
         // التنقل بين الـ Tabs
         function switchTab(tabId, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
