@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vita Shop | لوحة تحكم الـ CEO</title>
+  <style>
+    :root {
+      --bg-dark: #040d0a;
+      --panel-bg: rgba(12, 31, 24, 0.85);
+      --emerald-primary: #10b981;
+      --emerald-glow: #059669;
+      --emerald-dark: #022c22;
+      --text-main: #ecfdf5;
+      --text-muted: #6ee7b7;
+      --glass-border: rgba(16, 185, 129, 0.2);
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; }
+    
+    body {
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.12) 0px, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* قسم الـ Hero المستوحى من التصميم الاحترافي */
+    .hero-section {
+      position: relative;
+      background: linear-gradient(180deg, rgba(2, 44, 34, 0.8) 0%, rgba(4, 13, 10, 0.95) 100%), url('ceo-hero-bg.jpg');
+      background-size: cover;
+      background-position: center;
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 30px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      overflow: hidden;
+    }
+
+    .hero-content h1 {
+      font-size: 2rem;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+    .hero-content h1 span {
+      color: var(--emerald-primary);
+    }
+    .hero-content p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 15px;
+    }
+
+    .btn-custom {
+      background: linear-gradient(135deg, var(--emerald-primary), var(--emerald-glow));
+      border: none;
+      color: #022c22;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+    }
+    .btn-secondary:hover {
+      background: rgba(16, 185, 129, 0.1);
+      color: #fff;
+    }
+
+    /* بطاقات الإحصائيات السريعة */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 20px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .stat-card h4 {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+    .stat-card .number {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--emerald-primary);
+    }
+
+    /* جدول العمليات */
+    .card {
+      background: var(--panel-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 25px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      text-align: right;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--glass-border);
+      font-size: 0.9rem;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+      background: rgba(4, 20, 15, 0.4);
+    }
+
+    tr:hover { background: rgba(16, 185, 129, 0.05); }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    /* التجاوب مع الهواتف */
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      .hero-section { padding: 20px; text-align: center; justify-content: center; }
+      .hero-actions { width: 100%; justify-content: center; }
+      
+      #ops-table { display: block; width: 100%; }
+      #ops-table thead { display: none; }
+      #ops-table tbody, #ops-table tr, #ops-table td { display: block; width: 100%; text-align: right; }
+      #ops-table tr {
+        background: rgba(4, 20, 15, 0.6);
+        border: 1px solid var(--glass-border);
+        border-radius: 14px;
+        margin-bottom: 15px;
+        padding: 15px;
+      }
+      #ops-table td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 8px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+      }
+      #ops-table td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-left: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- قسم الـ Hero الاحترافي -->
+    <div class="hero-section">
+      <div class="hero-content">
+        <h1>لوحة تحكم الـ <span>CEO</span></h1>
+        <p>متابعة لحظية لعمليات المناديب وحركات المستشفيات وأداء الفريق بكفاءة عالية.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn-custom" onclick="loadOperations()">🔄 تحديث البيانات</button>
+        <button class="btn-custom btn-secondary" onclick="logout()">تسجيل الخروج</button>
+      </div>
+    </div>
+
+    <!-- إحصائيات سريعة -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h4>إجمالي العمليات المسجلة</h4>
+        <div class="number" id="total-ops">--</div>
+      </div>
+      <div class="stat-card">
+        <h4>حالة النظام</h4>
+        <div class="number" style="font-size: 1.2rem; margin-top: 5px; color: #34d399;">🟢 متصل بالسحابة</div>
+      </div>
+    </div>
+
+    <!-- جدول عرض العمليات -->
+    <div class="card">
+      <h3 style="margin-bottom: 10px; color: var(--emerald-primary);">📋 سجل عمليات المناديب والتحركات</h3>
+      <div id="loading-msg" class="loading">جاري جلب عمليات المناديب من الشيت السحابي...</div>
+      
+      <div style="overflow-x: auto;">
+        <table id="ops-table" style="display: none;">
+          <thead>
+            <tr>
+              <th>المندوب</th>
+              <th>التاريخ</th>
+              <th>المستشفى</th>
+              <th>نوع الحالة</th>
+              <th>رقم العملية (OP)</th>
+              <th>المهمة</th>
+            </tr>
+          </thead>
+          <tbody id="ops-tbody">
+            <!-- يتم تعبئتها برمجياً من Google Apps Script -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // 🛡️ طبقة حماية الـ CEO: التحقق من الصلاحية قبل عرض الصفحة
+    const sessionData = JSON.parse(localStorage.getItem('userSession') || '{}');
+    const userRole = sessionData.role ? String(sessionData.role).trim() : '';
+    
+    if (userRole !== 'CEO' && userRole !== 'آدمن' && userRole !== 'Admin') {
+      alert('⚠️ غير مسموح لك بالدخول، هذه الصفحة مخصصة للـ CEO فقط!');
+      window.location.href = './index.html';
+    }
+
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHVYlZvGLCPAF50V9sSLUIbYsVtHc4ebPru75ahFlMz0o_nCPxA_zqRLqnLCJMYjs/exec";
+
+    window.addEventListener('load', loadOperations);
+
+    function loadOperations() {
+      const loadingEl = document.getElementById('loading-msg');
+      const tableEl = document.getElementById('ops-table');
+      
+      loadingEl.style.display = 'block';
+      tableEl.style.display = 'none';
+
+      // جلب العمليات (يمكن تعديل الـ action حسب وظيفة الأب بيس في الـ Apps Script لجلب العمليات)
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'getOperations' }) // تأكد من دعم الـ Apps Script لهذه الأكشن أو جلب بيانات السجل
+      })
+      .then(res => res.json())
+      .then(data => {
+        loadingEl.style.display = 'none';
+        if (data.success || data.operations) {
+          const ops = data.operations || [];
+          document.getElementById('total-ops').innerText = ops.length;
+          renderTable(ops);
+          tableEl.style.display = 'table';
+        } else {
+          // محاولة بديلة أو عرض رسالة لو البيانات فارغة
+          loadingEl.style.display = 'block';
+          loadingEl.innerText = data.message || 'لا توجد عمليات مسجلة حالياً أو لم يتم تفعيل دالة الـ getOperations في السكريبت بعد.';
+        }
+      })
+      .catch(err => {
+        loadingEl.style.display = 'none';
+        alert('حدث خطأ في الاتصال بالخادم السحابي.');
+      });
+    }
+
+    function renderTable(operations) {
+      const tbody = document.getElementById('ops-tbody');
+      tbody.innerHTML = '';
+
+      if (operations.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">لا توجد حركات مسجلة</td></tr>`;
+        return;
+      }
+
+      operations.forEach(op => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td data-label="المندوب"><strong>${op.personName || '--'}</strong></td>
+          <td data-label="التاريخ">${op.exitDate || '--'}</td>
+          <td data-label="المستشفى">${op.hospitalName || '--'}</td>
+          <td data-label="نوع الحالة">${op.caseType || '--'}</td>
+          <td data-label="رقم العملية (OP)">${op.opNumber || '--'}</td>
+          <td data-label="المهمة">${op.stockPrep || '--'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem('userSession');
+      window.location.href = './index.html';
+    }
+  </script>
+</body>
+</html>
