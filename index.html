@@ -562,6 +562,10 @@
             else if (userRole === 'مندوب توصيل' || userRole === 'مندوب' || userRole === 'Delivery') {
               window.location.href = './delivery.html';
             }
+              // إضافة التوجيه المباشر لصلاحية الـ CEO
+  else if (userRole === 'CEO') {
+    window.location.href = './ceo.html';
+  }
             else {
               alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك إلى مهامك (${userRole}).`);
             }
