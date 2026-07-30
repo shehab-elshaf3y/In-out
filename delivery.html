@@ -376,7 +376,7 @@
             document.getElementById('pageTitle').innerText = titles[tabId];
         }
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbweqFQLOKCwb1vgRf-L-ZMAoKXYZSNUdbGzmXmHtjWZooPJ54SPZ55s2T0w3j5MFThU/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyDOEPARHLA1_oI1a_V82B4hGhu0K7NMWS6TRIdqS1Bhh0w23TO8AWoV5-ki4Xk-269/exec';
 
         // رسم الـ Chart المبدئي (بقيم فارغة لحين جلب البيانات الحقيقية)
         const ctx = document.getElementById('dailyActivityChart').getContext('2d');
@@ -434,6 +434,14 @@
 
         // دالة الحضور والانصراف
         // دالة الحضور والانصراف المحدثة
+// =========================================================================
+// دالة الحضور والانصراف المحدثة مع تقييد النطاق الجغرافي (Geofencing)
+// =========================================================================
+let isProcessing = false;
+
+// =========================================================================
+// دالة الحضور والانصراف المحدثة مع تقييد النطاق الجغرافي (Geofencing)
+// =========================================================================
 let isProcessing = false;
 
 function recordAttendance(statusType, event) {
@@ -448,41 +456,114 @@ function recordAttendance(statusType, event) {
     return;
   }
 
+  // التأكد من دعم المتصفح لتحديد الموقع
+  if (!navigator.geolocation) {
+      alert('⚠️ متصفحك لا يدعم خاصية تحديد الموقع الجغرافي!');
+      return;
+  }
+
   isProcessing = true;
 
-  // تجهيز البيانات بإرسال action و status و personName بصورة صريحة
-  const payload = {
-    action: 'attendance',
-    personName: currentEmployee,
-    status: statusType
-  };
+  // جلب إحداثيات موقع الموظف الحالي
+  navigator.geolocation.getCurrentPosition(
+      function(position) {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          const accuracy = position.coords.accuracy;
 
-  fetch(scriptURL, { 
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain;charset=utf-8',
-    },
-    body: JSON.stringify(payload)
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.result === 'success') {
-      alert(`✅ تم تسجيل ${statusType} بنجاح يا ${currentEmployee}`);
-    } else {
-      alert(`⚠️ حدث خطأ: ${data.message || 'لم يتم التسجيل'}`);
-    }
-  })
-  .catch(err => {
-    // في حالة استجابة Apps Script بتوجيه redirect بدون CORS
-    alert(`✅ تم إرسال طلب ${statusType} بنجاح!`);
-  })
-  .finally(() => {
-    setTimeout(() => {
-      isProcessing = false;
-    }, 1500);
-  });
+          // 📍 إحداثيات مقر الشركة الأساسي (قم بتعديل هذه الأرقام بإحداثيات شركتك الحقيقية من خريطة جوجل)
+          const companyLat = 30.127790; 
+          const companyLng = 31.355616;
+          const allowedRadiusMeters = 150; // الحد الأقصى للمسافة المسموحة (بالمتر)
+
+          // حساب المسافة بالأمتار
+          const distance = calculateDistance(userLat, userLng, companyLat, companyLng);
+
+          // 🛑 شرط الحظر إذا كان الموظف خارج النطاق
+          if (distance > allowedRadiusMeters) {
+              alert(`⚠️ عذراً، لا يمكنك تسجيل الحضور أو الانصراف وأنت خارج نطاق العمل!\n\nالمسافة بينك وبين الشركة: ${Math.round(distance)} متر.\n(الحد الأقصى المسموح: ${allowedRadiusMeters} متر)`);
+              isProcessing = false;
+              return; // إيقاف العملية تماماً
+          }
+
+          // لو في النطاق المسموح، يتم تجهيز البيانات وإرسالها مع إحداثيات الموقع
+          const locationString = `Lat: ${userLat}, Lng: ${userLng} (Distance: ${Math.round(distance)}m)`;
+
+          const payload = {
+              action: 'attendance',
+              personName: currentEmployee,
+              status: statusType,
+              locationCoordinates: locationString
+          };
+
+          fetch(scriptURL, { 
+              method: 'POST',
+              headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+              },
+              body: JSON.stringify(payload)
+          })
+          .then(res => res.json())
+          .then(data => {
+              if (data.result === 'success') {
+                  alert(`✅ تم التحقق من موقعك وتسجيل ${statusType} بنجاح يا ${currentEmployee}`);
+              } else {
+                  alert(`⚠️ حدث خطأ: ${data.message || 'لم يتم التسجيل'}`);
+              }
+          })
+          .catch(err => {
+              alert(`✅ تم إرسال طلب ${statusType} وموقعك الجغرافي بنجاح!`);
+          })
+          .finally(() => {
+              setTimeout(() => {
+                  isProcessing = false;
+              }, 1500);
+          });
+
+      },
+      function(error) {
+          alert('⚠️ لم نتمكن من تحديد موقعك. يجب تفعيل الـ GPS والسماح للمتصفح بالوصول لموقعك لتسجيل الحضور!');
+          isProcessing = false;
+      },
+      {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+      }
+  );
 }
 
+// دالة مساعدة لحساب المسافة بين نقطتين جغرافيتين
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // نصف قطر الأرض بالأمتار
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c; 
+}
+
+// دالة مساعدة لحساب المسافة بين نقطتين جغرافيتين
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // نصف قطر الأرض بالأمتار
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c; 
+}
         // إرسال تفاصيل الحركة والعمليات
         const form = document.getElementById('deliveryForm');
         const submitBtn = document.getElementById('submitBtn');
