@@ -206,12 +206,21 @@
     </div>
   </div>
 
-  <script>
+ <script>
+    // 🛡️ طبقة حماية الآدمن: التحقق من الصلاحية قبل السماح بعرض الصفحة
+    const sessionData = JSON.parse(localStorage.getItem('userSession') || '{}');
+    const userRole = sessionData.role ? String(sessionData.role).trim() : '';
+    
+    // لو مش مسجل دخول أو دوره مش آدمن، يتم طرده فوراً لصفحة الدخول الرئيسية
+    if (userRole !== 'آدمن' && userRole !== 'Admin' && userRole !== 'مشرف') {
+      alert('⚠️ غير مسموح لك بالدخول، هذه الصفحة خاصة بالآدمن فقط!');
+      window.location.href = './index.html';
+    }
+
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHVYlZvGLCPAF50V9sSLUIbYsVtHc4ebPru75ahFlMz0o_nCPxA_zqRLqnLCJMYjs/exec";
 
     // جلب الموظفين عند تحميل الصفحة
     window.addEventListener('load', loadEmployees);
-
     function loadEmployees() {
       const loadingEl = document.getElementById('loading-msg');
       const tableEl = document.getElementById('emp-table');
