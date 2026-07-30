@@ -108,6 +108,69 @@
       color: var(--text-muted);
       font-size: 1.1rem;
     }
+    /* تعديلات التجاوب للشاشات الصغيرة والهواتف */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        padding: 15px;
+      }
+      h1 {
+        font-size: 1.2rem;
+      }
+      .card {
+        padding: 15px;
+      }
+      /* إخفاء الجدول التقليدي في الهواتف وتحويله لتصميم بطاقات منفصلة لكل موظف لسهولة الاستخدام */
+      #emp-table {
+        display: block;
+        width: 100%;
+      }
+      #emp-table thead {
+        display: none; /* إخفاء رأس الجدول على الموبايل */
+      }
+      #emp-table tbody, #emp-table tr, #emp-table td {
+        display: block;
+        width: 100%;
+        text-align: right;
+      }
+      #emp-table tr {
+        background: rgba(4, 20, 15, 0.6);
+        border: 1px solid var(--glass-border);
+        border-radius: 14px;
+        margin-bottom: 15px;
+        padding: 15px;
+      }
+      #emp-table td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 8px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+      }
+      #emp-table td:last-child {
+        border-bottom: none;
+        padding-top: 12px;
+        justify-content: center;
+      }
+      /* إضافة عناوين توضيحية بجانب البيانات داخل البطاقة على الموبايل */
+      #emp-table td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-left: 10px;
+      }
+      .btn-approve {
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+      }
+    }
   </style>
 </head>
 <body>
