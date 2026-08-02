@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة المشرف - Supervisor Dashboard</title>
+
+    <!-- 1. Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 500: '#10b981', 400: '#34d399' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 2. React + ReactDOM + Babel CDNs -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 3. Framer Motion CDN -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans transition-colors duration-300" id="body-root">
+
+    <div id="root"></div>
+
+    <!-- كود React برابط مباشر -->
+    <script type="text/babel">
+        const { useState } = React;
+        const { motion } = window.Motion;
+
+        const SCRIPT_URL = "ضع_رابط_الـWeb_App_الخاص_بـAppScript_هنا";
+
+        function SupervisorDashboard() {
+            const [darkMode, setDarkMode] = useState(true);
+            const [selectedCourier, setSelectedCourier] = useState(null);
+            const [loading, setLoading] = useState(false);
+
+            const [formData, setFormData] = useState({
+                hospitalName: '',
+                caseType: 'HIP & KNEE',
+                bagContents: ''
+            });
+
+            const couriers = [
+                { id: '1', name: 'شهاب سلامة', status: 'AVAILABLE', avatar: 'https://i.pravatar.cc/150?img=11' },
+                { id: '2', name: 'أحمد علي', status: 'ON_THE_WAY', avatar: 'https://i.pravatar.cc/150?img=12' },
+                { id: '3', name: 'محمود حسن', status: 'AVAILABLE', avatar: 'https://i.pravatar.cc/150?img=33' },
+            ];
+
+            const toggleTheme = () => {
+                setDarkMode(!darkMode);
+                document.body.className = !darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-800';
+            };
+
+            const handleAssign = async (e) => {
+                e.preventDefault();
+                if (!selectedCourier) return alert('اختر المندوب أولاً');
+                setLoading(true);
+
+                const payload = {
+                    action: 'assign_task',
+                    courierName: selectedCourier.name,
+                    hospitalName: formData.hospitalName,
+                    caseType: formData.caseType,
+                    bagContents: formData.bagContents
+                };
+
+                try {
+                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    alert(`✅ تم إسناد المهمة للمندوب ${selectedCourier.name} بنجاح!`);
+                    setSelectedCourier(null);
+                    setFormData({ hospitalName: '', caseType: 'HIP & KNEE', bagContents: '' });
+                } catch (err) {
+                    alert('❌ حدث خطأ في التواصل مع Google Sheets');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen p-6 max-w-7xl mx-auto">
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-8">
+                        <div>
+                            <h1 className="text-2xl font-bold text-emerald-400 flex items-center gap-2">
+                                🚚 لوحة المشرف (NOC Overview)
+                            </h1>
+                            <p className="text-sm opacity-60">نظرة عامة على حالة المناديب وتعيين العمليات</p>
+                        </div>
+                        <button onClick={toggleTheme} className="px-4 py-2 rounded-xl border border-slate-700 bg-slate-900 text-sm">
+                            {darkMode ? '☀️ المظهر المضيء' : '🌙 المظهر الليلي'}
+                        </button>
+                    </div>
+
+                    {/* Content Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Couriers List */}
+                        <div className="lg:col-span-2 space-y-4">
+                            <h2 className="text-lg font-semibold">المناديب النشطين</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {couriers.map(c => (
+                                    <div 
+                                        key={c.id} 
+                                        onClick={() => setSelectedCourier(c)}
+                                        className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+                                            selectedCourier?.id === c.id 
+                                                ? 'border-emerald-500 bg-emerald-500/10' 
+                                                : darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <img src={c.avatar} className="w-12 h-12 rounded-full border border-emerald-500" />
+                                            <div>
+                                                <h3 className="font-bold">{c.name}</h3>
+                                                <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                                    {c.status === 'AVAILABLE' ? 'متاح للاستلام' : 'في مهمة'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Assign Form */}
+                        <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            <h2 className="text-lg font-semibold mb-4">إسناد مهمة جديدة</h2>
+                            {selectedCourier ? (
+                                <form onSubmit={handleAssign} className="space-y-4">
+                                    <div className="p-3 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-xl text-sm font-bold">
+                                        المندوب المحدد: {selectedCourier.name}
+                                    </div>
+                                    <input 
+                                        required 
+                                        type="text" 
+                                        placeholder="اسم المستشفى" 
+                                        value={formData.hospitalName}
+                                        onChange={e => setFormData({...formData, hospitalName: e.target.value})}
+                                        className={`w-full p-3 rounded-xl border text-sm outline-none ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}
+                                    />
+                                    <input 
+                                        required 
+                                        type="text" 
+                                        placeholder="نوع العملية (مثال: HIP / KNEE)" 
+                                        value={formData.caseType}
+                                        onChange={e => setFormData({...formData, caseType: e.target.value})}
+                                        className={`w-full p-3 rounded-xl border text-sm outline-none ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}
+                                    />
+                                    <textarea 
+                                        required 
+                                        placeholder="محتويات الشنطة والآلات" 
+                                        value={formData.bagContents}
+                                        onChange={e => setFormData({...formData, bagContents: e.target.value})}
+                                        className={`w-full p-3 rounded-xl border text-sm outline-none ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}
+                                    ></textarea>
+                                    <button 
+                                        disabled={loading}
+                                        className="w-full py-3 bg-emerald-500 text-slate-950 font-bold rounded-xl hover:bg-emerald-400"
+                                    >
+                                        {loading ? 'جاري الإرسال...' : 'إرسال المهمة الآن 🚀'}
+                                    </button>
+                                </form>
+                            ) : (
+                                <p className="text-center opacity-50 py-8 text-sm">حدد مندوب من القائمة للبدء</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SupervisorDashboard />);
+    </script>
+</body>
+</html>
