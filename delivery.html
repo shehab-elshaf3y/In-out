@@ -239,6 +239,7 @@
         <button class="nav-icon active" onclick="switchTab('dashboard', this)" title="لوحة المؤشرات والرسوم البيانية">📊</button>
         <button class="nav-icon" onclick="switchTab('attendance', this)" title="تسجيل الحضور والانصراف">⏰</button>
         <button class="nav-icon" onclick="switchTab('tasks', this)" title="تسجيل الحركة والعمليات">📝</button>
+        <button class="nav-icon" onclick="switchTab('hospitalArrival', this)" title="تأكيد الوصول للمستشفى">🏥</button>
     </div>
 
     <div class="main-container">
@@ -273,6 +274,36 @@
                 </div>
             </div>
         </div>
+        <div id="hospitalArrival" class="tab-content">
+    <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-title">تأكيد وصول الأجهزة للمستشفى</div>
+        <form id="hospitalArrivalForm">
+            <div class="form-group">
+                <label>اسم المستشفى</label>
+                <input type="text" name="hospitalName" placeholder="أدخل اسم المستشفى" required>
+            </div>
+            <div class="form-group">
+                <label>رقم العملية (OP)</label>
+                <input type="text" name="opNumber" placeholder="أدخل رقم الـ OP" required>
+            </div>
+            <div class="form-group">
+                <label>اختر مندوب المبيعات (Sales Man) المستلم</label>
+                <select name="salesMan" required>
+                    <option value="">اختر مندوب المبيعات</option>
+                    <option value="أحمد محمد">أحمد محمد</option>
+                    <option value="محمود علي">محمود علي</option>
+                    <option value="إبراهيم حسن">إبراهيم حسن</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>صورة تأكيد الوصول (تسليم الأجهزة)</label>
+                <input type="file" name="arrivalPhoto" accept="image/*" capture="environment" required>
+            </div>
+            <input type="hidden" name="deliveryMan" id="arrivalPersonName">
+            <button type="submit" class="submit-btn" id="arrivalSubmitBtn">تأكيد الإرسال وإشعار مسئول المبيعات</button>
+        </form>
+    </div>
+</div>
 
         <div id="attendance" class="tab-content">
             <div class="card" style="max-width: 500px; margin: 0 auto;">
@@ -358,7 +389,7 @@
             document.getElementById('pageTitle').innerText = titles[tabId];
         }
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbwHvFqlCzlMRHo164h5Itke_pzSMvbhoZDrayvC93Qzhnwauj18ziWMV5fLXenOROhL/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwtMhl2KDAiCvU8ioClPq_eMp0f9GIpP-DyMRYNo3LLum1fnCMzDkr2cbCEE0iM8F-5/exec';
 
         const ctx = document.getElementById('dailyActivityChart').getContext('2d');
         let dailyChart = new Chart(ctx, {
@@ -542,6 +573,88 @@
                     submitBtn.innerText = 'حفظ وإرسال الحركة للشيت';
                 });
         });
+        // تعيين اسم مندوب التوصيل تلقائياً في نموذج المستشفى
+document.addEventListener('DOMContentLoaded', () => {
+    const arrivalNameInput = document.getElementById('arrivalPersonName');
+    if (arrivalNameInput && currentEmployee) {
+        arrivalNameInput.value = currentEmployee;
+    }
+});
+
+// تحديث تبويب العنوان في الهيدر عند التبديل
+const originalSwitchTab = window.switchTab;
+window.switchTab = function(tabId, element) {
+    if (originalSwitchTab) originalSwitchTab(tabId, element);
+    const titles = {
+        'dashboard': 'لوحة المؤشرات والرسوم البيانية',
+        'attendance': 'تسجيل الحضور والانصراف',
+        'tasks': 'تسجيل الحركة والعمليات',
+        'hospitalArrival': 'تأكيد وصول الأجهزة للمستشفى'
+    };
+    if (titles[tabId]) {
+        document.getElementById('pageTitle').innerText = titles[tabId];
+    }
+};
+
+// معالجة نموذج الوصول للمستشفى
+const arrivalForm = document.getElementById('hospitalArrivalForm');
+if (arrivalForm) {
+    arrivalForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('arrivalSubmitBtn');
+        btn.disabled = true;
+        btn.innerText = '🔄 جاري رفع الصورة وإرسال الإشعار...';
+
+        const fileInput = arrivalForm.querySelector('input[name="arrivalPhoto"]');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('⚠️ يجب إرفاق صورة التأكيد!');
+            btn.disabled = false;
+            btn.innerText = 'تأكيد الإرسال وإشعار مسئول المبيعات';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+            const base64Data = reader.result.split(',')[1];
+            const payload = {
+                action: 'hospital_arrival',
+                hospitalName: arrivalForm.querySelector('input[name="hospitalName"]').value,
+                opNumber: arrivalForm.querySelector('input[name="opNumber"]').value,
+                salesMan: arrivalForm.querySelector('select[name="salesMan"]').value,
+                deliveryMan: currentEmployee,
+                photoData: base64Data,
+                fileName: file.name,
+                mimeType: file.type
+            };
+
+            fetch(scriptURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    alert('✅ تم تأكيد الوصول بنجاح وإرسال الإشعار لمندوب المبيعات!');
+                    arrivalForm.reset();
+                    document.getElementById('arrivalPersonName').value = currentEmployee;
+                } else {
+                    alert(`❌ حدث خطأ: ${data.message || 'لم يتم الحفظ'}`);
+                }
+                btn.disabled = false;
+                btn.innerText = 'تأكيد الإرسال وإشعار مسئول المبيعات';
+            })
+            .catch(err => {
+                alert('❌ حدث خطأ في الاتصال بالخادم.');
+                btn.disabled = false;
+                btn.innerText = 'تأكيد الإرسال وإشعار مسئول المبيعات';
+            });
+        };
+    });
+}
     </script>
 </body>
 </html>
