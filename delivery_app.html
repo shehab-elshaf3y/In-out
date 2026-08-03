@@ -325,7 +325,7 @@
         function loadCourierData() {
             document.getElementById('courierNameDisplay').innerText = currentCourierName;
 
-            if (COURIER_SCRIPT_URL === "ضع_رابط_المندوب_هنا") return;
+            if (COURIER_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbwjD-kBkO7uzp8aOVEKP2_Ox8rHjV7SzUvg2p3f7NdP_vrjEtruOkPKLNh-RIa7qc8/exec") return;
 
             fetch(`${COURIER_SCRIPT_URL}?courier=${encodeURIComponent(currentCourierName)}`)
                 .then(res => res.json())
