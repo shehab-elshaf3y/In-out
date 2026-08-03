@@ -1,0 +1,479 @@
+<!-- السطر 1: بداية ملف delivery_app.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تطبيق المندوب - Vita Shop Mobile</title>
+    <style>
+        :root[data-theme="dark"] {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+            --accent-green: #238636;
+            --accent-red: #da3633;
+            --accent-blue: #2f81f7;
+            --chip-bg: #21262d;
+            --slider-bg: #21262d;
+        }
+
+        :root[data-theme="light"] {
+            --bg-color: #f6f8fa;
+            --card-bg: #ffffff;
+            --card-border: rgba(0, 0, 0, 0.1);
+            --text-main: #1f2328;
+            --text-muted: #656d76;
+            --accent-green: #2da44e;
+            --accent-red: #cf222e;
+            --accent-blue: #0969da;
+            --chip-bg: #eaeef2;
+            --slider-bg: #e1e4e8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            max-width: 480px;
+            margin: 0 auto;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* الترويسة العلوية مستوحاة من صورة UX.jpg */
+        .app-header {
+            padding: 15px 20px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-badge { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .user-details h3 { font-size: 15px; font-weight: 700; }
+        .user-details p { font-size: 12px; color: var(--text-muted); }
+
+        .theme-toggle {
+            background: var(--chip-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* التبويبات والمحتوى الرئيسي */
+        .view-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: none;
+        }
+        .view-container.active { display: block; }
+
+        /* شريحة الفلاتر (payed, custody, settlement - UX.jpg) */
+        .filter-chips {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--chip-bg);
+            color: var(--text-muted);
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+        }
+        .chip.active-payed { background: rgba(218, 54, 51, 0.2); color: var(--accent-red); border-color: var(--accent-red); }
+        .chip.active-custody { background: rgba(45, 164, 78, 0.2); color: var(--accent-green); border-color: var(--accent-green); }
+        .chip.active-settlement { background: rgba(47, 129, 247, 0.2); color: var(--accent-blue); border-color: var(--accent-blue); }
+
+        /* كروت العمليات (OP Cards) */
+        .op-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .op-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .op-number { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+        .status-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+        .badge-pickup { background: rgba(218, 54, 51, 0.2); color: var(--accent-red); }
+        .badge-transit { background: rgba(45, 164, 78, 0.2); color: var(--accent-green); }
+
+        /* اختيار وسيلة التوصيل (Metro / Uber) */
+        .transport-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .transport-img { width: 100%; max-height: 120px; object-fit: contain; margin-bottom: 10px; }
+
+        .transport-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .btn-option {
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: var(--chip-bg);
+            color: var(--text-main);
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-option.selected { border-color: var(--accent-green); background: rgba(45, 164, 78, 0.15); }
+
+        /* زر السحب لتأكيد التسليم (Slide to confirm - UX.jpg) */
+        .slider-container {
+            position: relative;
+            background: var(--slider-bg);
+            border-radius: 30px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            margin-top: 15px;
+        }
+        .slider-text { font-weight: bold; font-size: 14px; color: var(--text-muted); pointer-events: none; }
+        .slider-thumb {
+            position: absolute;
+            left: 5px;
+            width: 45px;
+            height: 45px;
+            background: var(--accent-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: grab;
+            transition: left 0.1s;
+        }
+
+        /* شريط التنقل السفلي */
+        .bottom-nav {
+            background: var(--card-bg);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+        .nav-item {
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .nav-item.active { color: var(--accent-green); }
+    </style>
+</head>
+<body>
+
+    <!-- السطر 145: الترويسة العلوية ومبدل الوضع الليلي -->
+    <div class="app-header">
+        <div class="user-badge">
+            <img src="assets/avatar-courier-default.png" class="user-avatar" alt="avatar-courier-default.png">
+            <div class="user-details">
+                <h3 id="courierNameDisplay">جاري التحميل...</h3>
+                <p>العهدة الحالية: <span id="custodyAmountDisplay" style="color:var(--accent-green); font-weight:bold;">0 ج.م</span></p>
+            </div>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 dark</button>
+    </div>
+
+    <!-- السطر 158: الشاشة الأولى - قائمة المهام والعهد (Screen 1 in UX.jpg) -->
+    <div id="viewTasks" class="view-container active">
+        <div class="filter-chips">
+            <span class="chip active-payed">payed</span>
+            <span class="chip active-custody">custody</span>
+            <span class="chip active-settlement">settlement</span>
+        </div>
+
+        <div id="tasksListContainer">
+            <p style="text-align:center; color:var(--text-muted); font-size:13px; margin-top:20px;">جاري جلب العمليات المسندة...</p>
+        </div>
+    </div>
+
+    <!-- السطر 171: الشاشة الثانية - وسيلة التوصيل والمصاريف (Screen 2 in UX.jpg) -->
+    <div id="viewTransport" class="view-container">
+        <div class="transport-card">
+            <img src="assets/cairo-metro.png" id="transportImg" class="transport-img" alt="cairo-metro.png">
+            <h3 id="transportTitle">RIDE METRO</h3>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">حدد وسيلة التوصيل المستخدمة للعملية</p>
+        </div>
+
+        <div class="transport-options">
+            <button class="btn-option selected" onclick="selectTransport('metro')">🚇 مترو الأنفاق</button>
+            <button class="btn-option" onclick="selectTransport('uber')">🚗 أوبر / Uber</button>
+        </div>
+
+        <!-- خانة سبب اختيار أوبر -->
+        <div id="uberReasonBox" style="display:none; margin-bottom:15px;">
+            <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">سبب اختيار طلب أوبر:</label>
+            <input type="text" id="uberReasonInput" placeholder="مثال: المستشفى بعيدة / عينة ثقيلة" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main);">
+        </div>
+
+        <div style="background:var(--card-bg); padding:15px; border-radius:16px; border:1px solid var(--card-border);">
+            <h4 style="font-size:14px; margin-bottom:10px;">💵 تسجيل مصاريف الانتقال</h4>
+            <input type="number" id="expenseAmountInput" placeholder="المبلغ بالجنيه (مثال: 30)" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main); margin-bottom:10px;">
+            <button onclick="submitExpense()" style="width:100%; padding:12px; background:var(--accent-green); border:none; border-radius:10px; color:white; font-weight:bold; cursor:pointer;">خصم وتسجيل المصروف من العهدة</button>
+        </div>
+    </div>
+
+    <!-- السطر 202: الشاشة الثالثة - تفاصيل التوصيل والسحب للتأكيد (Screen 3 in UX.jpg) -->
+    <div id="viewDelivery" class="view-container">
+        <div class="op-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span style="font-size:12px; color:var(--text-muted);">المسافة التقديرية: <strong>2.8 mile</strong></span>
+                <span style="font-size:12px; color:var(--accent-green);">الوقت المتبقي: <strong>25 دقيقة</strong></span>
+            </div>
+            <img src="assets/map-route-preview.png" style="width:100%; height:100px; object-fit:cover; border-radius:10px; margin-bottom:10px;" alt="map-route-preview.png">
+            <h3 id="deliveryHospitalName">اسم المستشفى</h3>
+            <p id="deliveryOpNumber" style="font-size:13px; color:var(--text-muted); margin-top:4px;">رقم العملية: OP-XXXX</p>
+            <a id="hospitalMapLink" href="#" target="_blank" style="display:inline-block; margin-top:8px; font-size:12px; color:var(--accent-blue); font-weight:bold;">📍 فتح الموقع في Google Maps</a>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button onclick="alert('جاري الاتصال بالدعم الفني...')" style="flex:1; padding:12px; border-radius:12px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text-main); font-weight:bold;">💬 المحادثة مع الدعم</button>
+            <button onclick="alert('جاري الاتصال بالمشرف...')" style="padding:12px 18px; border-radius:12px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text-main);">📞</button>
+        </div>
+
+        <!-- زر السحب لتأكيد التسليم Slide to confirm -->
+        <div class="slider-container" id="sliderContainer">
+            <span class="slider-text">>>> Slide to confirm the delivery</span>
+            <div class="slider-thumb" id="sliderThumb">➔</div>
+        </div>
+    </div>
+
+    <!-- السطر 230: شريط التنقل السفلي -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchView('viewTasks', this)">📦</button>
+        <button class="nav-item" onclick="switchView('viewTransport', this)">🚇</button>
+        <button class="nav-item" onclick="switchView('viewDelivery', this)">📍</button>
+    </div>
+
+    <!-- السطر 238: السكربت البرمجي والربط -->
+    <script>
+        const COURIER_SCRIPT_URL = "ضع_رابط_المندوب_هنا"; // ضع رابط Web App الخاص بـ delivery_script.gs
+        const currentCourierName = localStorage.getItem('userName') || "احمد المندوب";
+
+        let selectedTask = null;
+        let selectedTransportMethod = "metro";
+
+        // 1. تبديل الوضع الليلي والنهاري Dark / Light Mode
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const currentTheme = htmlEl.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlEl.setAttribute('data-theme', newTheme);
+            document.getElementById('themeBtn').innerText = newTheme === 'dark' ? '🌙 dark' : '☀️ light';
+            localStorage.setItem('appTheme', newTheme);
+        }
+
+        // استرجاع الثيم المحفوظ
+        const savedTheme = localStorage.getItem('appTheme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.getElementById('themeBtn').innerText = savedTheme === 'dark' ? '🌙 dark' : '☀️ light';
+
+        // 2. التنقل بين الشاشات
+        function switchView(viewId, btnEl) {
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            if(btnEl) btnEl.classList.add('active');
+        }
+
+        // 3. جلب بيانات المندوب والمهام
+        function loadCourierData() {
+            document.getElementById('courierNameDisplay').innerText = currentCourierName;
+
+            if (COURIER_SCRIPT_URL === "ضع_رابط_المندوب_هنا") return;
+
+            fetch(`${COURIER_SCRIPT_URL}?courier=${encodeURIComponent(currentCourierName)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById('custodyAmountDisplay').innerText = `${data.custody} ج.م`;
+                        renderTasks(data.tasks || []);
+                    }
+                });
+        }
+
+        function renderTasks(tasks) {
+            const container = document.getElementById('tasksListContainer');
+            container.innerHTML = '';
+
+            if (tasks.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:13px;">لا يوجد مهام مسندة لك حالياً.</p>';
+                return;
+            }
+
+            tasks.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'op-card';
+                card.onclick = () => selectTaskForDelivery(t);
+
+                card.innerHTML = `
+                    <div class="op-card-header">
+                        <span class="op-number">📦 ${t.opNumber}</span>
+                        <span class="status-badge ${t.status === 'تم التسليم' ? 'badge-transit' : 'badge-pickup'}">${t.status}</span>
+                    </div>
+                    <p style="font-size:14px; font-weight:bold;">${t.hospital}</p>
+                    <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">نوع الحالة: ${t.caseType}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectTaskForDelivery(task) {
+            selectedTask = task;
+            document.getElementById('deliveryHospitalName').innerText = task.hospital;
+            document.getElementById('deliveryOpNumber').innerText = `رقم العملية: ${task.opNumber}`;
+            document.getElementById('hospitalMapLink').href = task.location || '#';
+            switchView('viewDelivery');
+        }
+
+        // 4. اختيار وسيلة التوصيل
+        function selectTransport(type) {
+            selectedTransportMethod = type;
+            const img = document.getElementById('transportImg');
+            const title = document.getElementById('transportTitle');
+            const reasonBox = document.getElementById('uberReasonBox');
+
+            if (type === 'metro') {
+                img.src = 'assets/cairo-metro.png';
+                title.innerText = 'RIDE METRO';
+                reasonBox.style.display = 'none';
+            } else {
+                img.src = 'assets/uber-icon.png';
+                title.innerText = 'UBER RIDE';
+                reasonBox.style.display = 'block';
+            }
+        }
+
+        // 5. تسجيل مصروف
+        function submitExpense() {
+            const amount = document.getElementById('expenseAmountInput').value;
+            if (!amount || amount <= 0) { alert('⚠️ أدخل مبلغاً صحيحاً'); return; }
+
+            const payload = {
+                action: "add_expense",
+                courierName: currentCourierName,
+                taskId: selectedTask ? selectedTask.taskId : "عام",
+                transportMethod: selectedTransportMethod,
+                uberReason: document.getElementById('uberReasonInput').value,
+                amount: amount
+            };
+
+            fetch(COURIER_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.result === 'success') {
+                        alert('✅ تم تسجيل المصروف وخصمه من العهدة');
+                        document.getElementById('expenseAmountInput').value = '';
+                        loadCourierData();
+                    }
+                });
+        }
+
+        // 6. تفاعل السحب لتأكيد التسليم (Slide to Confirm)
+        const thumb = document.getElementById('sliderThumb');
+        const container = document.getElementById('sliderContainer');
+        let isDragging = false;
+
+        thumb.addEventListener('mousedown', startDrag);
+        thumb.addEventListener('touchstart', startDrag);
+
+        function startDrag() { isDragging = true; }
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('touchend', endDrag);
+
+        window.addEventListener('mousemove', drag);
+        window.addEventListener('touchmove', drag);
+
+        function drag(e) {
+            if (!isDragging) return;
+            const rect = container.getBoundingClientRect();
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let left = clientX - rect.left - 20;
+
+            if (left < 5) left = 5;
+            if (left > rect.width - 50) {
+                left = rect.width - 50;
+                confirmDeliveryAction();
+                isDragging = false;
+            }
+            thumb.style.left = left + 'px';
+        }
+
+        function endDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+            thumb.style.left = '5px';
+        }
+
+        function confirmDeliveryAction() {
+            if (!selectedTask) { alert("⚠️ اختر عملية أولاً لتأكيد تسليمها"); thumb.style.left = '5px'; return; }
+
+            const payload = {
+                action: "update_task_status",
+                courierName: currentCourierName,
+                taskId: selectedTask.taskId,
+                newStatus: "تم التسليم"
+            };
+
+            fetch(COURIER_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.result === 'success') {
+                        alert(`🎉 تم تأكيد تسليم العملية ${selectedTask.opNumber} بنجاح!`);
+                        thumb.style.left = '5px';
+                        switchView('viewTasks');
+                        loadCourierData();
+                    }
+                });
+        }
+
+        loadCourierData();
+    </script>
+</body>
+</html>
+<!-- السطر 420: نهاية ملف delivery_app.html -->
