@@ -533,56 +533,56 @@
 
     // 5. معالجة تسجيل الدخول
     // 5. معالجة تسجيل الدخول
-    function handleLogin(e) {
-      e.preventDefault();
-      showStatus('جاري التحقق من بيانات الدخول...', 'info');
+// 5. معالجة تسجيل الدخول
+function handleLogin(e) {
+  e.preventDefault();
+  showStatus('جاري التحقق من بيانات الدخول...', 'info');
 
-      const payload = {
-        action: 'login',
-        loginKey: document.getElementById('login-key').value,
-        pin: document.getElementById('login-pin').value
-      };
+  const payload = {
+    action: 'login',
+    loginKey: document.getElementById('login-key').value,
+    pin: document.getElementById('login-pin').value
+  };
 
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          showStatus(data.message, 'success');
-          localStorage.setItem('userSession', JSON.stringify(data.employee));
-          
-          setTimeout(() => {
-            const userRole = data.employee && data.employee.role ? String(data.employee.role).trim() : '';
-         // 1. حفظ اسم المندوب ودوره في ذاكرة المتصفح (ضروري جداً لتخصيص الشاشة وحمايتها)
-localStorage.setItem('userName', usernameInput.value); // استبدل usernameInput باسم خانة اسم المستخدم عندك
-localStorage.setItem('userRole', userRole);
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showStatus(data.message, 'success');
+      localStorage.setItem('userSession', JSON.stringify(data.employee));
+      
+      setTimeout(() => {
+        const userRole = data.employee && data.employee.role ? String(data.employee.role).trim() : '';
+        const userName = data.employee && data.employee.name ? data.employee.name : document.getElementById('login-key').value;
 
-// 2. التوجيه حسب الصلاحية
-if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
-    window.location.href = './admin.html';
-} 
-else if (userRole === 'مندوب توصيل' || userRole === 'مندوب' || userRole === 'Delivery') {
-    // 💡 لو عايز المندوب يفتح تطبيق الموبايل المباشر (delivery_app.html) وجهه هنا فوراً:
-    window.location.href = './delivery_app.html';
-    
-    // أو اتركها ./delivery.html لو كانت هي اللوحة الرئيسية ومنها يضغط زر الانتقال للتطبيق
-} 
-else if (userRole === 'CEO') {
-    window.location.href = './ceo.html';
-}
-            else {
-              alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك إلى مهامك (${userRole}).`);
-            }
-          }, 1000);
-          
-        } else {
-          showStatus(data.message, 'error');
+        // 1. حفظ البيانات بشكل صحيح بدون خطأ
+        localStorage.setItem('userName', userName);
+        localStorage.setItem('userRole', userRole);
+
+        // 2. التوجيه حسب الصلاحية
+        if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
+            window.location.href = './admin.html';
+        } 
+        else if (userRole === 'مندوب توصيل' || userRole === 'مندوب' || userRole === 'Delivery') {
+            window.location.href = './delivery_app.html';
+        } 
+        else if (userRole === 'CEO') {
+            window.location.href = './ceo.html';
         }
-      })
-      .catch(() => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
+        else {
+          alert(`أهلاً بك يا ${userName}! سيتم توجيهك إلى مهامك (${userRole}).`);
+        }
+      }, 1000);
+      
+    } else {
+      showStatus(data.message, 'error');
     }
+  })
+  .catch(() => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
+}
 
     // 6. دوال إظهار وإخفاء الحالة (Status Messages)
     function showStatus(text, type) {
