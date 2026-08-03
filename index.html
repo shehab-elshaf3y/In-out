@@ -534,14 +534,18 @@
     // 5. معالجة تسجيل الدخول
     // 5. معالجة تسجيل الدخول
 // 5. معالجة تسجيل الدخول
+// 5. معالجة تسجيل الدخول (مُعدّلة ومضمونة التوجيه)
 function handleLogin(e) {
   e.preventDefault();
   showStatus('جاري التحقق من بيانات الدخول...', 'info');
 
+  const loginKey = document.getElementById('login-key').value.trim();
+  const loginPin = document.getElementById('login-pin').value.trim();
+
   const payload = {
     action: 'login',
-    loginKey: document.getElementById('login-key').value,
-    pin: document.getElementById('login-pin').value
+    loginKey: loginKey,
+    pin: loginPin
   };
 
   fetch(SCRIPT_URL, {
@@ -550,38 +554,54 @@ function handleLogin(e) {
   })
   .then(res => res.json())
   .then(data => {
+    console.log("البيانات الراجعة من السيرفر:", data);
+
     if (data.success) {
       showStatus(data.message, 'success');
-      localStorage.setItem('userSession', JSON.stringify(data.employee));
-      
+
+      // 1. استخراج بيانات الموظف بشكل مرن
+      const emp = data.employee || data.user || {};
+
+      // 2. قراءة الرتبة سواء كانت Role أو role وتفريغ المسافات
+      const rawRole = emp.Role || emp.role || emp.JOB_ROLE || '';
+      const userRole = String(rawRole).trim();
+
+      // 3. قراءة الاسم (من FirstNameEn + FatherNameEn أو من خانة الإدخال)
+      const userName = emp.name || emp.Name || 
+        (emp.FirstNameEn ? `${emp.FirstNameEn} ${emp.FatherNameEn || ''}` : loginKey);
+
+      // 4. حفظ البيانات في الـ LocalStorage
+      localStorage.setItem('userSession', JSON.stringify(emp));
+      localStorage.setItem('userName', userName);
+      localStorage.setItem('userRole', userRole);
+
       setTimeout(() => {
-        const userRole = data.employee && data.employee.role ? String(data.employee.role).trim() : '';
-        const userName = data.employee && data.employee.name ? data.employee.name : document.getElementById('login-key').value;
+        const roleLower = userRole.toLowerCase();
 
-        // 1. حفظ البيانات بشكل صحيح بدون خطأ
-        localStorage.setItem('userName', userName);
-        localStorage.setItem('userRole', userRole);
-
-        // 2. التوجيه حسب الصلاحية
-        if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
+        // التوجيه الذكي حسب الرتبة
+        if (['آدمن', 'admin', 'مشرف', 'supervisor', 'hr'].includes(roleLower)) {
             window.location.href = './admin.html';
         } 
-        else if (userRole === 'مندوب توصيل' || userRole === 'مندوب' || userRole === 'Delivery') {
+        else if (['مندوب توصيل', 'مندوب', 'delivery', 'مندوب عمليات'].includes(roleLower) || roleLower.includes('مندوب')) {
             window.location.href = './delivery_app.html';
         } 
-        else if (userRole === 'CEO') {
+        else if (['ceo', 'مدير'].includes(roleLower)) {
             window.location.href = './ceo.html';
-        }
+        } 
         else {
-          alert(`أهلاً بك يا ${userName}! سيتم توجيهك إلى مهامك (${userRole}).`);
+            // توجيه افتراضي في حالة المسميات الأخرى (محاسب، أمين مخزن، إلخ)
+            window.location.href = './delivery_app.html';
         }
-      }, 1000);
+      }, 800);
       
     } else {
       showStatus(data.message, 'error');
     }
   })
-  .catch(() => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
+  .catch(err => {
+    console.error('Login error:', err);
+    showStatus('حدث خطأ في الاتصال بالخادم.', 'error');
+  });
 }
 
     // 6. دوال إظهار وإخفاء الحالة (Status Messages)
