@@ -555,17 +555,23 @@
           
           setTimeout(() => {
             const userRole = data.employee && data.employee.role ? String(data.employee.role).trim() : '';
-            
-            if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
-              window.location.href = './admin.html';
-            }// 2. لو مندوب توصيل أو أي دور تاني يروّح لصفحة التوصيل delivery.html
-            else if (userRole === 'مندوب توصيل' || userRole === 'مندوب' || userRole === 'Delivery') {
-              window.location.href = './delivery.html';
-            }
-              // إضافة التوجيه المباشر لصلاحية الـ CEO
-  else if (userRole === 'CEO') {
+         // 1. حفظ اسم المندوب ودوره في ذاكرة المتصفح (ضروري جداً لتخصيص الشاشة وحمايتها)
+localStorage.setItem('userName', usernameInput.value); // استبدل usernameInput باسم خانة اسم المستخدم عندك
+localStorage.setItem('userRole', userRole);
+
+// 2. التوجيه حسب الصلاحية
+if (userRole === 'آدمن' || userRole === 'Admin' || userRole === 'مشرف') {
+    window.location.href = './admin.html';
+} 
+else if (userRole === 'مندوب توصيل' || userRole === 'مندوب' || userRole === 'Delivery') {
+    // 💡 لو عايز المندوب يفتح تطبيق الموبايل المباشر (delivery_app.html) وجهه هنا فوراً:
+    window.location.href = './delivery_app.html';
+    
+    // أو اتركها ./delivery.html لو كانت هي اللوحة الرئيسية ومنها يضغط زر الانتقال للتطبيق
+} 
+else if (userRole === 'CEO') {
     window.location.href = './ceo.html';
-  }
+}
             else {
               alert(`أهلاً بك يا ${data.employee.name}! سيتم توجيهك إلى مهامك (${userRole}).`);
             }
