@@ -235,16 +235,17 @@
     <!-- السطر 171: الشاشة الثانية - وسيلة التوصيل والمصاريف (Screen 2 in UX.jpg) -->
     <div id="viewTransport" class="view-container">
         <div class="transport-card">
-            <img src="assets/cairo-metro.png" id="transportImg" class="transport-img" alt="cairo-metro.png">
+            <img src="cairo-metro.png" id="transportImg" class="transport-img" alt="cairo-metro.png">
             <h3 id="transportTitle">RIDE METRO</h3>
             <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">حدد وسيلة التوصيل المستخدمة للعملية</p>
         </div>
 
-        <div class="transport-options">
-            <button class="btn-option selected" onclick="selectTransport('metro')">🚇 مترو الأنفاق</button>
-            <button class="btn-option" onclick="selectTransport('uber')">🚗 أوبر / Uber</button>
-            <button type="button" class="transport-btn" onclick="selectTransport('microbus', this)">🚐 ميكروباص</button>
-        </div>
+       <!-- اختيار وسيلة التوصيل (Metro / Uber / Microbus) -->
+<div class="transport-options" style="grid-template-columns: repeat(3, 1fr);">
+    <button type="button" class="btn-option selected" onclick="selectTransport('metro', this)">🚇 مترو الأنفاق</button>
+    <button type="button" class="btn-option" onclick="selectTransport('uber', this)">🚗 أوبر / Uber</button>
+    <button type="button" class="btn-option" onclick="selectTransport('microbus', this)">🚐 ميكروباص</button>
+</div>
 
         <!-- خانة سبب اختيار أوبر -->
         <div id="uberReasonBox" style="display:none; margin-bottom:15px;">
@@ -374,22 +375,35 @@ if (!COURIER_SCRIPT_URL || COURIER_SCRIPT_URL.includes("ضع_رابط")) return;
         }
 
         // 4. اختيار وسيلة التوصيل
-        function selectTransport(type) {
-            selectedTransportMethod = type;
-            const img = document.getElementById('transportImg');
-            const title = document.getElementById('transportTitle');
-            const reasonBox = document.getElementById('uberReasonBox');
+        // 4. اختيار وسيلة التوصيل
+function selectTransport(type, btnElement) {
+    selectedTransportMethod = type;
+    const img = document.getElementById('transportImg');
+    const title = document.getElementById('transportTitle');
+    const reasonBox = document.getElementById('uberReasonBox');
 
-            if (type === 'metro') {
-                img.src = 'assets/cairo-metro.png';
-                title.innerText = 'RIDE METRO';
-                reasonBox.style.display = 'none';
-            } else {
-                img.src = 'assets/uber-icon.png';
-                title.innerText = 'UBER RIDE';
-                reasonBox.style.display = 'block';
-            }
-        }
+    // أ) تحديث شكل الأزرار (تفعيل الزرار المختار وإزالة اللون من الباقي)
+    document.querySelectorAll('.btn-option').forEach(btn => btn.classList.remove('selected'));
+    if (btnElement) {
+        btnElement.classList.add('selected');
+    }
+
+    // ب) تحديث الصورة والعنوان حسب الوسيلة
+    // 💡 ملاحظة: لو الصور جنب الملف مباشرة، شيل كلمة assets/ من المسار
+    if (type === 'metro') {
+        img.src = 'cairo-metro.png';
+        title.innerText = 'RIDE METRO';
+        reasonBox.style.display = 'none';
+    } else if (type === 'microbus') {
+        img.src = 'assets/van-transport.png'; 
+        title.innerText = 'MICROBUS / VAN';
+        reasonBox.style.display = 'none';
+    } else if (type === 'uber') {
+        img.src = 'assets/uber-icon.png'; 
+        title.innerText = 'UBER RIDE';
+        reasonBox.style.display = 'block';
+    }
+}
 
         // 5. تسجيل مصروف
         function submitExpense() {
