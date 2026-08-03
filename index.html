@@ -579,20 +579,20 @@ function handleLogin(e) {
         const roleLower = userRole.toLowerCase();
 
         // التوجيه الذكي حسب الرتبة
-        if (['آدمن', 'admin', 'مشرف', 'supervisor', 'hr'].includes(roleLower)) {
+        if (['آدمن', 'admin'].includes(roleLower)) {
             window.location.href = './admin.html';
         } 
         else if (['مندوب توصيل', 'مندوب', 'delivery', 'مندوب عمليات'].includes(roleLower) || roleLower.includes('مندوب')) {
-            window.location.href = './delivery_app.html';
+            window.location.href = './delivery.html';
         } 
-        else if (['ceo', 'مدير'].includes(roleLower)) {
+        else if (['ceo'].includes(roleLower)) {
             window.location.href = './ceo.html';
         } 
-        else {
-            // توجيه افتراضي في حالة المسميات الأخرى (محاسب، أمين مخزن، إلخ)
-            window.location.href = './delivery_app.html';
-        }
-      }, 800);
+  else if (['supervisor', 'تنسيق'].includes(roleLower)) {
+            window.location.href = './supervisor.html';
+        } 
+        
+      }, 2000);
       
     } else {
       showStatus(data.message, 'error');
