@@ -292,7 +292,7 @@
 
     <!-- السطر 238: السكربت البرمجي والربط -->
     <script>
-        const COURIER_SCRIPT_URL = "ضع_رابط_المندوب_هنا"; // ضع رابط Web App الخاص بـ delivery_script.gs
+        const COURIER_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjD-kBkO7uzp8aOVEKP2_Ox8rHjV7SzUvg2p3f7NdP_vrjEtruOkPKLNh-RIa7qc8/exec"; // ضع رابط Web App الخاص بـ delivery_script.gs
         const currentCourierName = localStorage.getItem('userName') || "احمد المندوب";
 
         let selectedTask = null;
@@ -325,7 +325,8 @@
         function loadCourierData() {
             document.getElementById('courierNameDisplay').innerText = currentCourierName;
 
-            if (COURIER_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbwjD-kBkO7uzp8aOVEKP2_Ox8rHjV7SzUvg2p3f7NdP_vrjEtruOkPKLNh-RIa7qc8/exec") return;
+            // اخرج فقط إذا كان الرابط فاضي أو لسه مكتوب فيه "ضع_رابط"
+if (!COURIER_SCRIPT_URL || COURIER_SCRIPT_URL.includes("ضع_رابط")) return;
 
             fetch(`${COURIER_SCRIPT_URL}?courier=${encodeURIComponent(currentCourierName)}`)
                 .then(res => res.json())
