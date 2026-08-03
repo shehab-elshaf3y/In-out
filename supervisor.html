@@ -1,0 +1,436 @@
+<!-- السطر 1: بداية ملف supervisor.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة المشرف والعمليات - Vita Shop Supervisor</title>
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --card-bg: #111827;
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        /* القائمة الجانبية للمناديب (مستوحاة من تصميم واجهة الكمبيوتر) */
+        .sidebar-couriers {
+            width: 320px;
+            background-color: var(--card-bg);
+            border-left: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 15px;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--accent-blue);
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .courier-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .courier-card:hover, .courier-card.active {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--accent-blue);
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--card-border);
+        }
+
+        .courier-info { flex: 1; }
+        .courier-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+        .courier-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            font-weight: 600;
+        }
+        .status-available { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .status-transit { background: rgba(245, 158, 11, 0.2); color: var(--accent-yellow); }
+        .status-busy { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+
+        /* الشاشة الرئيسية تفاصيل المندوب والعمليات */
+        .main-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header-title h2 { font-size: 22px; margin-bottom: 4px; }
+        .header-title p { color: var(--text-muted); font-size: 13px; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--accent-blue);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary { background: var(--accent-blue); color: white; }
+        .btn-success { background: var(--accent-green); color: #000; }
+        .btn:hover { opacity: 0.9; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+        }
+
+        /* تجاوب الشاشة للفون Mobile Responsive */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar-couriers { width: 100%; height: 180px; border-left: none; border-bottom: 1px solid var(--card-border); }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- السطر 125: القائمة الجانبية - قائمة المناديب والتحكم بالحالة -->
+    <div class="sidebar-couriers">
+        <div class="sidebar-header">
+            <span>👥 المناديب النشطون</span>
+            <button onclick="loadSupervisorData()" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">🔄</button>
+        </div>
+        <div id="couriersList">
+            <p style="font-size: 12px; color: var(--text-muted);">جاري تحميل قائمة المناديب...</p>
+        </div>
+    </div>
+
+    <!-- السطر 137: المنطقة الرئيسية تفاصيل وإسناد المهام والعهد -->
+    <div class="main-content">
+        <div class="header-title">
+            <h2>لوحة تحكم المشرف - نظرة عامة</h2>
+            <p>إدارة التوصيل، توزيع العمليات على المناديب، وتسليم العهد المالية</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- كارت المندوب المختار -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📦 تفاصيل المندوب والعملية الحالية</span>
+                    <span id="selectedCourierBadge" class="courier-status status-available">اختر مندوباً</span>
+                </div>
+                
+                <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
+                    <img src="assets/avatar-courier-default.png" id="selectedCourierAvatar" class="avatar" style="width: 60px; height: 60px;" alt="avatar-courier-default.png">
+                    <div>
+                        <h3 id="selectedCourierName" style="font-size: 18px;">لم يتم تحديد مندوب</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                            العهدة الحالية الحالية: <strong id="selectedCourierCustody" style="color: var(--accent-green);">0 ج.م</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="openTaskModal()">➕ إسناد عملية جديدة</button>
+                    <button class="btn btn-success" onclick="openCustodyModal()">💰 تسليم عهدة مالية</button>
+                </div>
+
+                <div style="border-top: 1px solid var(--card-border); padding-top: 15px;">
+                    <h4 style="font-size: 14px; margin-bottom: 10px; color: var(--text-muted);">المهام النشطة المعينة له:</h4>
+                    <div id="courierActiveTasksList" style="font-size: 13px; color: var(--text-muted);">
+                        لا يوجد مهام نشطة محددة حالياً.
+                    </div>
+                </div>
+            </div>
+
+            <!-- كارت صورة المركبة والمعاينة (مطابق لتصميم الكمبيوتر image_7fdee7.jpg) -->
+            <div class="card" style="text-align: center;">
+                <div class="card-title">🚚 وسيلة التوصيل والمعاينة</div>
+                <img src="assets/van-transport.png" alt="van-transport.png" style="width: 100%; max-height: 140px; object-fit: contain; margin-bottom: 10px;">
+                <p style="font-size: 12px; color: var(--text-muted);">نظام تتبع حالة مركبات ومسارات المناديب المباشر</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- السطر 185: نموذج Modal إسناد عملية جديدة -->
+    <div id="taskModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); justify-content:center; align-items:center; z-index:1000;">
+        <div class="card" style="width: 90%; max-width: 450px;">
+            <div class="card-title">
+                <span>➕ إسناد عملية جديدة للمندوب</span>
+                <button onclick="closeTaskModal()" style="background:none; border:none; color:white; cursor:pointer;">✖</button>
+            </div>
+            <form id="assignTaskForm">
+                <div class="form-group">
+                    <label>المندوب المحدد</label>
+                    <input type="text" id="taskCourierNameInput" readonly style="opacity: 0.7;">
+                </div>
+                <div class="form-group">
+                    <label>اسم المستشفى</label>
+                    <input type="text" id="hospitalNameInput" placeholder="أدخل اسم المستشفى" required>
+                </div>
+                <div class="form-group">
+                    <label>نوع الحالة</label>
+                    <select id="caseTypeInput" required>
+                        <option value="HIP">HIP</option>
+                        <option value="KNEE">KNEE</option>
+                        <option value="BIPOLAR">BIPOLAR</option>
+                        <option value="TRIPOLAR">TRIPOLAR</option>
+                        <option value="Spacer">Spacer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>رقم العملية (OP)</label>
+                    <input type="text" id="opNumberInput" placeholder="أدخل رقم الـ OP" required>
+                </div>
+                <div class="form-group">
+                    <label>رابط اللوكيشن / الموقع (Google Maps)</label>
+                    <input type="url" id="locationUrlInput" placeholder="https://maps.google.com/...">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">إرسال وإسناد المهمة للمندوب</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- السطر 230: نموذج Modal تسليم العهدة المالية -->
+    <div id="custodyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); justify-content:center; align-items:center; z-index:1000;">
+        <div class="card" style="width: 90%; max-width: 400px;">
+            <div class="card-title">
+                <span>💰 تسليم عهدة مالية</span>
+                <button onclick="closeCustodyModal()" style="background:none; border:none; color:white; cursor:pointer;">✖</button>
+            </div>
+            <form id="addCustodyForm">
+                <div class="form-group">
+                    <label>المندوب المستلم</label>
+                    <input type="text" id="custodyCourierNameInput" readonly style="opacity: 0.7;">
+                </div>
+                <div class="form-group">
+                    <label>المبلغ المسلم (ج.م)</label>
+                    <input type="number" id="custodyAmountInput" placeholder="مثال: 500" required min="1">
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات العهدة</label>
+
+                    <input type="text" id="custodyNotesInput" placeholder="مصاريف انتقالات / بنزين / مواصلات">
+                </div>
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px;">تأكيد وتسليم المبلغ</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- السطر 262: السكربت البرمجي لإدارة اللوحة والأكشنز -->
+    <script>
+        // ضع رابط الـ Web App الخاص بـ supervisor_script هنا
+        const SUPERVISOR_SCRIPT_URL = "ضع_رابط_المشرف_هنا";
+
+        let couriersData = [];
+        let tasksData = [];
+        let activeCourier = null;
+
+        function loadSupervisorData() {
+            if (SUPERVISOR_SCRIPT_URL === "ضع_رابط_المشرف_هنا") {
+                console.warn("يرجى وضع رابط Web App الخاص بسكربت المشرف أولاً.");
+                return;
+            }
+
+            fetch(SUPERVISOR_SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        couriersData = data.couriers || [];
+                        tasksData = data.tasks || [];
+                        renderCouriersList();
+                    }
+                })
+                .catch(err => console.error("خطأ في جلب بيانات المشرف:", err));
+        }
+
+        function renderCouriersList() {
+            const listEl = document.getElementById('couriersList');
+            listEl.innerHTML = '';
+
+            if (couriersData.length === 0) {
+                listEl.innerHTML = '<p style="font-size:12px; color:var(--text-muted);">لا يوجد مناديب مسجلين بالنظام.</p>';
+                return;
+            }
+
+            couriersData.forEach(c => {
+                const card = document.createElement('div');
+                card.className = `courier-card ${activeCourier && activeCourier.name === c.name ? 'active' : ''}`;
+                
+                let statusClass = 'status-available';
+                if (c.status === 'في الطريق') statusClass = 'status-transit';
+                if (c.status === 'مشغول') statusClass = 'status-busy';
+
+                card.innerHTML = `
+                    <img src="assets/avatar-courier-default.png" class="avatar" alt="avatar-courier-default.png">
+                    <div class="courier-info">
+                        <div class="courier-name">${c.name}</div>
+                        <span class="courier-status ${statusClass}">${c.status}</span>
+                    </div>
+                `;
+                card.onclick = () => selectCourier(c);
+                listEl.appendChild(card);
+            });
+        }
+
+        function selectCourier(courier) {
+            activeCourier = courier;
+            renderCouriersList();
+
+            document.getElementById('selectedCourierName').innerText = courier.name;
+            document.getElementById('selectedCourierCustody').innerText = `${courier.custody} ج.م`;
+            
+            const badge = document.getElementById('selectedCourierBadge');
+            badge.innerText = courier.status;
+            badge.className = `courier-status ${courier.status === 'متاح' ? 'status-available' : courier.status === 'في الطريق' ? 'status-transit' : 'status-busy'}`;
+
+            // تصفية المهام المعينة للمندوب
+            const courierTasks = tasksData.filter(t => t.courierName === courier.name);
+            const taskContainer = document.getElementById('courierActiveTasksList');
+            if (courierTasks.length === 0) {
+                taskContainer.innerHTML = 'لا يوجد مهام نشطة محددة حالياً.';
+            } else {
+                taskContainer.innerHTML = courierTasks.map(t => `
+                    <div style="background:rgba(0,0,0,0.2); padding:8px 12px; border-radius:8px; margin-bottom:8px;">
+                        <strong>مستشفى:</strong> ${t.hospital} | <strong>OP:</strong> ${t.opNumber} <br>
+                        <small style="color:var(--accent-yellow)">الحالة: ${t.status}</small>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function openTaskModal() {
+            if (!activeCourier) { alert("⚠️ اختر مندوباً أولاً من القائمة الجانبية!"); return; }
+            document.getElementById('taskCourierNameInput').value = activeCourier.name;
+            document.getElementById('taskModal').style.display = 'flex';
+        }
+        function closeTaskModal() { document.getElementById('taskModal').style.display = 'none'; }
+
+        function openCustodyModal() {
+            if (!activeCourier) { alert("⚠️ اختر مندوباً أولاً من القائمة الجانبية!"); return; }
+            document.getElementById('custodyCourierNameInput').value = activeCourier.name;
+            document.getElementById('custodyModal').style.display = 'flex';
+        }
+        function closeCustodyModal() { document.getElementById('custodyModal').style.display = 'none'; }
+
+        // إرسال نموذج المهمة
+        document.getElementById('assignTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const payload = {
+                action: "assign_task",
+                courierName: activeCourier.name,
+                hospitalName: document.getElementById('hospitalNameInput').value,
+                caseType: document.getElementById('caseTypeInput').value,
+                opNumber: document.getElementById('opNumberInput').value,
+                locationUrl: document.getElementById('locationUrlInput').value,
+                supervisorName: "المشرف"
+            };
+
+            fetch(SUPERVISOR_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.result === 'success') {
+                        alert(`✅ تم إسناد المهمة للمندوب ${activeCourier.name} بنجاح!`);
+                        closeTaskModal();
+                        loadSupervisorData();
+                    }
+                });
+        });
+
+        // إرسال نموذج العهدة
+        document.getElementById('addCustodyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const payload = {
+                action: "add_custody",
+                courierName: activeCourier.name,
+                amount: document.getElementById('custodyAmountInput').value,
+                notes: document.getElementById('custodyNotesInput').value,
+                supervisorName: "المشرف"
+            };
+
+            fetch(SUPERVISOR_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.result === 'success') {
+                        alert(`✅ تم تسليم مبلغ ${payload.amount} ج.م للمندوب ${activeCourier.name} بنجاح!`);
+                        closeCustodyModal();
+                        loadSupervisorData();
+                    }
+                });
+        });
+
+        loadSupervisorData();
+    </script>
+</body>
+</html>
+<!-- السطر 380: نهاية ملف supervisor.html -->
