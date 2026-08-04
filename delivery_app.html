@@ -390,21 +390,67 @@
             }
         }
 
-        function loadCourierData() {
-            document.getElementById('courierNameDisplay').innerText = currentCourierName;
+       function loadCourierData() {
+    document.getElementById('courierNameDisplay').innerText = currentCourierName;
 
-            if (!COURIER_SCRIPT_URL) return;
+    if (!COURIER_SCRIPT_URL) return;
 
-            fetch(`${COURIER_SCRIPT_URL}?courier=${encodeURIComponent(currentCourierName)}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        document.getElementById('custodyAmountDisplay').innerText = `${data.custody} ج.م`;
-                        renderTasks(data.tasks || []);
-                    }
-                })
-                .catch(err => console.error("Error loading data:", err));
-        }
+    fetch(`${COURIER_SCRIPT_URL}?courier=${encodeURIComponent(currentCourierName)}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                document.getElementById('custodyAmountDisplay').innerText = `${data.custody || 0} ج.م`;
+                
+                // تحديث حالة التسوية
+                const settlementBadge = document.getElementById('settlementStatusBadge');
+                if (settlementBadge) {
+                    settlementBadge.innerText = data.settlementStatus || "غير مسواة";
+                    settlementBadge.className = `status-badge ${data.settlementStatus === 'مسواة' ? 'badge-transit' : 'badge-pickup'}`;
+                }
+
+                renderTasks(data.tasks || []);
+                renderCustodyList(data.custodies || []);
+                renderExpensesList(data.expenses || []);
+            }
+        })
+        .catch(err => console.error("Error loading data:", err));
+}
+
+// عرض قائمة العهد المستلمة
+function renderCustodyList(custodies) {
+    const container = document.getElementById('custodyListContainer');
+    if (!custodies || custodies.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد سجل عهد استلمتها حالياً.</p>';
+        return;
+    }
+    container.innerHTML = custodies.map(c => `
+        <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="font-size:13px; font-weight:bold;">💵 استلام عهدة</div>
+                <div style="font-size:11px; color:var(--text-muted);">${c.date || ''}</div>
+            </div>
+            <span style="color:var(--accent-green); font-weight:bold;">+${c.amount} ج.م</span>
+        </div>
+    `).join('');
+}
+
+// عرض قائمة المصاريف الخصمة
+function renderExpensesList(expenses) {
+    const container = document.getElementById('expensesListContainer');
+    if (!expenses || expenses.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد مصاريف مسجلة حتى الآن.</p>';
+        return;
+    }
+    container.innerHTML = expenses.map(e => `
+        <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="font-size:13px; font-weight:bold;">${e.category}</div>
+                <div style="font-size:11px; color:var(--text-muted);">${e.details || e.transportMethod || ''}</div>
+            </div>
+            <span style="color:var(--accent-red); font-weight:bold;">-${e.amount} ج.م</span>
+        </div>
+    `).join('');
+}
 
         function renderTasks(tasks) {
             const container = document.getElementById('tasksListContainer');
