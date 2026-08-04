@@ -1,4 +1,3 @@
-<!-- السطر 1: بداية ملف delivery_app.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="dark">
 <head>
@@ -47,7 +46,6 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* الترويسة العلوية مستوحاة من صورة UX.jpg */
         .app-header {
             padding: 15px 20px;
             background: var(--card-bg);
@@ -73,7 +71,6 @@
             font-weight: bold;
         }
 
-        /* التبويبات والمحتوى الرئيسي */
         .view-container {
             flex: 1;
             overflow-y: auto;
@@ -82,7 +79,6 @@
         }
         .view-container.active { display: block; }
 
-        /* شريحة الفلاتر (payed, custody, settlement - UX.jpg) */
         .filter-chips {
             display: flex;
             gap: 10px;
@@ -100,9 +96,7 @@
         }
         .chip.active-payed { background: rgba(218, 54, 51, 0.2); color: var(--accent-red); border-color: var(--accent-red); }
         .chip.active-custody { background: rgba(45, 164, 78, 0.2); color: var(--accent-green); border-color: var(--accent-green); }
-        .chip.active-settlement { background: rgba(47, 129, 247, 0.2); color: var(--accent-blue); border-color: var(--accent-blue); }
 
-        /* كروت العمليات (OP Cards) */
         .op-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -110,6 +104,7 @@
             padding: 15px;
             margin-bottom: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            cursor: pointer;
         }
 
         .op-card-header {
@@ -128,7 +123,6 @@
         .badge-pickup { background: rgba(218, 54, 51, 0.2); color: var(--accent-red); }
         .badge-transit { background: rgba(45, 164, 78, 0.2); color: var(--accent-green); }
 
-        /* اختيار وسيلة التوصيل (Metro / Uber) */
         .transport-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -141,23 +135,22 @@
 
         .transport-options {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             margin-bottom: 15px;
         }
         .btn-option {
-            padding: 12px;
+            padding: 10px;
             border-radius: 12px;
             border: 1px solid var(--card-border);
             background: var(--chip-bg);
             color: var(--text-main);
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
         }
         .btn-option.selected { border-color: var(--accent-green); background: rgba(45, 164, 78, 0.15); }
 
-        /* زر السحب لتأكيد التسليم (Slide to confirm - UX.jpg) */
         .slider-container {
             position: relative;
             background: var(--slider-bg);
@@ -170,7 +163,7 @@
             border: 1px solid var(--card-border);
             margin-top: 15px;
         }
-        .slider-text { font-weight: bold; font-size: 14px; color: var(--text-muted); pointer-events: none; }
+        .slider-text { font-weight: bold; font-size: 13px; color: var(--text-muted); pointer-events: none; }
         .slider-thumb {
             position: absolute;
             left: 5px;
@@ -187,7 +180,6 @@
             transition: left 0.1s;
         }
 
-        /* شريط التنقل السفلي */
         .bottom-nav {
             background: var(--card-bg);
             border-top: 1px solid var(--card-border);
@@ -207,10 +199,10 @@
 </head>
 <body>
 
-    <!-- السطر 145: الترويسة العلوية ومبدل الوضع الليلي -->
+    <!-- الترويسة العلوية -->
     <div class="app-header">
         <div class="user-badge">
-            <img src="assets/avatar-courier-default.png" class="user-avatar" alt="avatar-courier-default.png">
+            <img src="assets/avatar-courier-default.png" class="user-avatar" alt="avatar">
             <div class="user-details">
                 <h3 id="courierNameDisplay">جاري التحميل...</h3>
                 <p>العهدة الحالية: <span id="custodyAmountDisplay" style="color:var(--accent-green); font-weight:bold;">0 ج.م</span></p>
@@ -219,484 +211,360 @@
         <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 dark</button>
     </div>
 
-    <!-- السطر 158: الشاشة الأولى - قائمة المهام والعهد (Screen 1 in UX.jpg) -->
-   <!-- الشاشة الأولى - الموقف المالي والعهد والتسوية (ص1) -->
-<div id="viewTasks" class="view-container active">
-    <!-- شارة حالة التسوية العامة -->
-    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 13px; font-weight: bold;">حالة تسوية العهدة:</span>
-        <span id="settlementStatusBadge" class="status-badge badge-pickup">غير مسواة</span>
-    </div>
-
-    <!-- شرائح التنقل التفاعلية -->
-    <div class="filter-chips">
-        <span class="chip active-custody" id="chipCustody" onclick="switchFinancialTab('custody')">العهد المستلمة</span>
-        <span class="chip" id="chipPayed" onclick="switchFinancialTab('payed')">المصاريف</span>
-    </div>
-
-    <!-- قائمة العهد المستلمة -->
-    <div id="custodyTabContent">
-        <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">سجل العهد المسلمة من المشرف:</h4>
-        <div id="custodyListContainer">
-            <p style="text-align:center; color:var(--text-muted); font-size:12px;">جاري تحميل العهد...</p>
+    <!-- 1️⃣ الشاشة الأولى: قائمة المهام والماليات -->
+    <div id="viewTasks" class="view-container active">
+        <!-- حالة التسوية العامة -->
+        <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 13px; font-weight: bold;">حالة تسوية العهدة:</span>
+            <span id="settlementStatusBadge" class="status-badge badge-pickup">غير مسواة</span>
         </div>
-    </div>
 
-    <!-- قائمة المصاريف المصروفة -->
-    <div id="payedTabContent" style="display: none;">
-        <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">سجل المصاريف التي تم خصمها:</h4>
-        <div id="expensesListContainer">
-            <p style="text-align:center; color:var(--text-muted); font-size:12px;">جاري تحميل المصاريف...</p>
+        <!-- المهام المسندة -->
+        <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">📦 المهام المسندة:</h4>
+        <div id="tasksListContainer" style="margin-bottom: 20px;">
+            <p style="text-align:center; color:var(--text-muted); font-size:12px;">جاري تحميل المهام...</p>
         </div>
-    </div>
-</div>
 
-<!-- الشاشة الثانية - تسجيل المصاريف والانتقالات (ص2) -->
-<div id="viewTransport" class="view-container">
-    <div style="background:var(--card-bg); padding:15px; border-radius:16px; border:1px solid var(--card-border); margin-bottom: 15px;">
-        <h4 style="font-size:14px; margin-bottom:12px;">💵 تسجيل مصروف جديد</h4>
-        
-        <!-- القائمة المنسدلة لتحديد بند الفلوس -->
-        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">مصروفة في إيه؟</label>
-        <select id="expenseCategorySelect" onchange="handleCategoryChange(this.value)" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main); font-weight:bold; margin-bottom:12px;">
-            <option value="مواصلات وانتقالات">🚌 مواصلات وانتقالات</option>
-            <option value="طباعة وأوراق مستندات">📄 طباعة وأوراق مستندات</option>
-            <option value="شراء مستلزمات طارئة">🛒 شراء مستلزمات طارئة</option>
-        </select>
+        <!-- شرائح الموقف المالي -->
+        <div class="filter-chips">
+            <span class="chip active-custody" id="chipCustody" onclick="switchFinancialTab('custody')">العهد المستلمة</span>
+            <span class="chip" id="chipPayed" onclick="switchFinancialTab('payed')">المصاريف</span>
+        </div>
 
-        <!-- كارت أزرار وسائل التوصيل (تظهر فقط عند اختيار مواصلات) -->
-        <div id="transportSection">
-            <div class="transport-card" style="padding: 10px; margin-bottom: 10px;">
-                <img src="cairo-metro.png" id="transportImg" class="transport-img" style="max-height:80px;" alt="metro">
-                <h4 id="transportTitle" style="font-size: 13px;">RIDE METRO</h4>
-            </div>
-
-            <div class="transport-options" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 10px;">
-                <button type="button" class="btn-option selected" onclick="selectTransport('metro', this)">🚇 مترو</button>
-                <button type="button" class="btn-option" onclick="selectTransport('uber', this)">🚗 أوبر</button>
-                <button type="button" class="btn-option" onclick="selectTransport('microbus', this)">🚐 ميكروباص</button>
-            </div>
-
-            <div id="uberReasonBox" style="display:none; margin-bottom:10px;">
-                <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:3px;">سبب طلب أوبر:</label>
-                <input type="text" id="uberReasonInput" placeholder="مثال: عينة ثقيلة" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main); font-size:12px;">
+        <div id="custodyTabContent">
+            <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">سجل العهد المسلمة من المشرف:</h4>
+            <div id="custodyListContainer">
+                <p style="text-align:center; color:var(--text-muted); font-size:12px;">جاري تحميل العهد...</p>
             </div>
         </div>
 
-        <!-- المبلغ المالي -->
-        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">المبلغ المسجل:</label>
-        <input type="number" id="expenseAmountInput" placeholder="المبلغ بالجنيه (مثال: 50)" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main); margin-bottom:12px;">
-        
-        <button onclick="submitExpense()" style="width:100%; padding:12px; background:var(--accent-green); border:none; border-radius:10px; color:white; font-weight:bold; cursor:pointer;">خصم وتسجيل المصروف من العهدة</button>
-    </div>
-</div>
-
-       <!-- اختيار وسيلة التوصيل (Metro / Uber / Microbus) -->
-<div class="transport-options" style="grid-template-columns: repeat(3, 1fr);">
-    <button type="button" class="btn-option selected" onclick="selectTransport('metro', this)">🚇 مترو الأنفاق</button>
-    <button type="button" class="btn-option" onclick="selectTransport('uber', this)">🚗 أوبر / Uber</button>
-    <button type="button" class="btn-option" onclick="selectTransport('microbus', this)">🚐 ميكروباص</button>
-</div>
-
-        <!-- خانة سبب اختيار أوبر -->
-        <div id="uberReasonBox" style="display:none; margin-bottom:15px;">
-            <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">سبب اختيار طلب أوبر:</label>
-            <input type="text" id="uberReasonInput" placeholder="مثال: المستشفى بعيدة / عينة ثقيلة" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main);">
+        <div id="payedTabContent" style="display: none;">
+            <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">سجل المصاريف الخصمة:</h4>
+            <div id="expensesListContainer">
+                <p style="text-align:center; color:var(--text-muted); font-size:12px;">جاري تحميل المصاريف...</p>
+            </div>
         </div>
+    </div>
 
-        <div style="background:var(--card-bg); padding:15px; border-radius:16px; border:1px solid var(--card-border);">
-            <h4 style="font-size:14px; margin-bottom:10px;">💵 تسجيل مصاريف الانتقال</h4>
-            <input type="number" id="expenseAmountInput" placeholder="المبلغ بالجنيه (مثال: 30)" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main); margin-bottom:10px;">
+    <!-- 2️⃣ الشاشة الثانية: تسجيل المصاريف والانتقالات -->
+    <div id="viewTransport" class="view-container">
+        <div style="background:var(--card-bg); padding:15px; border-radius:16px; border:1px solid var(--card-border); margin-bottom: 15px;">
+            <h4 style="font-size:14px; margin-bottom:12px;">💵 تسجيل مصروف جديد</h4>
+            
+            <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">مصروفة في إيه؟</label>
+            <select id="expenseCategorySelect" onchange="handleCategoryChange(this.value)" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main); font-weight:bold; margin-bottom:12px;">
+                <option value="مواصلات وانتقالات">🚌 مواصلات وانتقالات</option>
+                <option value="طباعة وأوراق مستندات">📄 طباعة وأوراق مستندات</option>
+                <option value="شراء مستلزمات طارئة">🛒 شراء مستلزمات طارئة</option>
+            </select>
+
+            <div id="transportSection">
+                <div class="transport-card" style="padding: 10px; margin-bottom: 10px;">
+                    <img src="cairo-metro.png" id="transportImg" class="transport-img" style="max-height:80px;" alt="metro">
+                    <h4 id="transportTitle" style="font-size: 13px;">RIDE METRO</h4>
+                </div>
+
+                <div class="transport-options">
+                    <button type="button" class="btn-option selected" onclick="selectTransport('metro', this)">🚇 مترو</button>
+                    <button type="button" class="btn-option" onclick="selectTransport('uber', this)">🚗 أوبر</button>
+                    <button type="button" class="btn-option" onclick="selectTransport('microbus', this)">🚐 ميكروباص</button>
+                </div>
+
+                <div id="uberReasonBox" style="display:none; margin-bottom:10px;">
+                    <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:3px;">سبب طلب أوبر:</label>
+                    <input type="text" id="uberReasonInput" placeholder="مثال: عينة ثقيلة" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main); font-size:12px;">
+                </div>
+            </div>
+
+            <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">المبلغ المسجل:</label>
+            <input type="number" id="expenseAmountInput" placeholder="المبلغ بالجنيه (مثال: 50)" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main); margin-bottom:12px;">
+            
             <button onclick="submitExpense()" style="width:100%; padding:12px; background:var(--accent-green); border:none; border-radius:10px; color:white; font-weight:bold; cursor:pointer;">خصم وتسجيل المصروف من العهدة</button>
         </div>
     </div>
 
-    <!-- السطر 202: الشاشة الثالثة - تفاصيل التوصيل والسحب للتأكيد (Screen 3 in UX.jpg) -->
-   <!-- الشاشة الثالثة - تفاصيل العملية وبدء الحركة والتسليم (ص3) -->
-<div id="viewDelivery" class="view-container">
-    <div class="op-card">
-        <h3 id="deliveryHospitalName">اسم المستشفى</h3>
-        <p id="deliveryOpNumber" style="font-size:13px; color:var(--text-muted); margin-top:4px;">رقم العملية: OP-XXXX</p>
-        <a id="hospitalMapLink" href="#" target="_blank" style="display:inline-block; margin-top:8px; font-size:12px; color:var(--accent-blue); font-weight:bold;">📍 فتح اللوكيشن في Google Maps</a>
-    </div>
+    <!-- 3️⃣ الشاشة الثالثة: تفاصيل التوصيل والتأكيد -->
+    <div id="viewDelivery" class="view-container">
+        <div class="op-card" style="cursor:default;">
+            <h3 id="deliveryHospitalName">اختر عملية أولاً</h3>
+            <p id="deliveryOpNumber" style="font-size:13px; color:var(--text-muted); margin-top:4px;">رقم العملية: OP-XXXX</p>
+            <a id="hospitalMapLink" href="#" target="_blank" style="display:inline-block; margin-top:8px; font-size:12px; color:var(--accent-blue); font-weight:bold;">📍 فتح اللوكيشن في Google Maps</a>
+        </div>
 
-    <!-- خطوة 1: بدء الحركة مع إرفاق صورة -->
-    <div style="background:var(--card-bg); padding:12px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:12px;">
-        <h4 style="font-size:13px; margin-bottom:8px;">🚀 1. بدء الحركة للعملية</h4>
-        <input type="file" id="startPhotoInput" accept="image/*" style="font-size:12px; margin-bottom:8px; width:100%;">
-        <button onclick="confirmStartMovement()" style="width:100%; padding:9px; background:var(--accent-blue); border:none; border-radius:8px; color:white; font-weight:bold; cursor:pointer;">تأكيد بدء الحركة وارفاق الصورة</button>
-    </div>
+        <div style="background:var(--card-bg); padding:12px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:12px;">
+            <h4 style="font-size:13px; margin-bottom:8px;">🚀 1. بدء الحركة للعملية</h4>
+            <input type="file" id="startPhotoInput" accept="image/*" style="font-size:12px; margin-bottom:8px; width:100%;">
+            <button onclick="confirmStartMovement()" style="width:100%; padding:9px; background:var(--accent-blue); border:none; border-radius:8px; color:white; font-weight:bold; cursor:pointer;">تأكيد بدء الحركة وارفاق الصورة</button>
+        </div>
 
-    <!-- خطوة 2: تم التسليم وارفاق الصورة -->
-    <div style="background:var(--card-bg); padding:12px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:12px;">
-        <h4 style="font-size:13px; margin-bottom:8px;">📦 2. إثبات التسليم</h4>
-        <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">ارفق صورة التسليم أولاً:</label>
-        <input type="file" id="deliveryPhotoInput" accept="image/*" style="font-size:12px; margin-bottom:8px; width:100%;">
-    </div>
+        <div style="background:var(--card-bg); padding:12px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:12px;">
+            <h4 style="font-size:13px; margin-bottom:8px;">📦 2. إثبات التسليم</h4>
+            <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">ارفق صورة التسليم أولاً:</label>
+            <input type="file" id="deliveryPhotoInput" accept="image/*" style="font-size:12px; margin-bottom:8px; width:100%;">
+        </div>
 
-    <div style="display:flex; gap:10px; margin-bottom:12px;">
-        <button onclick="contactSupport()" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text-main); font-weight:bold; cursor:pointer; font-size:12px;">💬 محادثة الدعم</button>
-    </div>
+        <div style="display:flex; gap:10px; margin-bottom:12px;">
+            <button onclick="contactSupport()" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text-main); font-weight:bold; cursor:pointer; font-size:12px;">💬 محادثة الدعم</button>
+            <button onclick="alert('جاري الاتصال بالمشرف...')" style="padding:10px 15px; border-radius:10px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text-main); cursor:pointer; font-size:12px;">📞 اتصال</button>
+        </div>
 
-    <!-- زر السحب لتأكيد التسليم Slide to confirm -->
-    <div class="slider-container" id="sliderContainer">
-        <span class="slider-text">>>> Slide to confirm the delivery</span>
-        <div class="slider-thumb" id="sliderThumb">➔</div>
-    </div>
-</div>
-
-      <!-- أزرار الاتصال والمحادثة مع الدعم والمشرف -->
-<div style="display:flex; gap:10px; margin-bottom:15px;">
-    <button onclick="contactSupport()" style="flex:1; padding:12px; border-radius:12px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text-main); font-weight:bold; cursor:pointer;">💬 المحادثة مع الدعم</button>
-    <button onclick="alert('جاري الاتصال بالمشرف...')" style="padding:12px 18px; border-radius:12px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text-main); cursor:pointer;">📞</button>
-</div>
-
-        <!-- زر السحب لتأكيد التسليم Slide to confirm -->
         <div class="slider-container" id="sliderContainer">
             <span class="slider-text">>>> Slide to confirm the delivery</span>
             <div class="slider-thumb" id="sliderThumb">➔</div>
         </div>
     </div>
 
-    <!-- السطر 230: شريط التنقل السفلي -->
+    <!-- شريط التنقل السفلي -->
     <div class="bottom-nav">
         <button class="nav-item active" onclick="switchView('viewTasks', this)">📦</button>
         <button class="nav-item" onclick="switchView('viewTransport', this)">🚇</button>
         <button class="nav-item" onclick="switchView('viewDelivery', this)">📍</button>
     </div>
 
-    <!-- السطر 238: السكربت البرمجي والربط -->
-  <script>
-    // 1. استدعاء اسم المستخدم المندوب مرة واحدة فقط مع تحديد القيمة الافتراضية
-    const currentCourierName = localStorage.getItem('userName') || "احمد المندوب";
+    <!-- البرمجة السليمة -->
+    <script>
+        const currentCourierName = localStorage.getItem('userName') || "احمد المندوب";
 
-    // فحص حماية الصفحة: لو مفيش تسجيل دخول، رجّعه لصفحة اللوجن
-    if (!localStorage.getItem('userName')) {
-        window.location.replace('./index.html');
-    }
-
-    // رابط الـ Apps Script الخاص بك
-    const COURIER_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcx0dckmfHqJz_6DIFYxSlz8sRdsC3JszRe6oAnwku6fy01HHWVnPn9xZkhS_-nPk/exec";
-
-    let selectedTask = null;
-    let selectedTransportMethod = "metro";
-
-    // تبديل الوضع الليلي والنهاري Dark / Light Mode
-    function toggleTheme() {
-        const htmlEl = document.documentElement;
-        const currentTheme = htmlEl.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        htmlEl.setAttribute('data-theme', newTheme);
-        document.getElementById('themeBtn').innerText = newTheme === 'dark' ? '🌙 dark' : '☀️ light';
-        localStorage.setItem('appTheme', newTheme);
-    }
-
-    // استرجاع الثيم المحفوظ
-    const savedTheme = localStorage.getItem('appTheme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    document.getElementById('themeBtn').innerText = savedTheme === 'dark' ? '🌙 dark' : '☀️ light';
-
-    // 2. التنقل بين الشاشات
-    function switchView(viewId, btnEl) {
-        document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        document.getElementById(viewId).classList.add('active');
-        if(btnEl) btnEl.classList.add('active');
-    }
-
-    // 3. جلب بيانات المندوب والمهام
-    function loadCourierData() {
-        document.getElementById('courierNameDisplay').innerText = currentCourierName;
-
-        if (!COURIER_SCRIPT_URL || COURIER_SCRIPT_URL.includes("ضع_رابط")) return;
-
-        fetch(`${COURIER_SCRIPT_URL}?courier=${encodeURIComponent(currentCourierName)}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") {
-                    document.getElementById('custodyAmountDisplay').innerText = `${data.custody} ج.م`;
-                    renderTasks(data.tasks || []);
-                }
-            })
-            .catch(err => console.error("Error loading data:", err));
-    }
-
-    function renderTasks(tasks) {
-        const container = document.getElementById('tasksListContainer');
-        container.innerHTML = '';
-
-        if (tasks.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:13px;">لا يوجد مهام مسندة لك حالياً.</p>';
-            return;
+        if (!localStorage.getItem('userName')) {
+            window.location.replace('./index.html');
         }
 
-        tasks.forEach(t => {
-            const card = document.createElement('div');
-            card.className = 'op-card';
-            card.onclick = () => selectTaskForDelivery(t);
+        const COURIER_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcx0dckmfHqJz_6DIFYxSlz8sRdsC3JszRe6oAnwku6fy01HHWVnPn9xZkhS_-nPk/exec";
 
-            card.innerHTML = `
-                <div class="op-card-header">
-                    <span class="op-number">📦 ${t.opNumber}</span>
-                    <span class="status-badge ${t.status === 'تم التسليم' ? 'badge-transit' : 'badge-pickup'}">${t.status}</span>
-                </div>
-                <p style="font-size:14px; font-weight:bold;">${t.hospital}</p>
-                <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">نوع الحالة: ${t.caseType}</p>
-            `;
-            container.appendChild(card);
-        });
-    }
+        let selectedTask = null;
+        let selectedTransportMethod = "metro";
 
-    function selectTaskForDelivery(task) {
-        selectedTask = task;
-        document.getElementById('deliveryHospitalName').innerText = task.hospital;
-        document.getElementById('deliveryOpNumber').innerText = `رقم العملية: ${task.opNumber}`;
-        document.getElementById('hospitalMapLink').href = task.location || '#';
-        switchView('viewDelivery');
-    }
-
-    // 4. اختيار وسيلة التوصيل
-    function selectTransport(type, btnElement) {
-        selectedTransportMethod = type;
-        const img = document.getElementById('transportImg');
-        const title = document.getElementById('transportTitle');
-        const reasonBox = document.getElementById('uberReasonBox');
-
-        document.querySelectorAll('.btn-option').forEach(btn => btn.classList.remove('selected'));
-        if (btnElement) {
-            btnElement.classList.add('selected');
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const currentTheme = htmlEl.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlEl.setAttribute('data-theme', newTheme);
+            document.getElementById('themeBtn').innerText = newTheme === 'dark' ? '🌙 dark' : '☀️ light';
+            localStorage.setItem('appTheme', newTheme);
         }
 
-        if (type === 'metro') {
-            img.src = 'cairo-metro.png';
-            title.innerText = 'RIDE METRO';
-            reasonBox.style.display = 'none';
-        } else if (type === 'microbus') {
-            img.src = 'assets/van-transport.png'; 
-            title.innerText = 'MICROBUS / VAN';
-            reasonBox.style.display = 'none';
-        } else if (type === 'uber') {
-            img.src = 'assets/uber-icon.png'; 
-            title.innerText = 'UBER RIDE';
-            reasonBox.style.display = 'block';
+        const savedTheme = localStorage.getItem('appTheme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.getElementById('themeBtn').innerText = savedTheme === 'dark' ? '🌙 dark' : '☀️ light';
+
+        function switchView(viewId, btnEl) {
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            if(btnEl) btnEl.classList.add('active');
         }
-    }
 
-    // 5. تسجيل مصروف
-    function submitExpense() {
-        const amount = document.getElementById('expenseAmountInput').value;
-        if (!amount || amount <= 0) { alert('⚠️ أدخل مبلغاً صحيحاً'); return; }
+        function switchFinancialTab(tab) {
+            document.getElementById('chipCustody').className = `chip ${tab === 'custody' ? 'active-custody' : ''}`;
+            document.getElementById('chipPayed').className = `chip ${tab === 'payed' ? 'active-payed' : ''}`;
+            document.getElementById('custodyTabContent').style.display = tab === 'custody' ? 'block' : 'none';
+            document.getElementById('payedTabContent').style.display = tab === 'payed' ? 'block' : 'none';
+        }
 
-        const payload = {
-            action: "add_expense",
-            courierName: currentCourierName,
-            taskId: selectedTask ? selectedTask.taskId : "عام",
-            transportMethod: selectedTransportMethod,
-            uberReason: document.getElementById('uberReasonInput').value,
-            amount: amount
-        };
+        function handleCategoryChange(val) {
+            const transportSec = document.getElementById('transportSection');
+            transportSec.style.display = (val === 'مواصلات وانتقالات') ? 'block' : 'none';
+        }
 
-        fetch(COURIER_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.json())
-            .then(res => {
-                if (res.result === 'success') {
-                    alert('✅ تم تسجيل المصروف وخصمه من العهدة');
-                    document.getElementById('expenseAmountInput').value = '';
-                    loadCourierData();
-                }
+        function selectTransport(type, btnElement) {
+            selectedTransportMethod = type;
+            const img = document.getElementById('transportImg');
+            const title = document.getElementById('transportTitle');
+            const reasonBox = document.getElementById('uberReasonBox');
+
+            document.querySelectorAll('.btn-option').forEach(btn => btn.classList.remove('selected'));
+            if (btnElement) btnElement.classList.add('selected');
+
+            if (type === 'metro') {
+                img.src = 'cairo-metro.png';
+                title.innerText = 'RIDE METRO';
+                reasonBox.style.display = 'none';
+            } else if (type === 'microbus') {
+                img.src = 'assets/van-transport.png'; 
+                title.innerText = 'MICROBUS / VAN';
+                reasonBox.style.display = 'none';
+            } else if (type === 'uber') {
+                img.src = 'assets/uber-icon.png'; 
+                title.innerText = 'UBER RIDE';
+                reasonBox.style.display = 'block';
+            }
+        }
+
+        function loadCourierData() {
+            document.getElementById('courierNameDisplay').innerText = currentCourierName;
+
+            if (!COURIER_SCRIPT_URL) return;
+
+            fetch(`${COURIER_SCRIPT_URL}?courier=${encodeURIComponent(currentCourierName)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById('custodyAmountDisplay').innerText = `${data.custody} ج.م`;
+                        renderTasks(data.tasks || []);
+                    }
+                })
+                .catch(err => console.error("Error loading data:", err));
+        }
+
+        function renderTasks(tasks) {
+            const container = document.getElementById('tasksListContainer');
+            container.innerHTML = '';
+
+            if (tasks.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:13px;">لا يوجد مهام مسندة لك حالياً.</p>';
+                return;
+            }
+
+            tasks.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'op-card';
+                card.onclick = () => selectTaskForDelivery(t);
+
+                card.innerHTML = `
+                    <div class="op-card-header">
+                        <span class="op-number">📦 ${t.opNumber}</span>
+                        <span class="status-badge ${t.status === 'تم التسليم' ? 'badge-transit' : 'badge-pickup'}">${t.status}</span>
+                    </div>
+                    <p style="font-size:14px; font-weight:bold;">${t.hospital}</p>
+                    <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">نوع الحالة: ${t.caseType}</p>
+                `;
+                container.appendChild(card);
             });
-    }
+        }
 
-    // 6. تفاعل السحب لتأكيد التسليم (Slide to Confirm)
-    const thumb = document.getElementById('sliderThumb');
-    const container = document.getElementById('sliderContainer');
-    let isDragging = false;
+        function selectTaskForDelivery(task) {
+            selectedTask = task;
+            document.getElementById('deliveryHospitalName').innerText = task.hospital;
+            document.getElementById('deliveryOpNumber').innerText = `رقم العملية: ${task.opNumber}`;
+            document.getElementById('hospitalMapLink').href = task.location || '#';
+            switchView('viewDelivery');
+        }
 
-    if (thumb && container) {
-        thumb.addEventListener('mousedown', startDrag);
-        thumb.addEventListener('touchstart', startDrag);
+        function submitExpense() {
+            const category = document.getElementById('expenseCategorySelect').value;
+            const amount = document.getElementById('expenseAmountInput').value;
+            if (!amount || amount <= 0) { alert('⚠️ أدخل مبلغاً صحيحاً'); return; }
 
-        function startDrag() { isDragging = true; }
-        window.addEventListener('mouseup', endDrag);
-        window.addEventListener('touchend', endDrag);
+            const payload = {
+                action: "add_expense",
+                courierName: currentCourierName,
+                category: category,
+                taskId: selectedTask ? selectedTask.taskId : "عام",
+                transportMethod: selectedTransportMethod,
+                uberReason: document.getElementById('uberReasonInput').value,
+                amount: amount
+            };
 
-        window.addEventListener('mousemove', drag);
-        window.addEventListener('touchmove', drag);
+            fetch(COURIER_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.result === 'success') {
+                        alert('✅ تم تسجيل المصروف وخصمه من العهدة');
+                        document.getElementById('expenseAmountInput').value = '';
+                        loadCourierData();
+                    }
+                });
+        }
 
-        function drag(e) {
-            if (!isDragging) return;
-            const rect = container.getBoundingClientRect();
-            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            let left = clientX - rect.left - 20;
+        function confirmStartMovement() {
+            if (!selectedTask) { alert("⚠️ اختر عملية أولاً"); return; }
+            const fileInput = document.getElementById('startPhotoInput');
+            
+            const payload = {
+                action: "start_movement",
+                taskId: selectedTask.taskId,
+                courierName: currentCourierName,
+                startPhoto: fileInput.files[0] ? fileInput.files[0].name : "تم رفع صورة الحركة"
+            };
 
-            if (left < 5) left = 5;
-            if (left > rect.width - 50) {
-                left = rect.width - 50;
-                confirmDeliveryAction();
+            fetch(COURIER_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.result === 'success') {
+                        alert("✅ تم تأكيد بدء الحركة بنجاح!");
+                        loadCourierData();
+                    }
+                });
+        }
+
+        // سحب زر التسليم (Slide to Confirm)
+        const thumb = document.getElementById('sliderThumb');
+        const container = document.getElementById('sliderContainer');
+        let isDragging = false;
+
+        if (thumb && container) {
+            thumb.addEventListener('mousedown', startDrag);
+            thumb.addEventListener('touchstart', startDrag);
+
+            function startDrag() { isDragging = true; }
+            window.addEventListener('mouseup', endDrag);
+            window.addEventListener('touchend', endDrag);
+
+            window.addEventListener('mousemove', drag);
+            window.addEventListener('touchmove', drag);
+
+            function drag(e) {
+                if (!isDragging) return;
+                const rect = container.getBoundingClientRect();
+                let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                let left = clientX - rect.left - 20;
+
+                if (left < 5) left = 5;
+                if (left > rect.width - 50) {
+                    left = rect.width - 50;
+                    confirmDeliveryAction();
+                    isDragging = false;
+                }
+                thumb.style.left = left + 'px';
+            }
+
+            function endDrag() {
+                if (!isDragging) return;
                 isDragging = false;
+                thumb.style.left = '5px';
             }
-            thumb.style.left = left + 'px';
         }
 
-        function endDrag() {
-            if (!isDragging) return;
-            isDragging = false;
-            thumb.style.left = '5px';
+        function confirmDeliveryAction() {
+            if (!selectedTask) { alert("⚠️ اختر عملية أولاً لتأكيد تسليمها"); thumb.style.left = '5px'; return; }
+
+            const payload = {
+                action: "update_task_status",
+                courierName: currentCourierName,
+                taskId: selectedTask.taskId,
+                newStatus: "تم التسليم"
+            };
+
+            fetch(COURIER_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.result === 'success') {
+                        alert(`🎉 تم تأكيد تسليم العملية ${selectedTask.opNumber} بنجاح!`);
+                        thumb.style.left = '5px';
+                        switchView('viewTasks');
+                        loadCourierData();
+                    }
+                });
         }
-    }
 
-    function confirmDeliveryAction() {
-        if (!selectedTask) { alert("⚠️ اختر عملية أولاً لتأكيد تسليمها"); thumb.style.left = '5px'; return; }
+        function contactSupport() {
+            fetch(`${COURIER_SCRIPT_URL}?action=getSupportLink&courier=${encodeURIComponent(currentCourierName)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.url) {
+                        window.open(data.url, '_blank');
+                    } else {
+                        alert('⚠️ تعذر الحصول على رابط الدعم حالياً.');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('⚠️ حدث خطأ أثناء الاتصال بالدعم.');
+                });
+        }
 
-        const payload = {
-            action: "update_task_status",
-            courierName: currentCourierName,
-            taskId: selectedTask.taskId,
-            newStatus: "تم التسليم"
-        };
-
-        fetch(COURIER_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.json())
-            .then(res => {
-                if (res.result === 'success') {
-                    alert(`🎉 تم تأكيد تسليم العملية ${selectedTask.opNumber} بنجاح!`);
-                    thumb.style.left = '5px';
-                    switchView('viewTasks');
-                    loadCourierData();
-                }
-            });
-    }
-
-    function contactSupport() {
-        fetch(`${COURIER_SCRIPT_URL}?action=getSupportLink&courier=${encodeURIComponent(currentCourierName)}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data && data.url) {
-                    window.open(data.url, '_blank');
-                } else {
-                    alert('⚠️ تعذر الحصول على رابط الدعم حالياً.');
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('⚠️ حدث خطأ أثناء الاتصال بالدعم.');
-            });
-    }
-
-    // تشغيل جلب البيانات عند فتح الصفحة
-    loadCourierData();
-      // تبديل تبويبات الصفحة الأولى (ص1)
-function switchFinancialTab(tab) {
-    document.getElementById('chipCustody').className = `chip ${tab === 'custody' ? 'active-custody' : ''}`;
-    document.getElementById('chipPayed').className = `chip ${tab === 'payed' ? 'active-payed' : ''}`;
-    document.getElementById('custodyTabContent').style.display = tab === 'custody' ? 'block' : 'none';
-    document.getElementById('payedTabContent').style.display = tab === 'payed' ? 'block' : 'none';
-}
-
-// التحكم في إخفاء واظهار خيارات المواصلات ص2
-function handleCategoryChange(val) {
-    const transportSec = document.getElementById('transportSection');
-    if (val === 'مواصلات وانتقالات') {
-        transportSec.style.display = 'block';
-    } else {
-        transportSec.style.display = 'none';
-    }
-}
-
-// عرض سجل العهد والمصاريف المسترجعة من السكربت
-function renderFinancialData(data) {
-    // حالة التسوية
-    const badge = document.getElementById('settlementStatusBadge');
-    if (data.isSettled) {
-        badge.innerText = "تمت التسوية";
-        badge.className = "status-badge badge-transit";
-    } else {
-        badge.innerText = "غير مسواة";
-        badge.className = "status-badge badge-pickup";
-    }
-
-    // العهد
-    const custodyContainer = document.getElementById('custodyListContainer');
-    if (!data.custodyLogs || data.custodyLogs.length === 0) {
-        custodyContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد عهد مسجلة.</p>';
-    } else {
-        custodyContainer.innerHTML = data.custodyLogs.map(c => `
-            <div class="op-card" style="margin-bottom:8px; padding:10px;">
-                <div style="display:flex; justify-content:space-between;">
-                    <strong>💰 ${c.amount} ج.م</strong>
-                    <small style="color:var(--text-muted);">${c.date}</small>
-                </div>
-                <small style="color:var(--text-muted);">${c.notes || 'تسليم عهدة'}</small>
-            </div>
-        `).join('');
-    }
-
-    // المصاريف
-    const expContainer = document.getElementById('expensesListContainer');
-    if (!data.expenses || data.expenses.length === 0) {
-        expContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد مصاريف مسجلة.</p>';
-    } else {
-        expContainer.innerHTML = data.expenses.map(e => `
-            <div class="op-card" style="margin-bottom:8px; padding:10px;">
-                <div style="display:flex; justify-content:space-between;">
-                    <strong style="color:var(--accent-red);">💸 ${e.amount} ج.م</strong>
-                    <small style="color:var(--text-muted);">${e.date}</small>
-                </div>
-                <small style="color:var(--accent-blue); display:block;">البند: ${e.category}</small>
-            </div>
-        `).join('');
-    }
-}
-
-// بدء الحركة
-function confirmStartMovement() {
-    if (!selectedTask) { alert("⚠️ اختر عملية أولاً"); return; }
-    const fileInput = document.getElementById('startPhotoInput');
-    
-    const payload = {
-        action: "start_movement",
-        taskId: selectedTask.taskId,
-        courierName: currentCourierName,
-        startPhoto: fileInput.files[0] ? fileInput.files[0].name : "تم رفع صورة الحركة"
-    };
-
-    fetch(COURIER_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-        .then(res => res.json())
-        .then(res => {
-            if (res.result === 'success') {
-                alert("✅ تم تأكيد بدء الحركة بنجاح!");
-                loadCourierData();
-            }
-        });
-}
-
-// تعديل تسجيل المصروف لإرسال البند المختار
-function submitExpense() {
-    const category = document.getElementById('expenseCategorySelect').value;
-    const amount = document.getElementById('expenseAmountInput').value;
-    if (!amount || amount <= 0) { alert('⚠️ أدخل مبلغاً صحيحاً'); return; }
-
-    const payload = {
-        action: "add_expense",
-        courierName: currentCourierName,
-        category: category,
-        taskId: selectedTask ? selectedTask.taskId : "عام",
-        transportMethod: selectedTransportMethod,
-        uberReason: document.getElementById('uberReasonInput').value,
-        amount: amount
-    };
-
-    fetch(COURIER_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-        .then(res => res.json())
-        .then(res => {
-            if (res.result === 'success') {
-                alert('✅ تم تسجيل المصروف وخصمه من العهدة');
-                document.getElementById('expenseAmountInput').value = '';
-                loadCourierData();
-            }
-        });
-}
-</script>
+        // بدء جلب البيانات
+        loadCourierData();
+    </script>
 </body>
 </html>
-<!-- السطر 420: نهاية ملف delivery_app.html -->
