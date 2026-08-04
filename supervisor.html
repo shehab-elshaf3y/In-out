@@ -262,15 +262,29 @@
                 </div>
             </div>
 
-            <!-- كارت صورة المركبة والمعاينة -->
-            <div class="card" style="text-align: center;">
-                <div class="card-title">🚚 وسيلة التوصيل والمعاينة</div>
-                <img src="assets/van-transport.png" alt="van-transport" style="width: 100%; max-height: 140px; object-fit: contain; margin-bottom: 10px;">
-                <p style="font-size: 12px; color: var(--text-muted);">نظام تتبع حالة مركبات ومسارات المناديب المباشر</p>
-            </div>
-        </div>
+          <!-- كارت تسوية العهد والمصاريف البديل لكارت المعاينة -->
+<div class="card">
+    <div class="card-title">
+        <span>🧾 مصاريف وتسوية عهدة المندوب</span>
+        <span id="settlementStatusBadgeSupervisor" class="courier-status status-available">غير مسواة</span>
     </div>
 
+    <div style="margin-bottom: 15px; background: var(--input-bg); padding: 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+        <p style="font-size: 13px;">المندوب المحدد: <strong id="settleCourierName" style="color:var(--accent-blue);">يوسف</strong></p>
+        <p style="font-size: 13px; margin-top: 4px;">العهدة المتبقية حالياً: <strong id="settleCourierCustody" style="color:var(--accent-green);">0 ج.م</strong></p>
+    </div>
+
+    <!-- قائمة مصاريف المندوب المحدد -->
+    <h4 style="font-size: 13px; margin-bottom: 8px; color: var(--text-muted);">بيان المصاريف المسجلة عليه:</h4>
+    <div id="courierExpensesList" style="max-height: 140px; overflow-y: auto; font-size: 12px; margin-bottom: 15px; border: 1px solid var(--card-border); padding: 8px; border-radius: 8px; background: var(--input-bg);">
+        اختر مندوباً من القائمة الجانبية لعرض مصاريفه.
+    </div>
+
+    <!-- زر تأكيد التسوية وتصفير العهدة -->
+    <button class="btn btn-success" onclick="confirmCustodySettlement()" style="width: 100%; justify-content: center; padding: 12px;">
+        ✅ تأكيد تسوية العهدة (تصفير العهدة)
+    </button>
+</div>
     <!-- Modal إسناد عملية جديدة -->
     <div id="taskModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); justify-content:center; align-items:center; z-index:1000;">
         <div class="card" style="width: 90%; max-width: 450px;">
