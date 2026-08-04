@@ -349,11 +349,12 @@
         </div>
     </div>
 
-    <script>
-        const SUPERVISOR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYj-KWBP6DwjsVcy3m5yGWrtGB1hIfOBOuWGdr4Q6Scn6UCz8_kwB30idrfpZcI5c/exec";
+   <script>
+        const SUPERVISOR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcx0dckmfHqJz_6DIFYxSlz8sRdsC3JszRe6oAnwku6fy01HHWVnPn9xZkhS_-nPk/exec";
 
         let couriersData = [];
         let tasksData = [];
+        let allExpensesData = []; // متغيّر مخصص لتخزين المصاريف
         let activeCourier = null;
         let loggedInUserName = "";
 
@@ -398,13 +399,12 @@
             }
         }
 
-        // 4. جلب وسحب بيانات المناديب والمهام من Google Sheets
+        // 4. جلب وسحب بيانات المناديب والمهام والمصاريف من Google Sheets
         function loadSupervisorData() {
             fetch(SUPERVISOR_SCRIPT_URL)
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === "success") {
-                        // دعم قراءة خانات اسم المندوب والحالة والعهدة باللغتين العربية والإنجليزية
                         couriersData = (data.couriers || []).map(c => ({
                             code: c['كود المندوب'] || c.code || '',
                             name: c['اسم المندوب'] || c.name || c.courierName || 'مندوب بدون اسم',
@@ -413,7 +413,14 @@
                         }));
 
                         tasksData = data.tasks || [];
+                        allExpensesData = data.expenses || []; // حفظ جدول المصاريف
                         renderCouriersList();
+
+                        // إعادة تحديد المندوب الحالي تلقائياً وتحديث بياناته لو كان محدد مسبقاً
+                        if (activeCourier) {
+                            const updated = couriersData.find(c => c.name === activeCourier.name);
+                            if (updated) selectCourier(updated);
+                        }
                     }
                 })
                 .catch(err => console.error("خطأ في جلب بيانات المشرف:", err));
@@ -452,6 +459,7 @@
             activeCourier = courier;
             renderCouriersList();
 
+            // 1. تحديث البيانات في كارت تفاصيل المندوب والعملية الحالية
             document.getElementById('selectedCourierName').innerText = courier.name;
             document.getElementById('selectedCourierCustody').innerText = `${courier.custody} ج.م`;
             
@@ -471,6 +479,56 @@
                         <small style="color:var(--accent-yellow)">الحالة: ${t.status || t['الحالة']}</small>
                     </div>
                 `).join('');
+            }
+
+            // 2. تحديث البيانات في كارت التسوية والمصاريف الجديد
+            document.getElementById('settleCourierName').innerText = courier.name;
+            document.getElementById('settleCourierCustody').innerText = `${courier.custody} ج.م`;
+
+            const statusBadge = document.getElementById('settlementStatusBadgeSupervisor');
+            if (courier.custody === 0) {
+                statusBadge.innerText = "تمت التسوية";
+                statusBadge.className = "courier-status status-available";
+            } else {
+                statusBadge.innerText = "غير مسواة";
+                statusBadge.className = "courier-status status-busy";
+            }
+
+            // عرض قائمة المصاريف الخاصة بهذا المندوب بالظبط
+            const courierExps = allExpensesData.filter(e => e.courierName === courier.name);
+            const expContainer = document.getElementById('courierExpensesList');
+            
+            if (courierExps.length === 0) {
+                expContainer.innerHTML = '<p style="color:var(--text-muted);">لا يوجد مصاريف مسجلة لهذا المندوب.</p>';
+            } else {
+                expContainer.innerHTML = courierExps.map(e => `
+                    <div style="padding:6px; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between;">
+                        <span>📌 ${e.category || 'مصروف'}</span>
+                        <strong style="color:var(--accent-red);">${e.amount} ج.م</strong>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // دالة تأكيد تسوية العهدة وتصفيرها
+        function confirmCustodySettlement() {
+            if (!activeCourier) { alert("⚠️ اختر مندوباً أولاً من القائمة الجانبية!"); return; }
+            
+            if (confirm(`هل أنت تأكد من تسوية عهدة المندوب (${activeCourier.name}) وتصفيرها؟`)) {
+                const payload = {
+                    action: "settle_custody",
+                    courierName: activeCourier.name,
+                    supervisorName: loggedInUserName
+                };
+
+                fetch(SUPERVISOR_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.result === 'success') {
+                            alert(`✅ تم تسوية عهدة المندوب ${activeCourier.name} وتصفيرها إلى 0 ج.م بنجاح!`);
+                            loadSupervisorData(); // إعادة سحب البيانات والتسميع
+                        }
+                    });
             }
         }
 
