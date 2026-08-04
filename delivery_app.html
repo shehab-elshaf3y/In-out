@@ -220,25 +220,76 @@
     </div>
 
     <!-- السطر 158: الشاشة الأولى - قائمة المهام والعهد (Screen 1 in UX.jpg) -->
-    <div id="viewTasks" class="view-container active">
-        <div class="filter-chips">
-            <span class="chip active-payed">payed</span>
-            <span class="chip active-custody">custody</span>
-            <span class="chip active-settlement">settlement</span>
-        </div>
+   <!-- الشاشة الأولى - الموقف المالي والعهد والتسوية (ص1) -->
+<div id="viewTasks" class="view-container active">
+    <!-- شارة حالة التسوية العامة -->
+    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 13px; font-weight: bold;">حالة تسوية العهدة:</span>
+        <span id="settlementStatusBadge" class="status-badge badge-pickup">غير مسواة</span>
+    </div>
 
-        <div id="tasksListContainer">
-            <p style="text-align:center; color:var(--text-muted); font-size:13px; margin-top:20px;">جاري جلب العمليات المسندة...</p>
+    <!-- شرائح التنقل التفاعلية -->
+    <div class="filter-chips">
+        <span class="chip active-custody" id="chipCustody" onclick="switchFinancialTab('custody')">العهد المستلمة</span>
+        <span class="chip" id="chipPayed" onclick="switchFinancialTab('payed')">المصاريف</span>
+    </div>
+
+    <!-- قائمة العهد المستلمة -->
+    <div id="custodyTabContent">
+        <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">سجل العهد المسلمة من المشرف:</h4>
+        <div id="custodyListContainer">
+            <p style="text-align:center; color:var(--text-muted); font-size:12px;">جاري تحميل العهد...</p>
         </div>
     </div>
 
-    <!-- السطر 171: الشاشة الثانية - وسيلة التوصيل والمصاريف (Screen 2 in UX.jpg) -->
-    <div id="viewTransport" class="view-container">
-        <div class="transport-card">
-            <img src="cairo-metro.png" id="transportImg" class="transport-img" alt="cairo-metro.png">
-            <h3 id="transportTitle">RIDE METRO</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">حدد وسيلة التوصيل المستخدمة للعملية</p>
+    <!-- قائمة المصاريف المصروفة -->
+    <div id="payedTabContent" style="display: none;">
+        <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">سجل المصاريف التي تم خصمها:</h4>
+        <div id="expensesListContainer">
+            <p style="text-align:center; color:var(--text-muted); font-size:12px;">جاري تحميل المصاريف...</p>
         </div>
+    </div>
+</div>
+
+<!-- الشاشة الثانية - تسجيل المصاريف والانتقالات (ص2) -->
+<div id="viewTransport" class="view-container">
+    <div style="background:var(--card-bg); padding:15px; border-radius:16px; border:1px solid var(--card-border); margin-bottom: 15px;">
+        <h4 style="font-size:14px; margin-bottom:12px;">💵 تسجيل مصروف جديد</h4>
+        
+        <!-- القائمة المنسدلة لتحديد بند الفلوس -->
+        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">مصروفة في إيه؟</label>
+        <select id="expenseCategorySelect" onchange="handleCategoryChange(this.value)" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main); font-weight:bold; margin-bottom:12px;">
+            <option value="مواصلات وانتقالات">🚌 مواصلات وانتقالات</option>
+            <option value="طباعة وأوراق مستندات">📄 طباعة وأوراق مستندات</option>
+            <option value="شراء مستلزمات طارئة">🛒 شراء مستلزمات طارئة</option>
+        </select>
+
+        <!-- كارت أزرار وسائل التوصيل (تظهر فقط عند اختيار مواصلات) -->
+        <div id="transportSection">
+            <div class="transport-card" style="padding: 10px; margin-bottom: 10px;">
+                <img src="cairo-metro.png" id="transportImg" class="transport-img" style="max-height:80px;" alt="metro">
+                <h4 id="transportTitle" style="font-size: 13px;">RIDE METRO</h4>
+            </div>
+
+            <div class="transport-options" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 10px;">
+                <button type="button" class="btn-option selected" onclick="selectTransport('metro', this)">🚇 مترو</button>
+                <button type="button" class="btn-option" onclick="selectTransport('uber', this)">🚗 أوبر</button>
+                <button type="button" class="btn-option" onclick="selectTransport('microbus', this)">🚐 ميكروباص</button>
+            </div>
+
+            <div id="uberReasonBox" style="display:none; margin-bottom:10px;">
+                <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:3px;">سبب طلب أوبر:</label>
+                <input type="text" id="uberReasonInput" placeholder="مثال: عينة ثقيلة" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main); font-size:12px;">
+            </div>
+        </div>
+
+        <!-- المبلغ المالي -->
+        <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">المبلغ المسجل:</label>
+        <input type="number" id="expenseAmountInput" placeholder="المبلغ بالجنيه (مثال: 50)" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--chip-bg); color:var(--text-main); margin-bottom:12px;">
+        
+        <button onclick="submitExpense()" style="width:100%; padding:12px; background:var(--accent-green); border:none; border-radius:10px; color:white; font-weight:bold; cursor:pointer;">خصم وتسجيل المصروف من العهدة</button>
+    </div>
+</div>
 
        <!-- اختيار وسيلة التوصيل (Metro / Uber / Microbus) -->
 <div class="transport-options" style="grid-template-columns: repeat(3, 1fr);">
@@ -261,17 +312,38 @@
     </div>
 
     <!-- السطر 202: الشاشة الثالثة - تفاصيل التوصيل والسحب للتأكيد (Screen 3 in UX.jpg) -->
-    <div id="viewDelivery" class="view-container">
-        <div class="op-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <span style="font-size:12px; color:var(--text-muted);">المسافة التقديرية: <strong>2.8 mile</strong></span>
-                <span style="font-size:12px; color:var(--accent-green);">الوقت المتبقي: <strong>25 دقيقة</strong></span>
-            </div>
-            <img src="assets/map-route-preview.png" style="width:100%; height:100px; object-fit:cover; border-radius:10px; margin-bottom:10px;" alt="map-route-preview.png">
-            <h3 id="deliveryHospitalName">اسم المستشفى</h3>
-            <p id="deliveryOpNumber" style="font-size:13px; color:var(--text-muted); margin-top:4px;">رقم العملية: OP-XXXX</p>
-            <a id="hospitalMapLink" href="#" target="_blank" style="display:inline-block; margin-top:8px; font-size:12px; color:var(--accent-blue); font-weight:bold;">📍 فتح الموقع في Google Maps</a>
-        </div>
+   <!-- الشاشة الثالثة - تفاصيل العملية وبدء الحركة والتسليم (ص3) -->
+<div id="viewDelivery" class="view-container">
+    <div class="op-card">
+        <h3 id="deliveryHospitalName">اسم المستشفى</h3>
+        <p id="deliveryOpNumber" style="font-size:13px; color:var(--text-muted); margin-top:4px;">رقم العملية: OP-XXXX</p>
+        <a id="hospitalMapLink" href="#" target="_blank" style="display:inline-block; margin-top:8px; font-size:12px; color:var(--accent-blue); font-weight:bold;">📍 فتح اللوكيشن في Google Maps</a>
+    </div>
+
+    <!-- خطوة 1: بدء الحركة مع إرفاق صورة -->
+    <div style="background:var(--card-bg); padding:12px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:12px;">
+        <h4 style="font-size:13px; margin-bottom:8px;">🚀 1. بدء الحركة للعملية</h4>
+        <input type="file" id="startPhotoInput" accept="image/*" style="font-size:12px; margin-bottom:8px; width:100%;">
+        <button onclick="confirmStartMovement()" style="width:100%; padding:9px; background:var(--accent-blue); border:none; border-radius:8px; color:white; font-weight:bold; cursor:pointer;">تأكيد بدء الحركة وارفاق الصورة</button>
+    </div>
+
+    <!-- خطوة 2: تم التسليم وارفاق الصورة -->
+    <div style="background:var(--card-bg); padding:12px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:12px;">
+        <h4 style="font-size:13px; margin-bottom:8px;">📦 2. إثبات التسليم</h4>
+        <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">ارفق صورة التسليم أولاً:</label>
+        <input type="file" id="deliveryPhotoInput" accept="image/*" style="font-size:12px; margin-bottom:8px; width:100%;">
+    </div>
+
+    <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <button onclick="contactSupport()" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text-main); font-weight:bold; cursor:pointer; font-size:12px;">💬 محادثة الدعم</button>
+    </div>
+
+    <!-- زر السحب لتأكيد التسليم Slide to confirm -->
+    <div class="slider-container" id="sliderContainer">
+        <span class="slider-text">>>> Slide to confirm the delivery</span>
+        <div class="slider-thumb" id="sliderThumb">➔</div>
+    </div>
+</div>
 
       <!-- أزرار الاتصال والمحادثة مع الدعم والمشرف -->
 <div style="display:flex; gap:10px; margin-bottom:15px;">
@@ -304,7 +376,7 @@
     }
 
     // رابط الـ Apps Script الخاص بك
-    const COURIER_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYj-KWBP6DwjsVcy3m5yGWrtGB1hIfOBOuWGdr4Q6Scn6UCz8_kwB30idrfpZcI5c/exec";
+    const COURIER_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcx0dckmfHqJz_6DIFYxSlz8sRdsC3JszRe6oAnwku6fy01HHWVnPn9xZkhS_-nPk/exec";
 
     let selectedTask = null;
     let selectedTransportMethod = "metro";
@@ -513,6 +585,117 @@
 
     // تشغيل جلب البيانات عند فتح الصفحة
     loadCourierData();
+      // تبديل تبويبات الصفحة الأولى (ص1)
+function switchFinancialTab(tab) {
+    document.getElementById('chipCustody').className = `chip ${tab === 'custody' ? 'active-custody' : ''}`;
+    document.getElementById('chipPayed').className = `chip ${tab === 'payed' ? 'active-payed' : ''}`;
+    document.getElementById('custodyTabContent').style.display = tab === 'custody' ? 'block' : 'none';
+    document.getElementById('payedTabContent').style.display = tab === 'payed' ? 'block' : 'none';
+}
+
+// التحكم في إخفاء واظهار خيارات المواصلات ص2
+function handleCategoryChange(val) {
+    const transportSec = document.getElementById('transportSection');
+    if (val === 'مواصلات وانتقالات') {
+        transportSec.style.display = 'block';
+    } else {
+        transportSec.style.display = 'none';
+    }
+}
+
+// عرض سجل العهد والمصاريف المسترجعة من السكربت
+function renderFinancialData(data) {
+    // حالة التسوية
+    const badge = document.getElementById('settlementStatusBadge');
+    if (data.isSettled) {
+        badge.innerText = "تمت التسوية";
+        badge.className = "status-badge badge-transit";
+    } else {
+        badge.innerText = "غير مسواة";
+        badge.className = "status-badge badge-pickup";
+    }
+
+    // العهد
+    const custodyContainer = document.getElementById('custodyListContainer');
+    if (!data.custodyLogs || data.custodyLogs.length === 0) {
+        custodyContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد عهد مسجلة.</p>';
+    } else {
+        custodyContainer.innerHTML = data.custodyLogs.map(c => `
+            <div class="op-card" style="margin-bottom:8px; padding:10px;">
+                <div style="display:flex; justify-content:space-between;">
+                    <strong>💰 ${c.amount} ج.م</strong>
+                    <small style="color:var(--text-muted);">${c.date}</small>
+                </div>
+                <small style="color:var(--text-muted);">${c.notes || 'تسليم عهدة'}</small>
+            </div>
+        `).join('');
+    }
+
+    // المصاريف
+    const expContainer = document.getElementById('expensesListContainer');
+    if (!data.expenses || data.expenses.length === 0) {
+        expContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد مصاريف مسجلة.</p>';
+    } else {
+        expContainer.innerHTML = data.expenses.map(e => `
+            <div class="op-card" style="margin-bottom:8px; padding:10px;">
+                <div style="display:flex; justify-content:space-between;">
+                    <strong style="color:var(--accent-red);">💸 ${e.amount} ج.م</strong>
+                    <small style="color:var(--text-muted);">${e.date}</small>
+                </div>
+                <small style="color:var(--accent-blue); display:block;">البند: ${e.category}</small>
+            </div>
+        `).join('');
+    }
+}
+
+// بدء الحركة
+function confirmStartMovement() {
+    if (!selectedTask) { alert("⚠️ اختر عملية أولاً"); return; }
+    const fileInput = document.getElementById('startPhotoInput');
+    
+    const payload = {
+        action: "start_movement",
+        taskId: selectedTask.taskId,
+        courierName: currentCourierName,
+        startPhoto: fileInput.files[0] ? fileInput.files[0].name : "تم رفع صورة الحركة"
+    };
+
+    fetch(COURIER_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(res => res.json())
+        .then(res => {
+            if (res.result === 'success') {
+                alert("✅ تم تأكيد بدء الحركة بنجاح!");
+                loadCourierData();
+            }
+        });
+}
+
+// تعديل تسجيل المصروف لإرسال البند المختار
+function submitExpense() {
+    const category = document.getElementById('expenseCategorySelect').value;
+    const amount = document.getElementById('expenseAmountInput').value;
+    if (!amount || amount <= 0) { alert('⚠️ أدخل مبلغاً صحيحاً'); return; }
+
+    const payload = {
+        action: "add_expense",
+        courierName: currentCourierName,
+        category: category,
+        taskId: selectedTask ? selectedTask.taskId : "عام",
+        transportMethod: selectedTransportMethod,
+        uberReason: document.getElementById('uberReasonInput').value,
+        amount: amount
+    };
+
+    fetch(COURIER_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(res => res.json())
+        .then(res => {
+            if (res.result === 'success') {
+                alert('✅ تم تسجيل المصروف وخصمه من العهدة');
+                document.getElementById('expenseAmountInput').value = '';
+                loadCourierData();
+            }
+        });
+}
 </script>
 </body>
 </html>
