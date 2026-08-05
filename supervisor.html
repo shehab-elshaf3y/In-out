@@ -248,6 +248,20 @@
                         </p>
                     </div>
                 </div>
+                <!-- كارت إدارة المستشفيات واللوكيشن -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-title">
+                    <span>🏥 إدارة المستشفيات واللوكيشن</span>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <input type="text" id="newHospName" placeholder="اسم المستشفى" style="flex: 1; padding: 10px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-main);">
+                    <input type="url" id="newHospLocation" placeholder="رابط Google Maps" style="flex: 2; padding: 10px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-main);">
+                    <button class="btn btn-primary" onclick="addHospital()">➕ إضافة / تحديث مستشفى</button>
+                </div>
+                <div id="hospitalsList" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <!-- سيتم عرض قائمة المستشفيات هنا -->
+                </div>
+            </div>
 
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
                     <button class="btn btn-primary" onclick="openTaskModal()">➕ إسناد عملية جديدة</button>
@@ -299,7 +313,9 @@
                 </div>
                 <div class="form-group">
                     <label>اسم المستشفى</label>
-                    <input type="text" id="hospitalNameInput" placeholder="أدخل اسم المستشفى" required>
+                  <select id="hospitalNameInput" onchange="autoFillLocation()" required>
+    <option value="">-- اختر المستشفى --</option>
+</select>
                 </div>
                 <div class="form-group">
                     <label>نوع الحالة</label>
@@ -370,13 +386,72 @@
 
             loggedInUserName = userName || "المشرف";
             document.getElementById('supervisorDisplayName').innerText = loggedInUserName;
+            // قائمة المستشفيات الافتراضية والمسجلة
+        let hospitalsData = JSON.parse(localStorage.getItem('hospitalsData')) || [
+            { name: "مستشفى العاملين", location: "https://maps.google.com/?q=El-Amal" },
+            { name: "مستشفى الشروق", location: "https://maps.google.com/?q=El-Shorouk" }
+        ];
+
+        function renderHospitals() {
+            const listContainer = document.getElementById('hospitalsList');
+            const selectSelect = document.getElementById('hospitalNameInput');
+            
+            if (listContainer) {
+                listContainer.innerHTML = hospitalsData.map((h, i) => `
+                    <div style="background:var(--input-bg); padding:6px 12px; border-radius:8px; border:1px solid var(--card-border); font-size:12px; display:flex; align-items:center; gap:8px;">
+                        <span>🏥 ${h.name}</span>
+                        <button onclick="removeHospital(${i})" style="background:none; border:none; color:var(--accent-red); cursor:pointer;">✖</button>
+                    </div>
+                `).join('');
+            }
+
+            if (selectSelect) {
+                selectSelect.innerHTML = '<option value="">-- اختر المستشفى --</option>' +
+                    hospitalsData.map(h => `<option value="${h.name}">${h.name}</option>`).join('');
+            }
+        }
+
+        function addHospital() {
+            const name = document.getElementById('newHospName').value.trim();
+            const location = document.getElementById('newHospLocation').value.trim();
+            if (!name || !location) { alert("⚠️ برجاء إدخال اسم المستشفى والرابط!"); return; }
+
+            const index = hospitalsData.findIndex(h => h.name === name);
+            if (index > -1) {
+                hospitalsData[index].location = location;
+            } else {
+                hospitalsData.push({ name, location });
+            }
+
+            localStorage.setItem('hospitalsData', JSON.stringify(hospitalsData));
+            document.getElementById('newHospName').value = '';
+            document.getElementById('newHospLocation').value = '';
+            renderHospitals();
+            alert("✅ تم حفظ المستشفى واللوكيشن بنجاح!");
+        }
+
+        function removeHospital(index) {
+            hospitalsData.splice(index, 1);
+            localStorage.setItem('hospitalsData', JSON.stringify(hospitalsData));
+            renderHospitals();
+        }
+
+        function autoFillLocation() {
+            const selectedName = document.getElementById('hospitalNameInput').value;
+            const target = hospitalsData.find(h => h.name === selectedName);
+            if (target) {
+                document.getElementById('locationUrlInput').value = target.location;
+            } else {
+                document.getElementById('locationUrlInput').value = '';
+            }
+        }
 
             // تطبيق الوضع الفاتح لو كان محفوظاً
             if (localStorage.getItem('theme') === 'light') {
                 document.body.classList.add('light-mode');
                 document.getElementById('themeToggleBtn').innerText = '🌙 الوضع الداكن';
             }
-
+            renderHospitals();
             loadSupervisorData();
         });
 
