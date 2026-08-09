@@ -261,10 +261,7 @@
     function renderTable(employees) {
       const tbody = document.getElementById('emp-tbody');
       tbody.innerHTML = '';
-      const actionBtn = isPending
-  ? `<button class="btn-approve" onclick="approveEmployee('${emp.id}', '${emp.requestedRole}')">تفعيل</button>`
-  : `<button class="btn-secondary" style="padding: 5px;" onclick="adminResetPin('${emp.id}')">إعادة تعيين PIN</button>`;
-
+  
       employees.forEach(emp => {
         const isPending = emp.role === 'pending';
         const roleBadge = isPending 
@@ -277,14 +274,13 @@
           : `<button class="btn-approve" style="background: #3b82f6; padding: 6px 12px; font-size: 0.8rem;" onclick="adminResetPin('${emp.id}')">إعادة تعيين PIN</button>`;
 
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${emp.id}</strong></td>
-          <td>${emp.firstName} ${emp.fatherName}</td>
-          <td>${emp.phone}</td>
-          <td>${emp.nationalId}</td>
-          <td>${roleBadge}</td>
-          <td>${emp.requestedRole}</td>
-          <td>${actionBtn}</td>
+        tr.innerHTML = `<td><strong>${emp.id}</strong></td>
+<td>${emp.name}</td>
+<td>-</td>
+<td>-</td>
+<td>${roleBadge}</td>
+<td>-</td>
+<td>${actionBtn}</td>
         `;
         tbody.appendChild(tr);
       });
