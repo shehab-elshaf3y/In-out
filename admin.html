@@ -223,7 +223,7 @@
       window.location.href = './index.html';
     }
 
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby4Tak4Tp-zMpqdVRifb4j7TeJy2GY5BKIrLvA9Q_c9Ol5DCXY_49JtBf9qBjWKmA/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0i1APa-aLGM00WF23TuW53t3PWB6vtqrnxaVAsKfpACz69vX8jFeFBb-Kk6Xp1cY/exec";
 
     window.addEventListener('load', loadEmployees);
 
@@ -258,33 +258,36 @@
       });
     }
 
-    function renderTable(employees) {
-      const tbody = document.getElementById('emp-tbody');
-      tbody.innerHTML = '';
-  
-      employees.forEach(emp => {
-        const isPending = emp.role === 'pending';
-        const roleBadge = isPending 
-          ? `<span class="badge badge-pending">معلق (Pending)</span>` 
-          : `<span class="badge badge-active">${emp.role}</span>`;
+function renderTable(employees) {
+  const tbody = document.getElementById('emp-tbody');
+  tbody.innerHTML = '';
 
-        // إضافة زر تفعيل للمعلق، وزر إعادة تعيين PIN للمفعل
-        const actionBtn = isPending
-          ? `<button class="btn-approve" onclick="approveEmployee('${emp.id}', '${emp.requestedRole}')">موافقة وتفعيل (${emp.requestedRole})</button>`
-          : `<button class="btn-approve" style="background: #3b82f6; padding: 6px 12px; font-size: 0.8rem;" onclick="adminResetPin('${emp.id}')">إعادة تعيين PIN</button>`;
+  employees.forEach(emp => {
+    const isPending = emp.role === 'pending';
 
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${emp.id}</strong></td>
-<td>${emp.name}</td>
-<td>-</td>
-<td>-</td>
-<td>${roleBadge}</td>
-<td>-</td>
-<td>${actionBtn}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+    const roleBadge = isPending
+      ? `<span class="badge badge-pending">معلق (Pending)</span>`
+      : `<span class="badge badge-active">${emp.role}</span>`;
+
+   //  const actionBtn = isPending
+     // ? `<button class="btn-approve" onclick="approveEmployee('${emp.id}', '${emp.requestedRole}')">موافقة وتفعيل (${emp.requestedRole})</button>`
+     // : `<button class="btn-approve" style="background: #3b82f6; padding: 6px 12px; font-size: 0.8rem;" onclick="adminResetPin('${emp.id}')">إعادة تعيين PIN</button>`;
+
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td><strong>${emp.id}</strong></td>
+      <td>${emp.firstName} ${emp.fatherName}</td>
+      <td>${emp.phone}</td>
+      <td>${emp.nationalId}</td>
+      <td>${roleBadge}</td>
+      <td>${emp.requestedRole || '-'}</td>
+      <td>${actionBtn}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
 
     // الموافقة على الموظف مع إرسال الـ Token
     function approveEmployee(employeeId, requestedRole) {
