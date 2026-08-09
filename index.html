@@ -65,6 +65,7 @@
     }
 
     /* 2. الحاوية الرئيسية (Main Glass Card) */
+    ./* 2. الحاوية الرئيسية (Main Glass Card) */
     .app-card {
       width: 92%;
       max-width: 1000px;
@@ -273,7 +274,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 850px) {
+   @media (max-width: 850px) {
       body {
         align-items: flex-start;
         padding: 15px 10px;
@@ -295,7 +296,7 @@
         padding: 25px 20px;
       }
       .avatar-preview-box { width: 110px; height: 110px; margin-bottom: 10px; }
-      .grid-2 { grid-template-columns: 1fr; gap: 0; }
+      .grid-2 { grid-template-columns: 1fr; gap: 0; } /* تحويل الحقول المزدوجة لعمود واحد على الفون لكي لا تضيق مساحة الكتابة */
     }
   </style>
 </head>
@@ -336,7 +337,7 @@
         <button class="tab-btn" id="tab-register" onclick="switchTab('register')">إنشاء حساب (أول مرة)</button>
       </div>
 
-      <!-- نموذج تسجيل الدخول -->
+      <!-- نموذج تسجيل الدخول (Default) -->
       <form id="form-login" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label>كود الموظف (Employee ID) أو رقم الهاتف</label>
@@ -354,20 +355,11 @@
         <button type="submit" class="btn-submit">دخول النظام</button>
       </form>
 
-      <!-- نموذج تغيير/إعادة تعيين الـ PIN -->
-      <form id="form-reset-pin" style="display: none;" onsubmit="handlePinResetSubmit(event)">
-        <h3 style="color: var(--text-main); font-size: 1.1rem; margin-bottom: 15px;">تغيير رمز الـ PIN</h3>
-        <div class="form-group">
-          <label>كود الموظف (Employee ID) أو رقم الهاتف</label>
-          <input type="text" id="empIdInput" placeholder="أدخل الكود الخاص بك" required>
-        </div>
-        <div class="form-group">
-          <label>رمز الـ PIN الجديد (4 إلى 6 أرقام)</label>
-          <input type="password" id="newPinInput" placeholder="••••" maxlength="6" inputmode="numeric" required>
-        </div>
-        <button type="submit" class="btn-submit">حفظ الـ PIN الجديد</button>
-        <button type="button" class="btn-submit btn-secondary" onclick="switchTab('login')">إلغاء والعودة للدخول</button>
-      </form>
+     <div style="text-align: left; margin-top: -5px; margin-bottom: 15px;">
+  <span style="color: var(--text-muted); font-size: 13px;">
+    نسيت الـ PIN؟ يرجى التواصل مع الآدمن لإعادة تعيينه.
+  </span>
+</div>
 
       <!-- نموذج إنشاء حساب جديد -->
       <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
@@ -401,7 +393,7 @@
               <option value="HR">HR</option>
               <option value="محاسب">محاسب</option>
               <option value="مراقب مخزون">مراقب مخزون</option>
-              <option value="دعم فني">دعم فني</option>
+              <option value="دعم فني ">دعم فني</option>
               <option value="تنسيق">تنسيق</option>
               <option value="أمين مخزن">أمين مخزن</option>
               <option value="مسؤول الات">مسؤول الات</option>
@@ -464,7 +456,7 @@
       
       document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
       document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
-      document.getElementById('form-reset-pin').style.display = 'none';
+      document.getElementById('form-reset-pin').style.display = 'none'; // إخفاء نموذج التعيين عند التبديل
       
       hideStatus();
     }
@@ -490,7 +482,8 @@
     }
 
     function changeRoleAvatar(role) {
-      document.getElementById('display-role').innerText = role + " (طلب معلق)";
+  document.getElementById('display-role').innerText = role + " (طلب معلق)";
+
     }
 
     // 4. معالجة التسجيل
@@ -515,72 +508,77 @@
       })
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
-          showStatus(data.message, 'success');
-          localStorage.setItem('userSession', JSON.stringify(data));
-          setTimeout(() => {
-            alert('تم إرسال طلب إنشاء الحساب بنجاح! سيقوم الآدمن بمراجعة طلبك والموافقة على الصلاحية قبل التمكن من تسجيل الدخول.');
-            switchTab('login');
-          }, 2000);
-        } else {
+       if (data.success) {
+        showStatus(data.message, 'success');
+        localStorage.setItem('userSession', JSON.stringify(data));
+        setTimeout(() => {
+          alert('تم إرسال طلب إنشاء الحساب بنجاح! سيقوم الآدمن بمراجعة طلبك والموافقة على الصلاحية قبل التمكن من تسجيل الدخول.');
+          switchTab('login');
+        }, 2000);
+      } else {
           showStatus(data.message, 'error');
         }
       })
       .catch(() => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
     }
 
-    // 5. معالجة تسجيل الدخول (مع تخزين الـ Token والتوجيه السليم)
-    function handleLogin(e) {
-      e.preventDefault();
-      showStatus('جاري التحقق من بيانات الدخول...', 'info');
+    // 5. معالجة تسجيل الدخول
+    // 5. معالجة تسجيل الدخول
+// 5. معالجة تسجيل الدخول
+// 5. معالجة تسجيل الدخول (مُعدّلة ومضمونة التوجيه)
+function handleLogin(e) {
+  e.preventDefault();
+  showStatus('جاري التحقق من بيانات الدخول...', 'info');
 
-      const loginKey = document.getElementById('login-key').value.trim();
-      const loginPin = document.getElementById('login-pin').value.trim();
+  const loginKey = document.getElementById('login-key').value.trim();
+  const loginPin = document.getElementById('login-pin').value.trim();
 
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'login', loginKey: loginKey, pin: loginPin })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          showStatus(data.message, 'success');
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'login', loginKey: loginKey, pin: loginPin })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showStatus(data.message, 'success');
 
-          const emp = data.employee || data.user || {};
-          const userRole = String(emp.role || emp.Role || '').trim();
-          const userName = emp.name || emp.Name || loginKey;
+      const emp = data.employee || {};
+      const userRole = String(emp.role).trim();
+      const userName = emp.name;
 
-          // تخزين التوكن وجلسة المستخدم
-          localStorage.setItem('authToken', data.token || '');
-          localStorage.setItem('userSession', JSON.stringify(emp));
-          localStorage.setItem('userName', userName);
-          localStorage.setItem('userRole', userRole);
+      // تخزين الـ Token بشكل أساسي لاستخدامه في الطلبات المحمية
+      localStorage.setItem('authToken', data.token); 
+      localStorage.setItem('userSession', JSON.stringify(emp));
+      localStorage.setItem('userName', userName);
+      localStorage.setItem('userRole', userRole);
 
-          setTimeout(() => {
-            const roleLower = userRole.toLowerCase();
+      setTimeout(() => {
+        const roleLower = userRole.toLowerCase();
 
-            if (['admin'].includes(roleLower)) {
-                window.location.href = './admin.html';
-            } 
-            else if (['مندوب توصيل', 'مندوب عمليات', 'مندوب'].includes(roleLower) || roleLower.includes('مندوب')) {
-                window.location.href = './delivery.html';
-            } 
-            else if (['ceo'].includes(roleLower)) {
-                window.location.href = './ceo.html';
-            } 
-            else if (['supervisor', 'تنسيق', 'مشرف'].includes(roleLower)) {
-                window.location.href = './supervisor.html';
-            } else {
-                window.location.href = './employee.html';
-            }
-          }, 2000);
-          
+        // التوجيه بناءً على مصفوفة الـ Roles الموحدة في الـ Backend
+        if (['admin'].includes(roleLower)) {
+            window.location.href = './admin.html';
+        } 
+        else if (['مندوب توصيل', 'مندوب عمليات', 'مندوب'].includes(roleLower)) {
+            window.location.href = './delivery.html';
+        } 
+        else if (['ceo'].includes(roleLower)) {
+            window.location.href = './ceo.html';
+        } 
+        else if (['supervisor', 'تنسيق', 'مشرف'].includes(roleLower)) {
+            window.location.href = './supervisor.html';
         } else {
-          showStatus(data.message, 'error');
+            // توجيه افتراضي لأي دور آخر
+            window.location.href = './employee.html';
         }
-      })
-      .catch(() => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
+      }, 2000);
+      
+    } else {
+      showStatus(data.message, 'error');
     }
+  })
+  .catch(err => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
+}
 
     // 6. دوال إظهار وإخفاء الحالة (Status Messages)
     function showStatus(text, type) {
