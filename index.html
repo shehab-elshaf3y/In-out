@@ -347,29 +347,14 @@
           <label>رمز PIN السرية</label>
           <input type="password" id="login-pin" placeholder="••••" maxlength="6" inputmode="numeric" required>
         </div>
-        <div style="text-align: left; margin-top: -5px; margin-bottom: 15px;">
-          <a href="#" onclick="openResetPinSection(event)" style="color: #00d2d3; font-size: 13px; text-decoration: none;">
-            نسيت الـ PIN / تغيير الـ PIN؟
-          </a>
-        </div>
-        <button type="submit" class="btn-submit">دخول النظام</button>
-      </form>
+<div style="text-align: left; margin-top: -5px; margin-bottom: 15px;">
+  <span style="color: gray; font-size: 13px;">
+    نسيت الـ PIN؟ يرجى التواصل مع الآدمن لإعادة تعيينه.
+  </span>
+</div>
 
       <!-- نموذج تغيير/إعادة تعيين الـ PIN -->
-      <form id="form-reset-pin" style="display: none;" onsubmit="handlePinResetSubmit(event)">
-        <h3 style="color: var(--text-main); font-size: 1.1rem; margin-bottom: 15px;">تغيير رمز الـ PIN</h3>
-        <div class="form-group">
-          <label>كود الموظف (Employee ID) أو رقم الهاتف</label>
-          <input type="text" id="empIdInput" placeholder="أدخل الكود الخاص بك" required>
-        </div>
-        <div class="form-group">
-          <label>رمز الـ PIN الجديد (4 إلى 6 أرقام)</label>
-          <input type="password" id="newPinInput" placeholder="••••" maxlength="6" inputmode="numeric" required>
-        </div>
-        <button type="submit" class="btn-submit">حفظ الـ PIN الجديد</button>
-        <button type="button" class="btn-submit btn-secondary" onclick="switchTab('login')">إلغاء والعودة للدخول</button>
-      </form>
-
+      
       <!-- نموذج إنشاء حساب جديد -->
       <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
         <div class="grid-2">
@@ -465,8 +450,7 @@
       
       document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
       document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
-      document.getElementById('form-reset-pin').style.display = 'none'; // إخفاء نموذج التعيين عند التبديل
-      
+
       hideStatus();
     }
 
@@ -542,35 +526,21 @@ function handleLogin(e) {
   const loginKey = document.getElementById('login-key').value.trim();
   const loginPin = document.getElementById('login-pin').value.trim();
 
-  const payload = {
-    action: 'login',
-    loginKey: loginKey,
-    pin: loginPin
-  };
-
   fetch(SCRIPT_URL, {
     method: 'POST',
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ action: 'login', loginKey: loginKey, pin: loginPin })
   })
   .then(res => res.json())
   .then(data => {
-    console.log("البيانات الراجعة من السيرفر:", data);
-
     if (data.success) {
       showStatus(data.message, 'success');
 
-      // 1. استخراج بيانات الموظف بشكل مرن
-      const emp = data.employee || data.user || {};
+      const emp = data.employee || {};
+      const userRole = String(emp.role).trim();
+      const userName = emp.name;
 
-      // 2. قراءة الرتبة سواء كانت Role أو role وتفريغ المسافات
-      const rawRole = emp.Role || emp.role || emp.JOB_ROLE || '';
-      const userRole = String(rawRole).trim();
-
-      // 3. قراءة الاسم (من FirstNameEn + FatherNameEn أو من خانة الإدخال)
-      const userName = emp.name || emp.Name || 
-        (emp.FirstNameEn ? `${emp.FirstNameEn} ${emp.FatherNameEn || ''}` : loginKey);
-
-      // 4. حفظ البيانات في الـ LocalStorage
+      // تخزين الـ Token بشكل أساسي لاستخدامه في الطلبات المحمية
+      localStorage.setItem('authToken', data.token); 
       localStorage.setItem('userSession', JSON.stringify(emp));
       localStorage.setItem('userName', userName);
       localStorage.setItem('userRole', userRole);
@@ -578,30 +548,29 @@ function handleLogin(e) {
       setTimeout(() => {
         const roleLower = userRole.toLowerCase();
 
-        // التوجيه الذكي حسب الرتبة
-        if (['آدمن', 'admin'].includes(roleLower)) {
+        // التوجيه بناءً على مصفوفة الـ Roles الموحدة في الـ Backend
+        if (['admin'].includes(roleLower)) {
             window.location.href = './admin.html';
         } 
-        else if (['مندوب توصيل', 'مندوب', 'delivery', 'مندوب عمليات'].includes(roleLower) || roleLower.includes('مندوب')) {
+        else if (['مندوب توصيل', 'مندوب عمليات', 'مندوب'].includes(roleLower)) {
             window.location.href = './delivery.html';
         } 
         else if (['ceo'].includes(roleLower)) {
             window.location.href = './ceo.html';
         } 
-  else if (['supervisor', 'تنسيق'].includes(roleLower)) {
+        else if (['supervisor', 'تنسيق', 'مشرف'].includes(roleLower)) {
             window.location.href = './supervisor.html';
-        } 
-        
+        } else {
+            // توجيه افتراضي لأي دور آخر
+            window.location.href = './employee.html';
+        }
       }, 2000);
       
     } else {
       showStatus(data.message, 'error');
     }
   })
-  .catch(err => {
-    console.error('Login error:', err);
-    showStatus('حدث خطأ في الاتصال بالخادم.', 'error');
-  });
+  .catch(err => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
 }
 
     // 6. دوال إظهار وإخفاء الحالة (Status Messages)
@@ -619,47 +588,9 @@ function handleLogin(e) {
       document.getElementById('status-msg').style.display = 'none';
     }
 
-    // 7. دالة فتح قسم تغيير الـ PIN
-    function openResetPinSection(e) {
-      if (e) e.preventDefault();
-      document.getElementById("form-login").style.display = "none";
-      document.getElementById("form-register").style.display = "none";
-      document.getElementById("form-reset-pin").style.display = "block";
-      hideStatus();
-    }
+  
+   
 
-    // 8. دالة إرسال الـ PIN الجديد للـ Backend
-    async function handlePinResetSubmit(e) {
-      if (e) e.preventDefault();
-      
-      const empId = document.getElementById("empIdInput").value;
-      const newPin = document.getElementById("newPinInput").value;
-
-      showStatus("جاري تحديث الـ PIN...", "info");
-
-      try {
-        const response = await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "resetPin",
-            employeeId: empId,
-            newPin: newPin
-          })
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          showStatus(result.message, "success");
-          setTimeout(() => {
-            switchTab('login');
-          }, 2000);
-        } else {
-          showStatus(result.message, "error");
-        }
-      } catch (error) {
-        showStatus("حدث خطأ في الاتصال بالخادم", "error");
-      }
-    }
   </script>
 </body>
 </html>
