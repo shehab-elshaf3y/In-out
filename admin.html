@@ -206,21 +206,28 @@
     </div>
   </div>
 
- <script>
-    // 🛡️ طبقة حماية الآدمن: التحقق من الصلاحية قبل السماح بعرض الصفحة
+<script>
+    // 🛡️ طبقة حماية الآدمن المطابقة للـ Backend
     const sessionData = JSON.parse(localStorage.getItem('userSession') || '{}');
-    const userRole = sessionData.role ? String(sessionData.role).trim() : '';
+    const authToken = localStorage.getItem('authToken');
+    const userRole = sessionData.role ? String(sessionData.role).trim().toLowerCase() : '';
     
-    // لو مش مسجل دخول أو دوره مش آدمن، يتم طرده فوراً لصفحة الدخول الرئيسية
-    if (userRole !== 'آدمن' && userRole !== 'Admin' && userRole !== 'مشرف') {
+    // Backend يقبل فقط admin
+    if (userRole !== 'admin') {
       alert('⚠️ غير مسموح لك بالدخول، هذه الصفحة خاصة بالآدمن فقط!');
+      window.location.href = './index.html';
+    }
+
+    if (!authToken) {
+      alert('⚠️ جلسة غير صالحة، يرجى تسجيل الدخول.');
       window.location.href = './index.html';
     }
 
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzl1E-9XgncCmOGMBzR3iI1UhW5y9oKNhlILW8N_CErhKAMUdi4u5Ewe8MTIouStQk/exec";
 
-    // جلب الموظفين عند تحميل الصفحة
     window.addEventListener('load', loadEmployees);
+
+    // جلب الموظفين مع إرسال الـ Token
     function loadEmployees() {
       const loadingEl = document.getElementById('loading-msg');
       const tableEl = document.getElementById('emp-table');
@@ -230,7 +237,10 @@
 
       fetch(SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ action: 'getEmployees' })
+        body: JSON.stringify({ 
+          action: 'getEmployees',
+          token: authToken 
+        })
       })
       .then(res => res.json())
       .then(data => {
@@ -251,6 +261,9 @@
     function renderTable(employees) {
       const tbody = document.getElementById('emp-tbody');
       tbody.innerHTML = '';
+      const actionBtn = isPending
+  ? `<button class="btn-approve" onclick="approveEmployee('${emp.id}', '${emp.requestedRole}')">تفعيل</button>`
+  : `<button class="btn-secondary" style="padding: 5px;" onclick="adminResetPin('${emp.id}')">إعادة تعيين PIN</button>`;
 
       employees.forEach(emp => {
         const isPending = emp.role === 'pending';
@@ -258,9 +271,10 @@
           ? `<span class="badge badge-pending">معلق (Pending)</span>` 
           : `<span class="badge badge-active">${emp.role}</span>`;
 
+        // إضافة زر تفعيل للمعلق، وزر إعادة تعيين PIN للمفعل
         const actionBtn = isPending
           ? `<button class="btn-approve" onclick="approveEmployee('${emp.id}', '${emp.requestedRole}')">موافقة وتفعيل (${emp.requestedRole})</button>`
-          : `<span style="color: var(--text-muted); font-size: 0.85rem;">مفعل مسبقاً</span>`;
+          : `<button class="btn-approve" style="background: #3b82f6; padding: 6px 12px; font-size: 0.8rem;" onclick="adminResetPin('${emp.id}')">إعادة تعيين PIN</button>`;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -276,6 +290,7 @@
       });
     }
 
+    // الموافقة على الموظف مع إرسال الـ Token
     function approveEmployee(employeeId, requestedRole) {
       if (!confirm(`هل أنت متأكد من الموافقة على تفعيل الموظف (${employeeId}) بصلاحية (${requestedRole})؟`)) {
         return;
@@ -286,14 +301,40 @@
         body: JSON.stringify({
           action: 'updateRole',
           employeeId: employeeId,
-          newRole: requestedRole
+          newRole: requestedRole,
+          token: authToken
         })
       })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
           alert(data.message);
-          loadEmployees(); // إعادة تحميل الجدول لتحديث الحالة
+          loadEmployees(); 
+        } else {
+          alert('خطأ: ' + data.message);
+        }
+      })
+      .catch(() => alert('حدث خطأ أثناء الاتصال بالخادم.'));
+    }
+
+    // دالة إعادة تعيين الـ PIN للموظف بواسطة الآدمن
+    function adminResetPin(employeeId) {
+      const newPin = prompt(`أدخل رمز الـ PIN الجديد (4 إلى 6 أرقام) للموظف (${employeeId}):`);
+      if (!newPin) return;
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'resetPin',
+          employeeId: employeeId,
+          newPin: newPin,
+          token: authToken
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert(data.message);
         } else {
           alert('خطأ: ' + data.message);
         }
