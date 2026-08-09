@@ -253,9 +253,10 @@
         }
       })
       .catch(err => {
-        loadingEl.style.display = 'none';
-        alert('حدث خطأ في الاتصال بالخادم.');
-      });
+    loadingEl.style.display = 'none';
+    console.error('GET EMPLOYEES ERROR:', err);
+    alert('حدث خطأ: ' + err.message);
+});
     }
 
 function renderTable(employees) {
