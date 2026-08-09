@@ -269,10 +269,9 @@ function renderTable(employees) {
       ? `<span class="badge badge-pending">معلق (Pending)</span>`
       : `<span class="badge badge-active">${emp.role}</span>`;
 
-   //  const actionBtn = isPending
-     // ? `<button class="btn-approve" onclick="approveEmployee('${emp.id}', '${emp.requestedRole}')">موافقة وتفعيل (${emp.requestedRole})</button>`
-     // : `<button class="btn-approve" style="background: #3b82f6; padding: 6px 12px; font-size: 0.8rem;" onclick="adminResetPin('${emp.id}')">إعادة تعيين PIN</button>`;
-
+     const actionBtn = isPending
+      ? `<button class="btn-approve" onclick="approveEmployee('${emp.id}', '${emp.requestedRole}')">موافقة وتفعيل (${emp.requestedRole})</button>`
+      : `<button class="btn-approve" style="background: #3b82f6; padding: 6px 12px; font-size: 0.8rem;" onclick="adminResetPin('${emp.id}')">إعادة تعيين PIN</button>`;
     const tr = document.createElement('tr');
 
     tr.innerHTML = `
