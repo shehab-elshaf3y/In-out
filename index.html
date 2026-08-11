@@ -1,641 +1,302 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vita Shop | Portal</title>
-  <style>
-    :root {
-      --bg-dark: #06110d;
-      --panel-bg: rgba(12, 31, 24, 0.65);
-      --emerald-primary: #10b981;
-      --emerald-glow: #059669;
-      --emerald-dark: #022c22;
-      --text-main: #ecfdf5;
-      --text-muted: #6ee7b7;
-      --glass-border: rgba(16, 185, 129, 0.2);
-    }
-
-    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
-    
-    body {
-      background: #040d0a;
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.12) 0px, transparent 50%);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow-x: hidden;
-    }
-
-    /* 1. الشاشة الترحيبية المتحركة (Splash Screen) */
-    #splash-screen {
-      position: fixed;
-      inset: 0;
-      background: var(--bg-dark);
-      z-index: 999;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      transition: opacity 0.8s ease, visibility 0.8s;
-    }
-    .splash-logo {
-      width: 110px;
-      height: 110px;
-      background: linear-gradient(135deg, var(--emerald-primary), var(--emerald-dark));
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 50px rgba(16, 185, 129, 0.5);
-      animation: pulseGlow 2s infinite alternate ease-in-out;
-    }
-    .splash-title {
-      margin-top: 24px;
-      font-size: 1.8rem;
-      letter-spacing: 2px;
-      color: var(--text-main);
-      font-weight: 700;
-      opacity: 0;
-      animation: fadeInUp 1s 0.3s forwards;
-    }
-
-    /* 2. الحاوية الرئيسية (Main Glass Card) */
-    ./* 2. الحاوية الرئيسية (Main Glass Card) */
-    .app-card {
-      width: 92%;
-      max-width: 1000px;
-      min-height: 620px;
-      background: var(--panel-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 28px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.1);
-      display: flex;
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* الشعار أعلى يسار الكارت */
-    .company-logo-top {
-      position: absolute;
-      top: 20px;
-      left: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      z-index: 10;
-    }
-    .company-logo-top img, .logo-icon-small {
-      width: 38px;
-      height: 38px;
-      background: var(--emerald-primary);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: #000;
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-    }
-
-    /* القسم الأيمن والأنير (Split Layout) */
-    .art-side {
-      flex: 1;
-      background: linear-gradient(180deg, rgba(6, 78, 59, 0.3) 0%, rgba(2, 44, 34, 0.6) 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
-      border-left: 1px solid var(--glass-border);
-      position: relative;
-    }
-    .avatar-preview-box {
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      border: 3px solid var(--emerald-primary);
-      box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
-      overflow: hidden;
-      margin-bottom: 20px;
-      background: #021f18;
-      transition: transform 0.3s ease;
-    }
-    .avatar-preview-box:hover { transform: scale(1.03); }
-    .avatar-preview-box img { width: 100%; height: 100%; object-fit: cover; }
-
-    .form-side {
-      flex: 1.2;
-      padding: 50px 40px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .nav-tabs {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 30px;
-    }
-    .tab-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.1rem;
-      font-weight: 600;
-      padding-bottom: 6px;
-      cursor: pointer;
-      position: relative;
-      transition: color 0.3s;
-    }
-    .tab-btn.active {
-      color: var(--emerald-primary);
-    }
-    .tab-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 100%;
-      height: 3px;
-      background: var(--emerald-primary);
-      border-radius: 2px;
-      box-shadow: 0 0 10px var(--emerald-primary);
-    }
-
-    .form-group { margin-bottom: 18px; }
-    label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
-    input, select {
-      width: 100%;
-      padding: 13px 16px;
-      background: rgba(4, 20, 15, 0.7);
-      border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      color: #fff;
-      font-size: 0.95rem;
-      outline: none;
-      transition: all 0.3s;
-    }
-    input:focus, select:focus {
-      border-color: var(--emerald-primary);
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
-    }
-
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-    /* شبكة اختيار الأفاتار */
-    .avatar-selector {
-      display: flex;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .avatar-opt {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      border: 2px solid transparent;
-      cursor: pointer;
-      overflow: hidden;
-      opacity: 0.6;
-      transition: all 0.2s;
-    }
-    .avatar-opt.selected, .avatar-opt:hover {
-      border-color: var(--emerald-primary);
-      opacity: 1;
-      transform: translateY(-2px);
-    }
-    .avatar-opt img { width: 100%; height: 100%; object-fit: cover; }
-
-    .btn-submit {
-      width: 100%;
-      padding: 14px;
-      margin-top: 15px;
-      background: linear-gradient(135deg, var(--emerald-primary), var(--emerald-glow));
-      border: none;
-      border-radius: 12px;
-      color: #022c22;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-      transition: all 0.3s;
-    }
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      border: 1px solid var(--glass-border);
-      color: var(--text-muted);
-      margin-top: 10px;
-    }
-    .btn-secondary:hover {
-      background: rgba(16, 185, 129, 0.1);
-      color: #fff;
-    }
-
-    .id-badge {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px dashed var(--emerald-primary);
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      color: var(--emerald-primary);
-      text-align: center;
-      margin-top: 6px;
-    }
-
-    #status-msg {
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 10px;
-      font-size: 0.88rem;
-      text-align: center;
-      display: none;
-    }
-    .msg-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid var(--emerald-primary); }
-    .msg-error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
-    .msg-info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
-
-    @keyframes pulseGlow {
-      from { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); transform: scale(0.98); }
-      to { box-shadow: 0 0 60px rgba(16, 185, 129, 0.7); transform: scale(1.05); }
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-   @media (max-width: 850px) {
-      body {
-        align-items: flex-start;
-        padding: 15px 10px;
-        overflow-y: auto;
-      }
-      .app-card { 
-        flex-direction: column; 
-        min-height: auto; 
-        width: 100%;
-        margin: 10px 0;
-        border-radius: 20px;
-      }
-      .art-side { 
-        border-left: none; 
-        border-bottom: 1px solid var(--glass-border); 
-        padding: 20px; 
-      }
-      .form-side {
-        padding: 25px 20px;
-      }
-      .avatar-preview-box { width: 110px; height: 110px; margin-bottom: 10px; }
-      .grid-2 { grid-template-columns: 1fr; gap: 0; } /* تحويل الحقول المزدوجة لعمود واحد على الفون لكي لا تضيق مساحة الكتابة */
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة مندوب التوصيل والعمليات - Vita Shop</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --sidebar-bg: #111827;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-green: #34d399;
+            --accent-blue: #3b82f6;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 80px; background-color: var(--sidebar-bg); border-left: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; z-index: 100; }
+        @media (max-width: 768px) {
+            body { flex-direction: column-reverse; }
+            .sidebar { width: 100%; height: 65px; flex-direction: row; justify-content: space-around; border-left: none; border-top: 1px solid var(--border-color); padding: 0 10px; }
+            .sidebar-logo { display: none; }
+            .main-container { padding: 15px; height: calc(100vh - 65px); }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+        .sidebar-logo img { width: 40px; height: 40px; object-fit: contain; margin-bottom: 20px; }
+        .nav-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.3s ease; font-size: 20px; background: transparent; border: none; }
+        .nav-icon:hover, .nav-icon.active { background-color: rgba(52, 211, 153, 0.15); color: var(--accent-green); }
+        .main-container { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top right, #064e3b15, transparent 50%); }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: var(--card-bg); backdrop-filter: blur(10px); padding: 15px 25px; border-radius: 16px; border: 1px solid var(--border-color); }
+        .header-title h2 { margin: 0; font-size: 20px; color: var(--text-main); }
+        .header-title p { margin: 5px 0 0 0; font-size: 13px; color: var(--text-muted); }
+        .tab-content { display: none; } .tab-content.active { display: block; }
+        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }
+        .card-title { font-size: 16px; font-weight: bold; color: var(--accent-green); margin-bottom: 15px; border-right: 3px solid var(--accent-green); padding-right: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
+        input, select { width: 100%; padding: 12px; background-color: rgba(2, 44, 34, 0.4); border: 1px solid var(--border-color); border-radius: 10px; color: white; font-size: 14px; box-sizing: border-box; }
+        input:focus, select:focus { outline: none; border-color: var(--accent-green); }
+        .btn-row { display: flex; gap: 15px; }
+        .action-btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; color: white; }
+        .btn-in { background: linear-gradient(135deg, #059669, #10b981); } .btn-out { background: linear-gradient(135deg, #dc2626, #ef4444); }
+        .submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #059669, #34d399); color: #0b0f19; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .chart-container { position: relative; height: 240px; width: 100%; }
+        @media (min-width: 768px) { .chart-container { height: 320px; } }
+    </style>
 </head>
 <body>
-
-  <!-- 1. الشاشة الترحيبية (Splash Screen) -->
-  <div id="splash-screen">
-    <div class="splash-logo">
-      <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-      </svg>
-    </div>
-    <div class="splash-title">Welcome to Vita Shop</div>
-  </div>
-
-  <!-- 2. بطاقة الواجهة الزجاجية -->
-  <div class="app-card">
-    
-    <!-- اللوجو أعلى اليسار -->
-    <div class="company-logo-top">
-      <div class="logo-icon-small">🚀</div>
-      <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">Vita Shop</span>
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <img src="logo.png" alt="Logo">
+        </div>
+        <button class="nav-icon active" onclick="switchTab('dashboard', this)" title="لوحة المؤشرات">📊</button>
+        <button class="nav-icon" onclick="switchTab('attendance', this)" title="الحضور والانصراف">⏰</button>
+        <button class="nav-icon" onclick="switchTab('tasks', this)" title="تسجيل العمليات">📝</button>
+        <button class="nav-icon" onclick="logout()" title="تسجيل الخروج">🚪</button>
     </div>
 
-    <!-- الجانب الأيسر: عرض الأفاتار والمركز -->
-    <div class="art-side">
-      <div class="avatar-preview-box">
-        <img id="main-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber1" alt="Avatar">
-      </div>
-      <h3 id="display-role" style="color: var(--text-main); font-weight: 600;">موظف جديد</h3>
-      <p id="display-id-preview" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">ID: --</p>
+    <div class="main-container">
+        <div class="header-bar">
+            <div class="header-title">
+                <h2 id="pageTitle">لوحة المؤشرات والرسوم البيانية</h2>
+                <p id="employeeWelcome">مرحباً بك، جاري التحميل...</p>
+            </div>
+            <div style="font-size: 14px; color: var(--accent-green); background: rgba(52,211,153,0.1); padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+                نشط الآن 🟢
+            </div>
+        </div>
+
+        <div id="dashboard" class="tab-content active">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">إحصائية الحركات اليومية (عدد العمليات)</div>
+                    <div class="chart-container">
+                        <canvas id="dailyActivityChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">متابعة الأداء</div>
+                    <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">
+                        مرحباً بك في لوحتك الخاصة. يوضح الرسم البياني المجاور عدد الحركات والعمليات التي قمت بتسجيلها وتوثيقها.
+                    </p>
+                    <div style="background: rgba(52,211,153,0.05); padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); margin-top: 20px; text-align: center;">
+                        <span style="font-size: 24px; font-weight: bold; color: var(--accent-green);" id="totalTasksCount">--</span>
+                        <div style="font-size: 13px; color: var(--text-muted); margin-top: 5px;">حركاتك المسجلة</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="attendance" class="tab-content">
+            <div class="card" style="max-width: 500px; margin: 0 auto;">
+                <div class="card-title">تسجيل الحضور والانصراف اليومي</div>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">سجل حالتك مباشرة (يجب أن تكون داخل نطاق الشركة)</p>
+                <div class="btn-row">
+                    <button type="button" class="action-btn btn-in" onclick="recordAttendance('حضور', event)">تسجيل حضور</button>
+                    <button type="button" class="action-btn btn-out" onclick="recordAttendance('انصراف', event)">تسجيل انصراف</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tasks" class="tab-content">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <div class="card-title">نموذج تسجيل حركة جديدة</div>
+                <form id="deliveryForm">
+                    <div class="form-group">
+                        <label>تاريخ العملية</label>
+                        <input type="date" name="exitDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>اسم المستشفى</label>
+                        <input type="text" name="hospitalName" placeholder="اكتب اسم المستشفى هنا" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع الحالة</label>
+                        <select name="caseType" required>
+                            <option value="">اختر نوع الحالة</option>
+                            <option value="HIP">HIP</option>
+                            <option value="KNEE">KNEE</option>
+                            <option value="BIPOLAR">BIPOLAR</option>
+                            <option value="TRIPOLAR">TRIPOLAR</option>
+                            <option value="Spacer">Spacer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم العملية (OP)</label>
+                        <input type="text" name="opNumber" placeholder="أدخل رقم الـ OP يدوياً" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع المهمة</label>
+                        <select name="stockPrep" required>
+                            <option value="">اختر المهمة</option>
+                            <option value="تحضير استوك">تحضير استوك</option>
+                            <option value="توصيل عمليات">توصيل عمليات</option>
+                            <option value="إرجاع عمليات">إرجاع عمليات</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtn">حفظ وإرسال الحركة للشيت</button>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <!-- الجانب الأيمن: النماذج -->
-    <div class="form-side">
-      <div class="nav-tabs" id="main-tabs">
-        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">تسجيل الدخول</button>
-        <button class="tab-btn" id="tab-register" onclick="switchTab('register')">إنشاء حساب (أول مرة)</button>
-      </div>
-
-      <!-- نموذج تسجيل الدخول (Default) -->
-      <form id="form-login" onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label>كود الموظف (Employee ID) أو رقم الهاتف</label>
-          <input type="text" id="login-key" placeholder="مثال: AA-34567 أو 0101234..." required>
-        </div>
-        <div class="form-group">
-          <label>رمز PIN السرية</label>
-          <input type="password" id="login-pin" placeholder="••••" maxlength="6" inputmode="numeric" required>
-        </div>
-        <div style="text-align: left; margin-top: -5px; margin-bottom: 15px;">
-          <a href="#" onclick="openResetPinSection(event)" style="color: #00d2d3; font-size: 13px; text-decoration: none;">
-            نسيت الـ PIN / تغيير الـ PIN؟
-          </a>
-        </div>
-        <button type="submit" class="btn-submit">دخول النظام</button>
-      </form>
-
-     <div style="text-align: left; margin-top: -5px; margin-bottom: 15px;">
-  <span style="color: var(--text-muted); font-size: 13px;">
-    نسيت الـ PIN؟ يرجى التواصل مع الآدمن لإعادة تعيينه.
-  </span>
-</div>
-
-      <!-- نموذج إنشاء حساب جديد -->
-      <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
-        <div class="grid-2">
-          <div class="form-group">
-            <label>الاسم الأول (En)</label>
-            <input type="text" id="reg-fname" placeholder="Ahmed" oninput="updateIDPreview()" required>
-          </div>
-          <div class="form-group">
-            <label>اسم الأب (En)</label>
-            <input type="text" id="reg-lname" placeholder="Ali" oninput="updateIDPreview()" required>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label>رقم الهاتف</label>
-            <input type="tel" id="reg-phone" placeholder="010..." required>
-          </div>
-          <div class="form-group">
-            <label>الرقم القومي (14 رقم)</label>
-            <input type="text" id="reg-nationalid" maxlength="14" placeholder="299..." oninput="updateIDPreview()" required>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label>المركز الوظيفي</label>
-            <select id="reg-role" onchange="changeRoleAvatar(this.value)">
-              <option value="CEO">CEO</option>
-              <option value="HR">HR</option>
-              <option value="محاسب">محاسب</option>
-              <option value="مراقب مخزون">مراقب مخزون</option>
-              <option value="دعم فني ">دعم فني</option>
-              <option value="تنسيق">تنسيق</option>
-              <option value="أمين مخزن">أمين مخزن</option>
-              <option value="مسؤول الات">مسؤول الات</option>
-              <option value="مندوب توصيل">مندوب توصيل</option>
-              <option value="مندوب عمليات">مندوب عمليات</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>رمز PIN (كلمة السر)</label>
-            <input type="password" id="reg-pin" placeholder="••••" maxlength="6" inputmode="numeric" required>
-          </div>
-        </div>
-
-        <!-- اختيار صورة الأفاتار -->
-        <div class="form-group">
-          <label>اختر صورة الأفاتار الخاصة بك</label>
-          <div class="avatar-selector">
-            <div class="avatar-opt selected" onclick="selectAvatar(this, 'Cyber1')">
-              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber1" alt="1">
-            </div>
-            <div class="avatar-opt" onclick="selectAvatar(this, 'Cyber2')">
-              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber2" alt="2">
-            </div>
-            <div class="avatar-opt" onclick="selectAvatar(this, 'Cyber3')">
-              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber3" alt="3">
-            </div>
-            <div class="avatar-opt" onclick="selectAvatar(this, 'Cyber4')">
-              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Cyber4" alt="4">
-            </div>
-          </div>
-        </div>
-
-        <div class="id-badge" id="generated-id-box">كود الموظف المتوقع: XX-XXXXX</div>
-
-        <button type="submit" class="btn-submit">تأكيد وانشاء الحساب</button>
-      </form>
-
-      <div id="status-msg"></div>
-    </div>
-
-  </div>
-
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby4Tak4Tp-zMpqdVRifb4j7TeJy2GY5BKIrLvA9Q_c9Ol5DCXY_49JtBf9qBjWKmA/exec";
-    let selectedAvatarSeed = 'Cyber1';
-
-    // 1. التحكم في الشاشة الترحيبية
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        const splash = document.getElementById('splash-screen');
-        splash.style.opacity = '0';
-        setTimeout(() => splash.style.visibility = 'hidden', 800);
-      }, 1800);
-    });
-
-    // 2. التبديل بين التبويبات (Login / Register)
-    function switchTab(tab) {
-      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-      document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-      
-      document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
-      document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
-      document.getElementById('form-reset-pin').style.display = 'none'; // إخفاء نموذج التعيين عند التبديل
-      
-      hideStatus();
-    }
-
-    // 3. تحديث الأفاتار والـ ID المعاين حياً
-    function updateIDPreview() {
-      const f = document.getElementById('reg-fname').value.trim().charAt(0).toUpperCase() || 'X';
-      const l = document.getElementById('reg-lname').value.trim().charAt(0).toUpperCase() || 'X';
-      const nid = document.getElementById('reg-nationalid').value.trim();
-      const last5 = nid.length >= 5 ? nid.slice(-5) : 'XXXXX';
-      
-      const generatedId = `${f}${l}-${last5}`;
-      document.getElementById('generated-id-box').innerText = `كود الموظف المولد: ${generatedId}`;
-      document.getElementById('display-id-preview').innerText = `ID: ${generatedId}`;
-    }
-
-    function selectAvatar(el, seed) {
-      document.querySelectorAll('.avatar-opt').forEach(opt => opt.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedAvatarSeed = seed;
-      const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`;
-      document.getElementById('main-avatar').src = avatarUrl;
-    }
-
-    function changeRoleAvatar(role) {
-  document.getElementById('display-role').innerText = role + " (طلب معلق)";
-
-    }
-
-    // 4. معالجة التسجيل
-    function handleRegister(e) {
-      e.preventDefault();
-      showStatus('جاري تسجيل بياناتك وإنشاء الحساب...', 'info');
-
-      const payload = {
-        action: 'register',
-        firstNameEn: document.getElementById('reg-fname').value,
-        fatherNameEn: document.getElementById('reg-lname').value,
-        phone: document.getElementById('reg-phone').value,
-        nationalId: document.getElementById('reg-nationalid').value,
-        pin: document.getElementById('reg-pin').value,
-        role: document.getElementById('reg-role').value,
-        avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${selectedAvatarSeed}`
-      };
-
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      })
-      .then(res => res.json())
-      .then(data => {
-       if (data.success) {
-        showStatus(data.message, 'success');
-        localStorage.setItem('userSession', JSON.stringify(data));
-        setTimeout(() => {
-          alert('تم إرسال طلب إنشاء الحساب بنجاح! سيقوم الآدمن بمراجعة طلبك والموافقة على الصلاحية قبل التمكن من تسجيل الدخول.');
-          switchTab('login');
-        }, 2000);
-      } else {
-          showStatus(data.message, 'error');
+    <script>
+        // UX & Persistance (Security Boundary is Server-Side)
+        let sessionData = {};
+        try {
+            sessionData = JSON.parse(localStorage.getItem('userSession') || '{}');
+        } catch (e) {
+            localStorage.removeItem('userSession');
         }
-      })
-      .catch(() => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
-    }
-
-    // 5. معالجة تسجيل الدخول
-    // 5. معالجة تسجيل الدخول
-// 5. معالجة تسجيل الدخول
-// 5. معالجة تسجيل الدخول (مُعدّلة ومضمونة التوجيه)
-function handleLogin(e) {
-  e.preventDefault();
-  showStatus('جاري التحقق من بيانات الدخول...', 'info');
-
-  const loginKey = document.getElementById('login-key').value.trim();
-  const loginPin = document.getElementById('login-pin').value.trim();
-
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'login', loginKey: loginKey, pin: loginPin })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      showStatus(data.message, 'success');
-
-      const emp = data.employee || {};
-      const userRole = String(emp.role).trim();
-      const userName = emp.name;
-
-      // تخزين الـ Token بشكل أساسي لاستخدامه في الطلبات المحمية
-      localStorage.setItem('authToken', data.token); 
-      localStorage.setItem('userSession', JSON.stringify(emp));
-      localStorage.setItem('userName', userName);
-      localStorage.setItem('userRole', userRole);
-
-      setTimeout(() => {
-        const roleLower = userRole.toLowerCase();
-
-        // التوجيه بناءً على مصفوفة الـ Roles الموحدة في الـ Backend
-        if (['admin'].includes(roleLower)) {
-            window.location.href = './admin.html';
-        } 
-        else if (['مندوب توصيل', 'مندوب عمليات', 'مندوب'].includes(roleLower)) {
-            window.location.href = './delivery.html';
-        } 
-        else if (['ceo'].includes(roleLower)) {
-            window.location.href = './ceo.html';
-        } 
-        else if (['supervisor', 'تنسيق', 'مشرف'].includes(roleLower)) {
-            window.location.href = './supervisor.html';
-        } else {
-            // توجيه افتراضي لأي دور آخر
-            window.location.href = './employee.html';
+        const authToken = localStorage.getItem('authToken');
+        
+        if (!authToken) {
+            alert('⚠️ يجب تسجيل الدخول أولاً.');
+            window.location.href = './index.html';
         }
-      }, 2000);
-      
-    } else {
-      showStatus(data.message, 'error');
-    }
-  })
-  .catch(err => showStatus('حدث خطأ في الاتصال بالخادم.', 'error'));
-}
 
-    // 6. دوال إظهار وإخفاء الحالة (Status Messages)
-    function showStatus(text, type) {
-      const el = document.getElementById('status-msg');
-      if (type === 'success') el.className = 'msg-success';
-      else if (type === 'info') el.className = 'msg-info';
-      else el.className = 'msg-error';
-      
-      el.innerText = text;
-      el.style.display = 'block';
-    }
+        const currentEmployee = sessionData.name || 'موظف';
+        const userRole = sessionData.role || 'غير محدد';
+        document.getElementById('employeeWelcome').innerText = `مرحباً بك، ${currentEmployee} (${userRole})`;
 
-    function hideStatus() {
-      document.getElementById('status-msg').style.display = 'none';
-    }
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+            const titles = { 'dashboard': 'لوحة المؤشرات والرسوم البيانية', 'attendance': 'تسجيل الحضور والانصراف', 'tasks': 'تسجيل الحركة والعمليات' };
+            document.getElementById('pageTitle').innerText = titles[tabId];
+        }
 
-    // 7. دالة فتح قسم تغيير الـ PIN
-    function openResetPinSection(e) {
-      if (e) e.preventDefault();
-      document.getElementById("form-login").style.display = "none";
-      document.getElementById("form-register").style.display = "none";
-      document.getElementById("form-reset-pin").style.display = "block";
-      hideStatus();
-    }
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userSession');
+            window.location.href = './index.html';
+        }
 
-    // 8. دالة إرسال الـ PIN الجديد للـ Backend
-    async function handlePinResetSubmit(e) {
-      if (e) e.preventDefault();
-      
-      const empId = document.getElementById("empIdInput").value;
-      const newPin = document.getElementById("newPinInput").value;
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz4av2OSR6e7d9ZTeoZ0-uTZry3j4xdxOO4gvZyZmGxKW8HmjcTDlBH3aR-FP8ChwXb/exec';
 
-      showStatus("جاري تحديث الـ PIN...", "info");
-
-      try {
-        const response = await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "resetPin",
-            employeeId: empId,
-            newPin: newPin
-          })
+        const ctx = document.getElementById('dailyActivityChart').getContext('2d');
+        let dailyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
+                datasets: [{ label: 'عدد العمليات', data: [0, 0, 0, 0, 0, 0, 0], backgroundColor: '#34d399', borderRadius: 8 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                scales: { x: { ticks: { color: '#9ca3af' }, grid: { display: false } }, y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true } }
+            }
         });
 
-        const result = await response.json();
-        if (result.success) {
-          showStatus(result.message, "success");
-          setTimeout(() => {
-            switchTab('login');
-          }, 2000);
-        } else {
-          showStatus(result.message, "error");
+        function loadDashboardData() {
+            fetch(`${scriptURL}?token=${encodeURIComponent(authToken)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.result === 'error' || (!data.success && data.message)) {
+                        if (data.message.includes('Unauthorized') || data.message.includes('expired')) logout();
+                        return;
+                    }
+                    if (data.totalOperations !== undefined) document.getElementById('totalTasksCount').innerText = data.totalOperations;
+                    if (data.chartData) {
+                        dailyChart.data.datasets[0].data = [
+                            data.chartData["السبت"] || 0, data.chartData["الأحد"] || 0, data.chartData["الإثنين"] || 0,
+                            data.chartData["الثلاثاء"] || 0, data.chartData["الأربعاء"] || 0, data.chartData["الخميس"] || 0, data.chartData["الجمعة"] || 0
+                        ];
+                        dailyChart.update();
+                    }
+                })
+                .catch(err => console.error('Error fetching dashboard.'));
         }
-      } catch (error) {
-        showStatus("حدث خطأ في الاتصال بالخادم", "error");
-      }
-    }
-  </script>
+        loadDashboardData();
+
+        let isProcessing = false;
+
+        function recordAttendance(statusType, event) {
+            if (event && event.preventDefault) event.preventDefault();
+            if (isProcessing) return;
+            if (!navigator.geolocation) { alert('⚠️ متصفحك لا يدعم خاصية الموقع!'); return; }
+
+            isProcessing = true;
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const payload = {
+                        action: 'attendance',
+                        token: authToken,
+                        status: statusType,
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    fetch(scriptURL, { 
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.result === 'success') {
+                            alert(`✅ تم تسجيل ${statusType} بنجاح.`);
+                        } else {
+                            if (data.message && data.message.includes('Unauthorized')) logout();
+                            alert(`⚠️ ${data.message}`);
+                        }
+                    })
+                    .catch(err => alert(`❌ حدث خطأ في الاتصال بالسيرفر.`))
+                    .finally(() => { setTimeout(() => { isProcessing = false; }, 1500); });
+                },
+                function(error) {
+                    alert('⚠️ لم نتمكن من تحديد موقعك. يرجى تفعيل الـ GPS.');
+                    isProcessing = false;
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
+        const form = document.getElementById('deliveryForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.innerText = '🔄 جاري الحفظ...';
+
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+            payload.action = 'task';
+            payload.token = authToken;
+
+            fetch(scriptURL, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    alert('✅ تم حفظ الحركة بنجاح!');
+                    form.reset();
+                    loadDashboardData();
+                } else if (data.result === 'dispute_detected') {
+                    alert('⚠️ تنبيه: تم رصد تكرار في الـ OP وتم التوثيق بنجاح وإرسال إشعار للإدارة!');
+                    form.reset();
+                    loadDashboardData();
+                } else {
+                    if (data.message && data.message.includes('Unauthorized')) logout();
+                    alert(`❌ ${data.message || 'حدث خطأ'}`);
+                }
+                submitBtn.disabled = false; submitBtn.innerText = 'حفظ وإرسال الحركة للشيت';
+            })
+            .catch(error => {
+                alert('حدث خطأ في الاتصال بالخادم.');
+                submitBtn.disabled = false; submitBtn.innerText = 'حفظ وإرسال الحركة للشيت';
+            });
+        });
+    </script>
 </body>
 </html>
