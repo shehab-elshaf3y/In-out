@@ -17,233 +17,50 @@
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            height: 100dvh;
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 80px;
-            background-color: var(--sidebar-bg);
-            border-left: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
-            gap: 20px;
-            z-index: 100;
-        }
-
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 80px; background-color: var(--sidebar-bg); border-left: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; z-index: 100; }
         @media (max-width: 768px) {
-            body {
-                flex-direction: column-reverse;
-                height: 100vh;
-                height: 100dvh;
-            }
-            .sidebar {
-                width: 100%;
-                height: 65px;
-                flex-direction: row;
-                justify-content: space-around;
-                border-left: none;
-                border-top: 1px solid var(--border-color);
-                padding: 0 10px;
-            }
-            .sidebar-logo {
-                display: none;
-            }
-            .main-container {
-                padding: 15px;
-                height: calc(100vh - 65px);
-            }
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
+            body { flex-direction: column-reverse; }
+            .sidebar { width: 100%; height: 65px; flex-direction: row; justify-content: space-around; border-left: none; border-top: 1px solid var(--border-color); padding: 0 10px; }
+            .sidebar-logo { display: none; }
+            .main-container { padding: 15px; height: calc(100vh - 65px); }
+            .grid-2 { grid-template-columns: 1fr; }
         }
-
-        .sidebar-logo img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-            margin-bottom: 20px;
-        }
-
-        .nav-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: all 0.3s ease;
-            font-size: 20px;
-            background: transparent;
-            border: none;
-        }
-
-        .nav-icon:hover, .nav-icon.active {
-            background-color: rgba(52, 211, 153, 0.15);
-            color: var(--accent-green);
-        }
-
-        .main-container {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-            background: radial-gradient(circle at top right, #064e3b15, transparent 50%);
-        }
-
-        .header-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            padding: 15px 25px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-        }
-
-        .header-title h2 {
-            margin: 0;
-            font-size: 20px;
-            color: var(--text-main);
-        }
-
-        .header-title p {
-            margin: 5px 0 0 0;
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--accent-green);
-            margin-bottom: 15px;
-            border-right: 3px solid var(--accent-green);
-            padding-right: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--text-muted);
-        }
-        input, select {
-            width: 100%;
-            padding: 12px;
-            background-color: rgba(2, 44, 34, 0.4);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: white;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--accent-green);
-        }
-        option { background-color: #111827; }
-
-        .btn-row {
-            display: flex;
-            gap: 15px;
-        }
-        .action-btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 15px;
-            cursor: pointer;
-            color: white;
-            transition: opacity 0.2s, transform 0.1s;
-        }
-        .action-btn:active {
-            transform: scale(0.98);
-        }
-        .btn-in { background: linear-gradient(135deg, #059669, #10b981); }
-        .btn-out { background: linear-gradient(135deg, #dc2626, #ef4444); }
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #059669, #34d399);
-            color: #0b0f19;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        /* تم تصحيح الخطأ هنا (إزالة النقطة الزائدة) */
-        .chart-container {
-            position: relative;
-            height: 240px;
-            width: 100%;
-        }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 320px;
-            }
-        }
+        .sidebar-logo img { width: 40px; height: 40px; object-fit: contain; margin-bottom: 20px; }
+        .nav-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.3s ease; font-size: 20px; background: transparent; border: none; }
+        .nav-icon:hover, .nav-icon.active { background-color: rgba(52, 211, 153, 0.15); color: var(--accent-green); }
+        .main-container { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top right, #064e3b15, transparent 50%); }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: var(--card-bg); backdrop-filter: blur(10px); padding: 15px 25px; border-radius: 16px; border: 1px solid var(--border-color); }
+        .header-title h2 { margin: 0; font-size: 20px; color: var(--text-main); }
+        .header-title p { margin: 5px 0 0 0; font-size: 13px; color: var(--text-muted); }
+        .tab-content { display: none; } .tab-content.active { display: block; }
+        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }
+        .card-title { font-size: 16px; font-weight: bold; color: var(--accent-green); margin-bottom: 15px; border-right: 3px solid var(--accent-green); padding-right: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
+        input, select { width: 100%; padding: 12px; background-color: rgba(2, 44, 34, 0.4); border: 1px solid var(--border-color); border-radius: 10px; color: white; font-size: 14px; box-sizing: border-box; }
+        input:focus, select:focus { outline: none; border-color: var(--accent-green); }
+        .btn-row { display: flex; gap: 15px; }
+        .action-btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; color: white; }
+        .btn-in { background: linear-gradient(135deg, #059669, #10b981); } .btn-out { background: linear-gradient(135deg, #dc2626, #ef4444); }
+        .submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #059669, #34d399); color: #0b0f19; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .chart-container { position: relative; height: 240px; width: 100%; }
+        @media (min-width: 768px) { .chart-container { height: 320px; } }
     </style>
 </head>
 <body>
-
     <div class="sidebar">
         <div class="sidebar-logo">
             <img src="logo.png" alt="Logo">
         </div>
-        <button class="nav-icon active" onclick="switchTab('dashboard', this)" title="لوحة المؤشرات والرسوم البيانية">📊</button>
-        <button class="nav-icon" onclick="switchTab('attendance', this)" title="تسجيل الحضور والانصراف">⏰</button>
-        <button class="nav-icon" onclick="switchTab('tasks', this)" title="تسجيل الحركة والعمليات">📝</button>
-        <button class="nav-icon" onclick="window.location.href='./delivery_app.html'" title="فتح تطبيق المندوب المحمول">📱</button>
+        <button class="nav-icon active" onclick="switchTab('dashboard', this)" title="لوحة المؤشرات">📊</button>
+        <button class="nav-icon" onclick="switchTab('attendance', this)" title="الحضور والانصراف">⏰</button>
+        <button class="nav-icon" onclick="switchTab('tasks', this)" title="تسجيل العمليات">📝</button>
+        <button class="nav-icon" onclick="logout()" title="تسجيل الخروج">🚪</button>
     </div>
 
     <div class="main-container">
-        
         <div class="header-bar">
             <div class="header-title">
                 <h2 id="pageTitle">لوحة المؤشرات والرسوم البيانية</h2>
@@ -278,7 +95,7 @@
         <div id="attendance" class="tab-content">
             <div class="card" style="max-width: 500px; margin: 0 auto;">
                 <div class="card-title">تسجيل الحضور والانصراف اليومي</div>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">سجل حالتك مباشرة (يجب أن تكون داخل نطاق 75 متراً من الفرع)</p>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">سجل حالتك مباشرة (يجب أن تكون داخل نطاق الشركة)</p>
                 <div class="btn-row">
                     <button type="button" class="action-btn btn-in" onclick="recordAttendance('حضور', event)">تسجيل حضور</button>
                     <button type="button" class="action-btn btn-out" onclick="recordAttendance('انصراف', event)">تسجيل انصراف</button>
@@ -322,192 +139,123 @@
                             <option value="إرجاع عمليات">إرجاع عمليات</option>
                         </select>
                     </div>
-                    <input type="hidden" name="personName" id="hiddenPersonName">
-                    <input type="hidden" id="hiddenLocation" name="locationCoordinates" value="">
                     <button type="submit" class="submit-btn" id="submitBtn">حفظ وإرسال الحركة للشيت</button>
                 </form>
             </div>
         </div>
-
     </div>
 
     <script>
-        const sessionData = JSON.parse(localStorage.getItem('userSession') || '{}');
-        const currentEmployee = sessionData.name || localStorage.getItem('userName') || '';
-        const userRole = sessionData.role ? String(sessionData.role).trim() : '';
-
-        if (!currentEmployee) {
-            alert('⚠️ يجب تسجيل الدخول أولاً للوصول إلى هذه اللوحة!');
+        // UX & Persistance (Security Boundary is Server-Side)
+        let sessionData = {};
+        try {
+            sessionData = JSON.parse(localStorage.getItem('userSession') || '{}');
+        } catch (e) {
+            localStorage.removeItem('userSession');
+        }
+        const authToken = localStorage.getItem('authToken');
+        
+        if (!authToken) {
+            alert('⚠️ يجب تسجيل الدخول أولاً.');
             window.location.href = './index.html';
         }
 
-        document.getElementById('employeeWelcome').innerText = `مرحباً بك، ${currentEmployee} (${userRole || 'مندوب توصيل وعمليات'})`;
-        document.getElementById('hiddenPersonName').value = currentEmployee;
+        const currentEmployee = sessionData.name || 'موظف';
+        const userRole = sessionData.role || 'غير محدد';
+        document.getElementById('employeeWelcome').innerText = `مرحباً بك، ${currentEmployee} (${userRole})`;
 
         function switchTab(tabId, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
-            
             document.getElementById(tabId).classList.add('active');
             element.classList.add('active');
-
-            const titles = {
-                'dashboard': 'لوحة المؤشرات والرسوم البيانية',
-                'attendance': 'تسجيل الحضور والانصراف',
-                'tasks': 'تسجيل الحركة والعمليات'
-            };
+            const titles = { 'dashboard': 'لوحة المؤشرات والرسوم البيانية', 'attendance': 'تسجيل الحضور والانصراف', 'tasks': 'تسجيل الحركة والعمليات' };
             document.getElementById('pageTitle').innerText = titles[tabId];
         }
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxxeyWVu4xeuHNWMEr4_kiKqyy6McKtw5LmfVv7r4x_Zkzd2Lkpzql95jPRuf0LJ1UK/exec';
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userSession');
+            window.location.href = './index.html';
+        }
+
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz4av2OSR6e7d9ZTeoZ0-uTZry3j4xdxOO4gvZyZmGxKW8HmjcTDlBH3aR-FP8ChwXb/exec';
 
         const ctx = document.getElementById('dailyActivityChart').getContext('2d');
         let dailyChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
-                datasets: [{
-                    label: 'عدد العمليات والحركات',
-                    data: [0, 0, 0, 0, 0, 0, 0], 
-                    backgroundColor: '#34d399',
-                    borderRadius: 8,
-                }]
+                datasets: [{ label: 'عدد العمليات', data: [0, 0, 0, 0, 0, 0, 0], backgroundColor: '#34d399', borderRadius: 8 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { ticks: { color: '#9ca3af' }, grid: { display: false } },
-                    y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
-                }
+                responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                scales: { x: { ticks: { color: '#9ca3af' }, grid: { display: false } }, y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true } }
             }
         });
 
         function loadDashboardData() {
-            fetch(`${scriptURL}?employee=${encodeURIComponent(currentEmployee)}`)
+            fetch(`${scriptURL}?token=${encodeURIComponent(authToken)}`)
                 .then(res => res.json())
                 .then(data => {
-                    if (data.totalOperations !== undefined) {
-                        document.getElementById('totalTasksCount').innerText = data.totalOperations;
+                    if (data.result === 'error' || (!data.success && data.message)) {
+                        if (data.message.includes('Unauthorized') || data.message.includes('expired')) logout();
+                        return;
                     }
+                    if (data.totalOperations !== undefined) document.getElementById('totalTasksCount').innerText = data.totalOperations;
                     if (data.chartData) {
-                        const weeklyValues = [
-                            data.chartData["السبت"] || 0,
-                            data.chartData["الأحد"] || 0,
-                            data.chartData["الإثنين"] || 0,
-                            data.chartData["الثلاثاء"] || 0,
-                            data.chartData["الأربعاء"] || 0,
-                            data.chartData["الخميس"] || 0,
-                            data.chartData["الجمعة"] || 0
+                        dailyChart.data.datasets[0].data = [
+                            data.chartData["السبت"] || 0, data.chartData["الأحد"] || 0, data.chartData["الإثنين"] || 0,
+                            data.chartData["الثلاثاء"] || 0, data.chartData["الأربعاء"] || 0, data.chartData["الخميس"] || 0, data.chartData["الجمعة"] || 0
                         ];
-                        dailyChart.data.datasets[0].data = weeklyValues;
                         dailyChart.update();
                     }
                 })
-                .catch(err => console.log('جاري تحميل المؤشرات...', err));
+                .catch(err => console.error('Error fetching dashboard.'));
         }
-
         loadDashboardData();
 
         let isProcessing = false;
 
         function recordAttendance(statusType, event) {
-            if (event && event.preventDefault) {
-                event.preventDefault();
-            }
-
+            if (event && event.preventDefault) event.preventDefault();
             if (isProcessing) return;
-            
-            if (!currentEmployee) {
-                alert("❌ اسم الموظف غير محدد، يرجى إعادة تسجيل الدخول.");
-                return;
-            }
-
-            if (!navigator.geolocation) {
-                alert('⚠️ متصفحك لا يدعم خاصية تحديد الموقع الجغرافي!');
-                return;
-            }
+            if (!navigator.geolocation) { alert('⚠️ متصفحك لا يدعم خاصية الموقع!'); return; }
 
             isProcessing = true;
-
             navigator.geolocation.getCurrentPosition(
                 function(position) {
-                    const userLat = position.coords.latitude;
-                    const userLng = position.coords.longitude;
-
-                    const companyLat = 30.127758;
-                    const companyLng = 31.355620;
-                    const allowedRadiusMeters = 75; // تم ضبطها لـ 50 متر مثل طلبك
-
-                    const distance = calculateDistance(userLat, userLng, companyLat, companyLng);
-
-                    if (distance > allowedRadiusMeters) {
-                        alert(`⚠️ عذراً، لا يمكنك تسجيل الحضور أو الانصراف وأنت خارج نطاق العمل!\n\nالمسافة بينك وبين الشركة: ${Math.round(distance)} متر.\n(الحد الأقصى المسموح: ${allowedRadiusMeters} متر)`);
-                        isProcessing = false;
-                        return; 
-                    }
-
-                    const locationString = `Lat: ${userLat}, Lng: ${userLng} (Distance: ${Math.round(distance)}m)`;
-                    document.getElementById('hiddenLocation').value = locationString;
-
                     const payload = {
                         action: 'attendance',
-                        personName: currentEmployee,
+                        token: authToken,
                         status: statusType,
-                        locationCoordinates: locationString
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
                     };
 
                     fetch(scriptURL, { 
                         method: 'POST',
-                        headers: {
-                          'Content-Type': 'text/plain;charset=utf-8',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     })
                     .then(res => res.json())
                     .then(data => {
                         if (data.result === 'success') {
-                            alert(`✅ تم التحقق من موقعك وتسجيل ${statusType} بنجاح يا ${currentEmployee}`);
+                            alert(`✅ تم تسجيل ${statusType} بنجاح.`);
                         } else {
-                            alert(`⚠️ حدث خطأ: ${data.message || 'لم يتم التسجيل'}`);
+                            if (data.message && data.message.includes('Unauthorized')) logout();
+                            alert(`⚠️ ${data.message}`);
                         }
                     })
-                    .catch(err => {
-                        alert(`✅ تم إرسال طلب ${statusType} وموقعك الجغرافي بنجاح!`);
-                    })
-                    .finally(() => {
-                        setTimeout(() => {
-                            isProcessing = false;
-                        }, 1500);
-                    });
-
+                    .catch(err => alert(`❌ حدث خطأ في الاتصال بالسيرفر.`))
+                    .finally(() => { setTimeout(() => { isProcessing = false; }, 1500); });
                 },
                 function(error) {
-                    alert('⚠️ لم نتمكن من تحديد موقعك. يجب تفعيل الـ GPS والسماح للمتصفح بالوصول لموقعك لتسجيل الحضور!');
+                    alert('⚠️ لم نتمكن من تحديد موقعك. يرجى تفعيل الـ GPS.');
                     isProcessing = false;
                 },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
-        }
-
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; 
-            const φ1 = lat1 * Math.PI / 180;
-            const φ2 = lat2 * Math.PI / 180;
-            const Δφ = (lat2 - lat1) * Math.PI / 180;
-            const Δλ = (lon2 - lon1) * Math.PI / 180;
-
-            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                      Math.cos(φ1) * Math.cos(φ2) *
-                      Math.sin(Δλ/2) * Math.sin(Δλ/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-            return R * c; 
         }
 
         const form = document.getElementById('deliveryForm');
@@ -516,32 +264,38 @@
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             submitBtn.disabled = true;
-            submitBtn.innerText = '🔄 جاري فحص النزاع والحفظ...';
+            submitBtn.innerText = '🔄 جاري الحفظ...';
 
-            const formData = new URLSearchParams(new FormData(form));
-            formData.append('action', 'task');
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+            payload.action = 'task';
+            payload.token = authToken;
 
-            fetch(scriptURL, { method: 'POST', body: formData })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.result === 'success') {
-                        alert('✅ تم حفظ الحركة بنجاح وتحديث الشيت!');
-                        form.reset();
-                        document.getElementById('hiddenPersonName').value = currentEmployee;
-                        loadDashboardData();
-                    } else if (data.result === 'dispute_detected') {
-                        alert('⚠️ تنبيه: تم رصد تكرار ونزاع في الـ OP، وتم إرسال إشعار للإدارة!');
-                    } else {
-                        alert('❌ حدث خطأ، يرجى المحاولة.');
-                    }
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = 'حفظ وإرسال الحركة للشيت';
-                })
-                .catch(error => {
-                    alert('حدث خطأ في الاتصال بالخادم.');
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = 'حفظ وإرسال الحركة للشيت';
-                });
+            fetch(scriptURL, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    alert('✅ تم حفظ الحركة بنجاح!');
+                    form.reset();
+                    loadDashboardData();
+                } else if (data.result === 'dispute_detected') {
+                    alert('⚠️ تنبيه: تم رصد تكرار في الـ OP وتم التوثيق بنجاح وإرسال إشعار للإدارة!');
+                    form.reset();
+                    loadDashboardData();
+                } else {
+                    if (data.message && data.message.includes('Unauthorized')) logout();
+                    alert(`❌ ${data.message || 'حدث خطأ'}`);
+                }
+                submitBtn.disabled = false; submitBtn.innerText = 'حفظ وإرسال الحركة للشيت';
+            })
+            .catch(error => {
+                alert('حدث خطأ في الاتصال بالخادم.');
+                submitBtn.disabled = false; submitBtn.innerText = 'حفظ وإرسال الحركة للشيت';
+            });
         });
     </script>
 </body>
