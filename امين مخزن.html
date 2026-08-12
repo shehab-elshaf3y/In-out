@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vita Shop | لوحة العمليات</title>
+  <style>
+    :root {
+      --bg-dark: #122c22; /* لون الخلفية الرئيسي من الصورة */
+      --bg-darker: #0c1f18;
+      --primary-light: #e0f2b8; /* اللون الأخضر الفاتح (Completed / New OP) */
+      --danger-red: #df3b46; /* اللون الأحمر (Rejected) */
+      --grey-light: #dce3d8; /* اللون الرمادي (Monthly) */
+      --text-main: #ffffff;
+      --text-muted: #8a9c92;
+      --input-bg: #0d211a;
+      --emerald: #10b981;
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* 1. Header & Date Slider (Dashboard) */
+    .header {
+      padding: 30px 20px 10px;
+      text-align: center;
+      position: relative;
+    }
+    .header .back-btn { position: absolute; left: 20px; top: 30px; font-size: 20px; color: #fff; text-decoration: none; }
+    .header .menu-btn { position: absolute; right: 20px; top: 30px; font-size: 20px; color: #fff; cursor: pointer; }
+    
+    .month-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    
+    .date-slider {
+      display: flex;
+      overflow-x: auto;
+      gap: 15px;
+      padding: 10px 20px 20px;
+      scrollbar-width: none; /* Firefox */
+      direction: ltr; /* Keeping dates LTR for visual match */
+    }
+    .date-slider::-webkit-scrollbar { display: none; }
+    
+    .date-pill {
+      min-width: 60px;
+      height: 90px;
+      border-radius: 40px;
+      background: var(--bg-darker);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.3s;
+    }
+    .date-pill .day-num { font-size: 1.5rem; font-weight: 700; color: #fff; }
+    .date-pill .day-name { font-size: 0.8rem; margin-top: 5px; }
+    
+    .date-pill.active {
+      background: var(--primary-light);
+      color: #000;
+      transform: scale(1.1);
+      box-shadow: 0 10px 20px rgba(224, 242, 184, 0.2);
+    }
+    .date-pill.active .day-num { color: #000; }
+
+    /* 2. Cards Section */
+    .cards-container {
+      flex: 1;
+      background: #143226;
+      border-radius: 30px 30px 0 0;
+      padding: 30px 20px 100px; /* padding-bottom for nav */
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .custom-card { position: relative; width: 100%; border-radius: 0 20px 20px 20px; padding: 20px; display: flex; align-items: center; justify-content: space-between; margin-top: 25px;}
+    
+    /* The "Tab" part of the card */
+    .custom-card::before {
+      content: attr(data-tab);
+      position: absolute;
+      top: -25px;
+      left: 0;
+      height: 25px;
+      padding: 0 15px;
+      border-radius: 15px 15px 0 0;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      color: #000;
+    }
+
+    .card-completed { background: var(--primary-light); color: #000; }
+    .card-completed::before { background: var(--primary-light); }
+    
+    .card-rejected { background: var(--danger-red); color: #fff; border-radius: 0 20px 20px 20px;}
+    .card-rejected::before { background: var(--danger-red); color: #fff; }
+    
+    .card-monthly { background: var(--grey-light); color: #000; }
+    .card-monthly::before { background: var(--grey-light); }
+
+    .card-icon {
+      width: 50px; height: 50px; background: rgba(0,0,0,0.15); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      transform: rotate(45deg);
+    }
+    .card-icon svg { transform: rotate(-45deg); }
+    
+    .card-content { flex: 1; margin: 0 15px; text-align: left; direction: ltr; }
+    .card-content h3 { font-size: 1.1rem; margin-bottom: 5px; }
+    .card-content p { font-size: 0.85rem; opacity: 0.8; }
+    
+    .card-action { font-size: 1.5rem; font-weight: bold; cursor: pointer; }
+
+    /* 3. Bottom Nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 15px;
+      width: 90%;
+      z-index: 100;
+    }
+    .nav-btn {
+      flex: 1; padding: 15px; border-radius: 15px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.3s;
+    }
+    .nav-btn.primary { background: var(--primary-light); color: #000; }
+    .nav-btn.secondary { background: var(--primary-light); color: #000; opacity: 0.6; }
+    .nav-btn.secondary.active { opacity: 1; }
+
+    /* 4. Form View (New OP) */
+    #form-view {
+      display: none;
+      padding: 20px;
+      background: var(--bg-dark);
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+    .form-header { text-align: center; margin-bottom: 30px; font-size: 1.2rem; color: var(--emerald); border-right: 3px solid var(--emerald); padding-right: 10px; display: inline-block; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
+    .form-group input, .form-group select {
+      width: 100%; padding: 15px; background: var(--input-bg); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; color: #fff; font-size: 1rem; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--emerald); }
+    
+    .btn-submit {
+      width: 100%; padding: 16px; background: var(--emerald); color: #fff; font-weight: bold; font-size: 1.1rem; border: none; border-radius: 12px; cursor: pointer; margin-top: 10px;
+    }
+
+    #loading-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 999; display: none; align-items: center; justify-content: center; flex-direction: column;
+    }
+    .spinner { border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--emerald); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- ================= Dashboard View ================= -->
+  <div id="dashboard-view">
+    <div class="header">
+      <a href="#" class="back-btn" onclick="logout()">←</a>
+      <div class="menu-btn">⋮</div>
+      <div class="month-title" id="current-month-display">January 2024 <span>⌄</span></div>
+      
+      <!-- Date Slider -->
+      <div class="date-slider" id="date-slider">
+        <!-- يتم توليده برمجياً -->
+      </div>
+    </div>
+
+    <div class="cards-container">
+      <!-- Completed -->
+      <div class="custom-card card-completed" data-tab="Completed">
+        <div class="card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <div class="card-content">
+          <h3>Successful OPs</h3>
+          <p id="success-count">Loading...</p>
+        </div>
+        <div class="card-action">⋮</div>
+      </div>
+
+      <!-- Rejected / Issues -->
+      <div class="custom-card card-rejected" data-tab="Rejected">
+        <div class="card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <div class="card-content">
+          <h3>Failed / Duplicated</h3>
+          <p id="failed-count">0</p>
+        </div>
+        <div class="card-action">⋮</div>
+      </div>
+
+      <!-- Monthly Summary -->
+      <div class="custom-card card-monthly" data-tab="MONTHLY">
+        <div class="card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="card-content">
+          <h3>Total Operations</h3>
+          <p id="monthly-total" style="font-size: 11px;">من 27 الشهر السابق حتى 26 الحالي</p>
+        </div>
+        <div class="card-action">⋮</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Form View ================= -->
+  <div id="form-view">
+    <div style="text-align: right;">
+      <h2 class="form-header">نموذج تسجيل حركة جديدة</h2>
+    </div>
+    
+    <form id="op-form" onsubmit="submitTask(event)">
+      <div class="form-group">
+        <label>تاريخ العملية</label>
+        <input type="date" id="op-date" required>
+      </div>
+
+      <div class="form-group">
+        <label>اسم المستشفى</label>
+        <input type="text" id="hospital-name" placeholder="اكتب اسم المستشفى هنا" required>
+      </div>
+
+      <div class="form-group">
+        <label>نوع الحالة (Case Type)</label>
+        <!-- التزام صارم بالقوائم المسموحة في الباك إند -->
+        <select id="case-type" required>
+          <option value="" disabled selected>اختر نوع الحالة</option>
+          <option value="HIP">HIP</option>
+          <option value="KNEE">KNEE</option>
+          <option value="BIPOLAR">BIPOLAR</option>
+          <option value="TRIPOLAR">TRIPOLAR</option>
+          <option value="Spacer">Spacer</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>رقم العملية (OP)</label>
+        <input type="text" id="op-number" placeholder="أدخل رقم الـ OP يدوياً" pattern="[A-Za-z0-9\-_]{1,50}" title="حروف وأرقام فقط" required>
+      </div>
+
+      <div class="form-group">
+        <label>نوع المهمة (Stock Prep)</label>
+        <!-- التزام صارم بالقوائم المسموحة في الباك إند -->
+        <select id="stock-prep" required>
+          <option value="" disabled selected>اختر المهمة</option>
+          <option value="تحضير استوك">تحضير استوك</option>
+          <option value="توصيل عمليات">توصيل عمليات</option>
+          <option value="إرجاع عمليات">إرجاع عمليات</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-submit">حفظ وإرسال الحركة للشيت</button>
+    </form>
+  </div>
+
+  <!-- ================= Bottom Navigation ================= -->
+  <div class="bottom-nav">
+    <button class="nav-btn primary" id="btn-new" onclick="switchView('form')">New OP</button>
+    <button class="nav-btn secondary active" id="btn-dash" onclick="switchView('dashboard')">Dashboard</button>
+  </div>
+
+  <!-- Loading -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <p style="margin-top: 15px; color: var(--emerald);">جاري المعالجة...</p>
+  </div>
+
+  <script>
+    // --- إعدادات الاتصال (ضع رابط الـ Web App لملف الـ Backend الخاص بالعمليات هنا) ---
+    const DELIVERY_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4av2OSR6e7d9ZTeoZ0-uTZry3j4xdxOO4gvZyZmGxKW8HmjcTDlBH3aR-FP8ChwXb/exec";
+
+    // --- 1. التحقق من الصلاحيات ---
+    const authToken = localStorage.getItem('authToken');
+    const userRole = localStorage.getItem('userRole');
+    const userName = localStorage.getItem('userName');
+
+    // السماح للأدوار المطابقة للباك إند + أمين مخزن (حسب طلبك)
+    const allowedRoles = ["مندوب توصيل", "مندوب عمليات", "admin", "أمين مخزن"];
+
+    if (!authToken || !allowedRoles.includes(String(userRole).trim())) {
+      alert("عفواً، ليس لديك صلاحية للوصول لهذه الصفحة.");
+      window.location.href = 'index.html';
+    }
+
+    // --- 2. إدارة التبديل بين الشاشات ---
+    function switchView(view) {
+      document.getElementById('dashboard-view').style.display = view === 'dashboard' ? 'block' : 'none';
+      document.getElementById('form-view').style.display = view === 'form' ? 'block' : 'none';
+      
+      const btnNew = document.getElementById('btn-new');
+      const btnDash = document.getElementById('btn-dash');
+      
+      if (view === 'form') {
+        btnNew.classList.remove('secondary'); btnNew.classList.add('primary');
+        btnDash.classList.remove('primary'); btnDash.classList.add('secondary');
+        // Set today's date automatically
+        document.getElementById('op-date').valueAsDate = new Date();
+      } else {
+        btnDash.classList.remove('secondary'); btnDash.classList.add('primary');
+        btnNew.classList.remove('primary'); btnNew.classList.add('secondary');
+        loadDashboardStats();
+      }
+    }
+
+    // --- 3. توليد شريط الأيام (Date Slider) ---
+    function generateDateSlider() {
+      const slider = document.getElementById('date-slider');
+      const today = new Date();
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      
+      document.getElementById('current-month-display').innerHTML = `${monthNames[today.getMonth()]} ${today.getFullYear()} <span>⌄</span>`;
+      
+      slider.innerHTML = '';
+      // ننشئ أيام من -3 لـ +3 حول اليوم
+      for (let i = -3; i <= 3; i++) {
+        let d = new Date();
+        d.setDate(today.getDate() + i);
+        
+        const pill = document.createElement('div');
+        pill.className = 'date-pill' + (i === 0 ? ' active' : '');
+        pill.innerHTML = `
+          <div class="day-num">${d.getDate()}</div>
+          <div class="day-name">${dayNames[d.getDay()]}</div>
+        `;
+        slider.appendChild(pill);
+      }
+    }
+
+    // --- 4. جلب إحصائيات الشهر (من 27 إلى 26) ---
+    function getMonthCycle() {
+      let now = new Date();
+      let start = new Date(now.getFullYear(), now.getMonth(), 27);
+      let end = new Date(now.getFullYear(), now.getMonth() + 1, 26, 23, 59, 59);
+      
+      if (now.getDate() < 27) {
+        start.setMonth(start.getMonth() - 1);
+        end.setMonth(end.getMonth() - 1);
+      }
+      return { start: start.toISOString(), end: end.toISOString() };
+    }
+
+    async function loadDashboardStats() {
+      showLoading(true);
+      try {
+        const cycle = getMonthCycle();
+        const url = `${DELIVERY_SCRIPT_URL}?token=${encodeURIComponent(authToken)}&start=${cycle.start}&end=${cycle.end}`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.result === "success") {
+          document.getElementById('success-count').innerText = `${data.totalOperations} Operations`;
+          document.getElementById('monthly-total').innerText = `Total Cycle: ${data.totalOperations} OPs`;
+        } else {
+          console.error("Stats Error:", data.message);
+        }
+      } catch (error) {
+        console.error("Network Error:", error);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // --- 5. إرسال العملية (New OP Task) للباك إند ---
+    async function submitTask(e) {
+      e.preventDefault();
+      
+      const payload = {
+        action: "task",
+        token: authToken,
+        exitDate: document.getElementById('op-date').value,
+        hospitalName: document.getElementById('hospital-name').value,
+        caseType: document.getElementById('case-type').value,
+        opNumber: document.getElementById('op-number').value,
+        stockPrep: document.getElementById('stock-prep').value
+      };
+
+      showLoading(true);
+      try {
+        const response = await fetch(DELIVERY_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+
+        if (data.result === "success") {
+          alert("تم تسجيل العملية بنجاح!");
+          document.getElementById('op-form').reset();
+          switchView('dashboard'); // العودة للرئيسية
+        } else if (data.result === "dispute_detected") {
+          alert("تنبيه: تم تسجيل العملية ولكن تم رصد تكرار/نزاع على رقم الـ OP. سيتم مراجعتها.");
+          document.getElementById('failed-count').innerText = parseInt(document.getElementById('failed-count').innerText) + 1;
+          document.getElementById('op-form').reset();
+          switchView('dashboard');
+        } else {
+          alert("خطأ: " + data.message);
+        }
+      } catch (error) {
+        alert("حدث خطأ في الاتصال بالخادم. يرجى التأكد من رابط الـ Web App.");
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function showLoading(show) {
+      document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+    }
+
+    function logout() {
+      localStorage.removeItem('authToken');
+      window.location.href = 'index.html';
+    }
+
+    // التهيئة عند فتح الصفحة
+    window.onload = () => {
+      generateDateSlider();
+      loadDashboardStats();
+    };
+  </script>
+</body>
+</html>
