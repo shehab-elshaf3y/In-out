@@ -567,6 +567,8 @@ function handleLogin(e) {
         } 
         else if (['supervisor', 'تنسيق', 'مشرف'].includes(roleLower)) {
             window.location.href = './supervisor.html';
+          else if (['supervisor','أمين مخزن'].includes(roleLower)) {
+            window.location.href = './inventory.html';
         } else {
             // توجيه افتراضي لأي دور آخر
             window.location.href = './employee.html';
