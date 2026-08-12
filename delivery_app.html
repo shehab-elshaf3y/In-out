@@ -202,7 +202,7 @@
     <!-- الترويسة العلوية -->
     <div class="app-header">
         <div class="user-badge">
-            <img src="assets/avatar-courier-default.png" class="user-avatar" alt="avatar">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Courier" class="user-avatar" alt="avatar">
             <div class="user-details">
                 <h3 id="courierNameDisplay">جاري التحميل...</h3>
                 <p>العهدة الحالية: <span id="custodyAmountDisplay" style="color:var(--accent-green); font-weight:bold;">0 ج.م</span></p>
@@ -213,19 +213,16 @@
 
     <!-- 1️⃣ الشاشة الأولى: قائمة المهام والماليات -->
     <div id="viewTasks" class="view-container active">
-        <!-- حالة التسوية العامة -->
         <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
             <span style="font-size: 13px; font-weight: bold;">حالة تسوية العهدة:</span>
             <span id="settlementStatusBadge" class="status-badge badge-pickup">غير مسواة</span>
         </div>
 
-        <!-- المهام المسندة -->
         <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">📦 المهام المسندة:</h4>
         <div id="tasksListContainer" style="margin-bottom: 20px;">
             <p style="text-align:center; color:var(--text-muted); font-size:12px;">جاري تحميل المهام...</p>
         </div>
 
-        <!-- شرائح الموقف المالي -->
         <div class="filter-chips">
             <span class="chip active-custody" id="chipCustody" onclick="switchFinancialTab('custody')">العهد المستلمة</span>
             <span class="chip" id="chipPayed" onclick="switchFinancialTab('payed')">المصاريف</span>
@@ -260,8 +257,7 @@
 
             <div id="transportSection">
                 <div class="transport-card" style="padding: 10px; margin-bottom: 10px;">
-                    <img src="cairo-metro.png" id="transportImg" class="transport-img" style="max-height:80px;" alt="metro">
-                    <h4 id="transportTitle" style="font-size: 13px;">RIDE METRO</h4>
+                    <div id="transportTitle" style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">🚇 RIDE METRO</div>
                 </div>
 
                 <div class="transport-options">
@@ -321,15 +317,17 @@
         <button class="nav-item" onclick="switchView('viewDelivery', this)">📍</button>
     </div>
 
-    <!-- البرمجة السليمة -->
     <script>
-        const currentCourierName = localStorage.getItem('userName') || "احمد المندوب";
+        // Check for Index Session Token
+        const authToken = localStorage.getItem('authToken');
+        const currentCourierName = localStorage.getItem('userName') || "المندوب";
 
-        if (!localStorage.getItem('userName')) {
+        if (!authToken) {
+            alert("⚠️ تنبيه: لم يتم العثور على جلسة صالحة، يرجى تسجيل الدخول أولاً.");
             window.location.replace('./index.html');
         }
 
-        const COURIER_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcx0dckmfHqJz_6DIFYxSlz8sRdsC3JszRe6oAnwku6fy01HHWVnPn9xZkhS_-nPk/exec";
+        const COURIER_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyaFDgpLq7C0N7EAGJdse_Jb-cbdiSE8g5Td5nss7HD2tRvxkcXN-K6cuk5lx03tYQ/exec";
 
         let selectedTask = null;
         let selectedTransportMethod = "metro";
@@ -368,7 +366,6 @@
 
         function selectTransport(type, btnElement) {
             selectedTransportMethod = type;
-            const img = document.getElementById('transportImg');
             const title = document.getElementById('transportTitle');
             const reasonBox = document.getElementById('uberReasonBox');
 
@@ -376,95 +373,93 @@
             if (btnElement) btnElement.classList.add('selected');
 
             if (type === 'metro') {
-                img.src = 'cairo-metro.png';
-                title.innerText = 'RIDE METRO';
+                title.innerText = '🚇 RIDE METRO';
                 reasonBox.style.display = 'none';
             } else if (type === 'microbus') {
-                img.src = 'assets/van-transport.png'; 
-                title.innerText = 'MICROBUS / VAN';
+                title.innerText = '🚐 MICROBUS / VAN';
                 reasonBox.style.display = 'none';
             } else if (type === 'uber') {
-                img.src = 'assets/uber-icon.png'; 
-                title.innerText = 'UBER RIDE';
+                title.innerText = '🚗 UBER RIDE';
                 reasonBox.style.display = 'block';
             }
         }
 
-      function loadCourierData() {
-    document.getElementById('courierNameDisplay').innerText = currentCourierName;
+        function loadCourierData() {
+            document.getElementById('courierNameDisplay').innerText = currentCourierName;
 
-    if (!COURIER_SCRIPT_URL) return;
+            if (!COURIER_SCRIPT_URL) return;
 
-    fetch(`${COURIER_SCRIPT_URL}?courier=${encodeURIComponent(currentCourierName)}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === "success") {
-                document.getElementById('custodyAmountDisplay').innerText = `${data.custody || data['إجمالي العهدة'] || 0} ج.م`;
-                
-                // تحديث حالة التسوية
-                const settlementBadge = document.getElementById('settlementStatusBadge');
-                if (settlementBadge) {
-                    const status = data.settlementStatus || data['حالة التسوية'] || "غير مسواة";
-                    settlementBadge.innerText = status;
-                    settlementBadge.className = `status-badge ${status === 'مسواة' || status === 'تمت التسوية' ? 'badge-transit' : 'badge-pickup'}`;
-                }
+            // Pass token parameter for secure session authentication
+            fetch(`${COURIER_SCRIPT_URL}?token=${encodeURIComponent(authToken)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById('custodyAmountDisplay').innerText = `${data.custody || data['إجمالي العهدة'] || 0} ج.م`;
+                        
+                        const settlementBadge = document.getElementById('settlementStatusBadge');
+                        if (settlementBadge) {
+                            const status = data.settlementStatus || data['حالة التسوية'] || "غير مسواة";
+                            settlementBadge.innerText = status;
+                            settlementBadge.className = `status-badge ${status === 'مسواة' || status === 'تمت التسوية' ? 'badge-transit' : 'badge-pickup'}`;
+                        }
 
-                renderTasks(data.tasks || []);
-                // قراءة القائمة سواء كانت مسمّاة custodies أو custodyLogs
-                renderCustodyList(data.custodies || data.custodyLogs || []);
-                renderExpensesList(data.expenses || []);
+                        renderTasks(data.tasks || []);
+                        renderCustodyList(data.custodies || data.custodyLogs || []);
+                        renderExpensesList(data.expenses || []);
+                    } else if (data.result === "error" && data.message && data.message.includes("Unauthorized")) {
+                        alert("⚠️ تنبيه: انتهت صلاحية الجلسة أو غير مصرح لك، يرجى تسجيل الدخول مجدداً.");
+                        localStorage.removeItem('authToken');
+                        window.location.replace('./index.html');
+                    }
+                })
+                .catch(err => console.error("Error loading data:", err));
+        }
+
+        function renderCustodyList(custodies) {
+            const container = document.getElementById('custodyListContainer');
+            if (!custodies || custodies.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد سجل عهد استلمتها حالياً.</p>';
+                return;
             }
-        })
-        .catch(err => console.error("Error loading data:", err));
-}
+            container.innerHTML = custodies.map(c => {
+                const amount = c.amount || c['المبلغ'] || c['القيمة'] || 0;
+                const date = c.date || c['التاريخ'] || c['تاريخ الاستلام'] || '';
+                const notes = c.notes || c['ملاحظات'] || c['الملاحظات'] || '';
 
-// عرض قائمة العهد المستلمة (تدعم المفاتيح بالعربي والإنجليزي)
-function renderCustodyList(custodies) {
-    const container = document.getElementById('custodyListContainer');
-    if (!custodies || custodies.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد سجل عهد استلمتها حالياً.</p>';
-        return;
-    }
-    container.innerHTML = custodies.map(c => {
-        const amount = c.amount || c['المبلغ'] || c['القيمة'] || 0;
-        const date = c.date || c['التاريخ'] || c['تاريخ الاستلام'] || '';
-        const notes = c.notes || c['ملاحظات'] || c['الملاحظات'] || '';
+                return `
+                    <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-size:13px; font-weight:bold;">💵 استلام عهدة ${notes ? `<span style="font-size:11px; font-weight:normal; color:var(--text-muted);">(${notes})</span>` : ''}</div>
+                            <div style="font-size:11px; color:var(--text-muted);">${date}</div>
+                        </div>
+                        <span style="color:var(--accent-green); font-weight:bold;">+${amount} ج.م</span>
+                    </div>
+                `;
+            }).join('');
+        }
 
-        return `
-            <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <div style="font-size:13px; font-weight:bold;">💵 استلام عهدة ${notes ? `<span style="font-size:11px; font-weight:normal; color:var(--text-muted);">(${notes})</span>` : ''}</div>
-                    <div style="font-size:11px; color:var(--text-muted);">${date}</div>
-                </div>
-                <span style="color:var(--accent-green); font-weight:bold;">+${amount} ج.م</span>
-            </div>
-        `;
-    }).join('');
-}
+        function renderExpensesList(expenses) {
+            const container = document.getElementById('expensesListContainer');
+            if (!expenses || expenses.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد مصاريف مسجلة حتى الآن.</p>';
+                return;
+            }
+            container.innerHTML = expenses.map(e => {
+                const category = e.category || e['بند المصروف'] || e['النوع'] || 'مصروف';
+                const details = e.details || e.transportMethod || e['وسيلة الانتقال'] || e['التفاصيل'] || '';
+                const amount = e.amount || e['المبلغ'] || 0;
 
-// عرض قائمة المصاريف الخصمة (تدعم المفاتيح بالعربي والإنجليزي)
-function renderExpensesList(expenses) {
-    const container = document.getElementById('expensesListContainer');
-    if (!expenses || expenses.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد مصاريف مسجلة حتى الآن.</p>';
-        return;
-    }
-    container.innerHTML = expenses.map(e => {
-        const category = e.category || e['بند المصروف'] || e['النوع'] || 'مصروف';
-        const details = e.details || e.transportMethod || e['وسيلة الانتقال'] || e['التفاصيل'] || '';
-        const amount = e.amount || e['المبلغ'] || 0;
-
-        return `
-            <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <div style="font-size:13px; font-weight:bold;">${category}</div>
-                    <div style="font-size:11px; color:var(--text-muted);">${details}</div>
-                </div>
-                <span style="color:var(--accent-red); font-weight:bold;">-${amount} ج.م</span>
-            </div>
-        `;
-    }).join('');
-}
+                return `
+                    <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-size:13px; font-weight:bold;">${category}</div>
+                            <div style="font-size:11px; color:var(--text-muted);">${details}</div>
+                        </div>
+                        <span style="color:var(--accent-red); font-weight:bold;">-${amount} ج.م</span>
+                    </div>
+                `;
+            }).join('');
+        }
 
         function renderTasks(tasks) {
             const container = document.getElementById('tasksListContainer');
@@ -507,7 +502,7 @@ function renderExpensesList(expenses) {
 
             const payload = {
                 action: "add_expense",
-                courierName: currentCourierName,
+                token: authToken,
                 category: category,
                 taskId: selectedTask ? selectedTask.taskId : "عام",
                 transportMethod: selectedTransportMethod,
@@ -522,6 +517,8 @@ function renderExpensesList(expenses) {
                         alert('✅ تم تسجيل المصروف وخصمه من العهدة');
                         document.getElementById('expenseAmountInput').value = '';
                         loadCourierData();
+                    } else {
+                        alert(`❌ خطأ: ${res.message || "تعذر إكمال العملية"}`);
                     }
                 });
         }
@@ -532,8 +529,8 @@ function renderExpensesList(expenses) {
             
             const payload = {
                 action: "start_movement",
+                token: authToken,
                 taskId: selectedTask.taskId,
-                courierName: currentCourierName,
                 startPhoto: fileInput.files[0] ? fileInput.files[0].name : "تم رفع صورة الحركة"
             };
 
@@ -543,11 +540,12 @@ function renderExpensesList(expenses) {
                     if (res.result === 'success') {
                         alert("✅ تم تأكيد بدء الحركة بنجاح!");
                         loadCourierData();
+                    } else {
+                        alert(`❌ خطأ: ${res.message || "تعذر إكمال العملية"}`);
                     }
                 });
         }
 
-        // سحب زر التسليم (Slide to Confirm)
         const thumb = document.getElementById('sliderThumb');
         const container = document.getElementById('sliderContainer');
         let isDragging = false;
@@ -590,7 +588,7 @@ function renderExpensesList(expenses) {
 
             const payload = {
                 action: "update_task_status",
-                courierName: currentCourierName,
+                token: authToken,
                 taskId: selectedTask.taskId,
                 newStatus: "تم التسليم"
             };
@@ -603,12 +601,15 @@ function renderExpensesList(expenses) {
                         thumb.style.left = '5px';
                         switchView('viewTasks');
                         loadCourierData();
+                    } else {
+                        alert(`❌ خطأ: ${res.message || "تعذر إكمال العملية"}`);
+                        thumb.style.left = '5px';
                     }
                 });
         }
 
         function contactSupport() {
-            fetch(`${COURIER_SCRIPT_URL}?action=getSupportLink&courier=${encodeURIComponent(currentCourierName)}`)
+            fetch(`${COURIER_SCRIPT_URL}?action=getSupportLink&token=${encodeURIComponent(authToken)}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data && data.url) {
@@ -623,7 +624,6 @@ function renderExpensesList(expenses) {
                 });
         }
 
-        // بدء جلب البيانات
         loadCourierData();
     </script>
 </body>
