@@ -526,6 +526,7 @@
     // 5. معالجة تسجيل الدخول
 // 5. معالجة تسجيل الدخول
 // 5. معالجة تسجيل الدخول (مُعدّلة ومضمونة التوجيه)
+// 5. معالجة تسجيل الدخول (مُعدّلة ومضمونة التوجيه)
 function handleLogin(e) {
   e.preventDefault();
   showStatus('جاري التحقق من بيانات الدخول...', 'info');
@@ -546,7 +547,7 @@ function handleLogin(e) {
       const userRole = String(emp.role).trim();
       const userName = emp.name;
 
-      // تخزين الـ Token بشكل أساسي لاستخدامه في الطلبات المحمية
+      // تخزين البيانات في localStorage
       localStorage.setItem('authToken', data.token); 
       localStorage.setItem('userSession', JSON.stringify(emp));
       localStorage.setItem('userName', userName);
@@ -555,7 +556,7 @@ function handleLogin(e) {
       setTimeout(() => {
         const roleLower = userRole.toLowerCase();
 
-        // التوجيه بناءً على مصفوفة الـ Roles الموحدة في الـ Backend
+        // التوجيه بناءً على مصفوفة الـ Roles
         if (['admin'].includes(roleLower)) {
             window.location.href = './admin.html';
         } 
@@ -567,9 +568,11 @@ function handleLogin(e) {
         } 
         else if (['supervisor', 'تنسيق', 'مشرف'].includes(roleLower)) {
             window.location.href = './supervisor.html';
-          else if (['supervisor','أمين مخزن'].includes(roleLower)) {
+        }
+        else if (['أمين مخزن', 'مخزن'].includes(roleLower)) {
             window.location.href = './inventory.html';
-        } else {
+        } 
+        else {
             // توجيه افتراضي لأي دور آخر
             window.location.href = './employee.html';
         }
