@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VitaShop - قريباً</title>
+    
+    <!-- استيراد خطوط جوجل (اختياري للشكل الجمالي، يمكنك حذفه إذا أردت) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* الأساسيات - لضمان ملء الصفحة بالكامل وتوافق الخطوط */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* لمنع شريط التمرير */
+            font-family: 'Cairo', sans-serif; /* استخدام خط Cairo الداعم للعربية */
+            background-color: #010816; /* لون خلفية احتياطي داكن جداً */
+        }
+
+        /* حاوية الخلفية الرئيسية - لتطبيق تأثير الإضاءة التدريجي (Gradient) كما في الصورة */
+        .coming-soon-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* لتوزيع العناصر بين أعلى وأسفل وسط الصفحة */
+            align-items: center;
+            color: #ffffff; /* لون النص الافتراضي أبيض */
+            
+            /* تأثير الخلفية: تدرج شعاعي يبدأ بإضاءة زرقاء خفيفة في الأعلى وينتهي بالسواد في الأسفل */
+            background: radial-gradient(circle at top center, #1a2f5a 0%, #010816 60%);
+            position: relative;
+        }
+
+        /* تطبيق تباين محدد للنص الهام */
+        .coming-soon-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.2); /* طبقة داكنة خفيفة لزيادة وضوح النص */
+            z-index: 1;
+        }
+
+        /* لضمان أن المحتوى يظهر فوق طبقة التباين */
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 20px; /* مسافات داخلية للجوانب وأعلى وأسفل */
+            box-sizing: border-box; /* لضمان حساب المسافات الداخلية ضمن الطول والعرض */
+        }
+
+        /* --- الهيدر (أعلى الصفحة) --- */
+        .header {
+            width: 100%;
+            max-width: 1200px; /* أقصى عرض للمحتوى في الشاشات الكبيرة */
+            display: flex;
+            justify-content: space-between; /* توزيع اللوجو واسم المستخدم على الأطراف */
+            align-items: center;
+        }
+
+        /* تصميم اللوجو الجديد (VitaShop) */
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase; /* جعل الحروف كابيتال */
+            color: #ffffff;
+            text-decoration: none; /* حذف الخط تحت الرابط */
+        }
+
+        /* تصميم اسم المستخدم على اليمين */
+        .user-handle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7); /* لون أبيض شفاف قليلاً */
+        }
+
+        /* --- المحتوى الأوسط (Coming Soon) --- */
+        .main-content {
+            text-align: center;
+            margin-top: -50px; /* رفع المحتوى قليلاً للأعلى لتحقيق التوازن البصري */
+        }
+
+        /* السطر الأول: Text "something is on it's way" */
+        .sub-text {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+
+        /* السطر الثاني: "COMING SOON" الكبيرة والمضيئة */
+        .main-title {
+            font-size: 54px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0;
+            
+            /* تأثير الإضاءة (Glow) الأزرق حول النص */
+            text-shadow: 0 0 15px rgba(100, 149, 237, 0.6), 
+                         0 0 30px rgba(100, 149, 237, 0.4);
+        }
+
+        /* --- الفوتر (أسفل الصفحة) --- */
+        .footer {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* تصميم رابط الموقع المحدث (vitashop.com) */
+        .website-link {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease; /* تأثير ناعم عند تمرير الماوس */
+        }
+
+        .website-link:hover {
+            color: #ffffff; /* يصبح اللون أبيض ناصع عند تمرير الماوس */
+        }
+
+        /* تصميم زر "تابعنا" (FOLLOW US) */
+        .follow-button {
+            display: inline-block;
+            padding: 8px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.5); /* إطار شفاف قليلاً */
+            border-radius: 20px; /* حواف دائرية */
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ffffff;
+            text-decoration: none;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .follow-button:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* خلفية بيضاء خفيفة جداً عند تمرير الماوس */
+            border-color: #ffffff;
+        }
+
+        /* =========================================
+           تعديلات التجاوب مع الهواتف (Responsive)
+           ========================================= */
+        
+        /* للشاشات الصغيرة (الهواتف) أقل من 768px */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 30px 15px; /* تقليل المسافات الداخلية */
+            }
+
+            .logo {
+                font-size: 20px; /* تصغير حجم اللوجو */
+            }
+
+            .user-handle {
+                font-size: 12px; /* تصغير اسم المستخدم */
+            }
+
+            .sub-text {
+                font-size: 14px; /* تصغير النص الفرعي */
+            }
+
+            .main-title {
+                font-size: 32px; /* تصغير "COMING SOON" لتناسب الشاشة */
+                letter-spacing: 2px;
+            }
+
+            .website-link {
+                font-size: 12px; /* تصغير رابط الموقع */
+            }
+
+            .follow-button {
+                padding: 6px 18px; /* تصغير الزر */
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الحاوية الرئيسية -->
+    <div class="coming-soon-container">
+        <div class="content-wrapper">
+            
+            <!-- أعلى الصفحة: الهيدر -->
+            <header class="header">
+                <!-- اللوجو الجديد (بدلاً من B2C) -->
+                <a href="#" class="logo">vitashop</a>
+                <!-- اسم المستخدم على اليمين (يمكنك تعديله) -->
+                <div class="user-handle">@vitashop_inc</div>
+            </header>
+
+            <!-- وسط الصفحة:Coming Soon -->
+            <main class="main-content">
+                <div class="sub-text">something is on it's way</div>
+                <h1 class="main-title">COMING SOON</h1>
+            </main>
+
+            <!-- أسفل الصفحة: الفوتر -->
+            <footer class="footer">
+                <!-- رابط الموقع الجديد (بدلاً من b2cinc.com) -->
+                <a href="https://vitashop.com" class="website-link" target="_blank">vitashop.com</a>
+                <!-- زر تابعنا -->
+                <a href="#" class="follow-button">FOLLOW US</a>
+            </footer>
+
+        </div>
+    </div>
+
+</body>
+</html>
