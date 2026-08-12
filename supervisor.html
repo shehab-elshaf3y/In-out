@@ -19,7 +19,6 @@
             --item-hover: rgba(59, 130, 246, 0.1);
         }
 
-        /* متغيرات الوضع الفاتح Light Mode */
         body.light-mode {
             --bg-dark: #f0f4f8;
             --card-bg: #ffffff;
@@ -42,7 +41,6 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* القائمة الجانبية للمناديب */
         .sidebar-couriers {
             width: 320px;
             background-color: var(--card-bg);
@@ -103,7 +101,6 @@
         .status-transit { background: rgba(245, 158, 11, 0.2); color: var(--accent-yellow); }
         .status-busy { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
 
-        /* الشاشة الرئيسية */
         .main-content {
             flex: 1;
             padding: 25px;
@@ -240,7 +237,7 @@
                 </div>
                 
                 <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
-                    <img src="assets/avatar-courier-default.png" id="selectedCourierAvatar" class="avatar" style="width: 60px; height: 60px;" alt="avatar">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Courier" id="selectedCourierAvatar" class="avatar" style="width: 60px; height: 60px;" alt="avatar">
                     <div>
                         <h3 id="selectedCourierName" style="font-size: 18px;">لم يتم تحديد مندوب</h3>
                         <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
@@ -248,20 +245,20 @@
                         </p>
                     </div>
                 </div>
+
                 <!-- كارت إدارة المستشفيات واللوكيشن -->
-            <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-title">
-                    <span>🏥 إدارة المستشفيات واللوكيشن</span>
+                <div class="card" style="grid-column: 1 / -1; margin-bottom: 20px;">
+                    <div class="card-title">
+                        <span>🏥 إدارة المستشفيات واللوكيشن</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <input type="text" id="newHospName" placeholder="اسم المستشفى" style="flex: 1; padding: 10px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-main);">
+                        <input type="url" id="newHospLocation" placeholder="رابط Google Maps" style="flex: 2; padding: 10px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-main);">
+                        <button class="btn btn-primary" onclick="addHospital()">➕ إضافة / تحديث مستشفى</button>
+                    </div>
+                    <div id="hospitalsList" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    </div>
                 </div>
-                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                    <input type="text" id="newHospName" placeholder="اسم المستشفى" style="flex: 1; padding: 10px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-main);">
-                    <input type="url" id="newHospLocation" placeholder="رابط Google Maps" style="flex: 2; padding: 10px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-main);">
-                    <button class="btn btn-primary" onclick="addHospital()">➕ إضافة / تحديث مستشفى</button>
-                </div>
-                <div id="hospitalsList" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <!-- سيتم عرض قائمة المستشفيات هنا -->
-                </div>
-            </div>
 
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
                     <button class="btn btn-primary" onclick="openTaskModal()">➕ إسناد عملية جديدة</button>
@@ -276,29 +273,30 @@
                 </div>
             </div>
 
-          <!-- كارت تسوية العهد والمصاريف البديل لكارت المعاينة -->
-<div class="card">
-    <div class="card-title">
-        <span>🧾 مصاريف وتسوية عهدة المندوب</span>
-        <span id="settlementStatusBadgeSupervisor" class="courier-status status-available">غير مسواة</span>
+            <!-- كارت تسوية العهد والمصاريف -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🧾 مصاريف وتسوية عهدة المندوب</span>
+                    <span id="settlementStatusBadgeSupervisor" class="courier-status status-available">غير مسواة</span>
+                </div>
+
+                <div style="margin-bottom: 15px; background: var(--input-bg); padding: 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+                    <p style="font-size: 13px;">المندوب المحدد: <strong id="settleCourierName" style="color:var(--accent-blue);">لم يتم التحديد</strong></p>
+                    <p style="font-size: 13px; margin-top: 4px;">العهدة المتبقية حالياً: <strong id="settleCourierCustody" style="color:var(--accent-green);">0 ج.م</strong></p>
+                </div>
+
+                <h4 style="font-size: 13px; margin-bottom: 8px; color: var(--text-muted);">بيان المصاريف المسجلة عليه:</h4>
+                <div id="courierExpensesList" style="max-height: 140px; overflow-y: auto; font-size: 12px; margin-bottom: 15px; border: 1px solid var(--card-border); padding: 8px; border-radius: 8px; background: var(--input-bg);">
+                    اختر مندوباً من القائمة الجانبية لعرض مصاريفه.
+                </div>
+
+                <button class="btn btn-success" onclick="confirmCustodySettlement()" style="width: 100%; justify-content: center; padding: 12px;">
+                    ✅ تأكيد تسوية العهدة (تصفير العهدة)
+                </button>
+            </div>
+        </div>
     </div>
 
-    <div style="margin-bottom: 15px; background: var(--input-bg); padding: 12px; border-radius: 10px; border: 1px solid var(--card-border);">
-        <p style="font-size: 13px;">المندوب المحدد: <strong id="settleCourierName" style="color:var(--accent-blue);">يوسف</strong></p>
-        <p style="font-size: 13px; margin-top: 4px;">العهدة المتبقية حالياً: <strong id="settleCourierCustody" style="color:var(--accent-green);">0 ج.م</strong></p>
-    </div>
-
-    <!-- قائمة مصاريف المندوب المحدد -->
-    <h4 style="font-size: 13px; margin-bottom: 8px; color: var(--text-muted);">بيان المصاريف المسجلة عليه:</h4>
-    <div id="courierExpensesList" style="max-height: 140px; overflow-y: auto; font-size: 12px; margin-bottom: 15px; border: 1px solid var(--card-border); padding: 8px; border-radius: 8px; background: var(--input-bg);">
-        اختر مندوباً من القائمة الجانبية لعرض مصاريفه.
-    </div>
-
-    <!-- زر تأكيد التسوية وتصفير العهدة -->
-    <button class="btn btn-success" onclick="confirmCustodySettlement()" style="width: 100%; justify-content: center; padding: 12px;">
-        ✅ تأكيد تسوية العهدة (تصفير العهدة)
-    </button>
-</div>
     <!-- Modal إسناد عملية جديدة -->
     <div id="taskModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); justify-content:center; align-items:center; z-index:1000;">
         <div class="card" style="width: 90%; max-width: 450px;">
@@ -313,9 +311,9 @@
                 </div>
                 <div class="form-group">
                     <label>اسم المستشفى</label>
-                  <select id="hospitalNameInput" onchange="autoFillLocation()" required>
-    <option value="">-- اختر المستشفى --</option>
-</select>
+                    <select id="hospitalNameInput" onchange="autoFillLocation()" required>
+                        <option value="">-- اختر المستشفى --</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>نوع الحالة</label>
@@ -364,8 +362,12 @@
             </form>
         </div>
     </div>
+
 <script>
-    const SUPERVISOR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcx0dckmfHqJz_6DIFYxSlz8sRdsC3JszRe6oAnwku6fy01HHWVnPn9xZkhS_-nPk/exec";
+    const SUPERVISOR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyaFDgpLq7C0N7EAGJdse_Jb-cbdiSE8g5Td5nss7HD2tRvxkcXN-K6cuk5lx03tYQ/exec";
+
+    // Authentication Token Validation
+    const authToken = localStorage.getItem('authToken');
 
     let couriersData = [];
     let tasksData = [];
@@ -373,19 +375,17 @@
     let activeCourier = null;
     let loggedInUserName = "";
 
-    // جلب المستشفيات من LocalStorage أو استخدام الافتراضي
     let hospitalsData = JSON.parse(localStorage.getItem('hospitalsData')) || [
         { name: "مستشفى العاملين", location: "https://maps.google.com/?q=El-Amal" },
         { name: "مستشفى الشروق", location: "https://maps.google.com/?q=El-Shorouk" }
     ];
 
-    // 1. التحقق من جلسة المستخدم والتحميل الأولي
     window.addEventListener('DOMContentLoaded', () => {
         const userSession = localStorage.getItem('userSession');
         const userName = localStorage.getItem('userName');
 
-        if (!userSession) {
-            alert("⚠️ تنبيه: يجب تسجيل الدخول أولاً للوصول إلى لوحة المشرف!");
+        if (!authToken || !userSession) {
+            alert("⚠️ تنبيه: يجب تسجيل الدخول أولاً بالصلاحيات المطلوبة للوصول إلى لوحة المشرف!");
             window.location.href = './index.html';
             return;
         }
@@ -393,7 +393,6 @@
         loggedInUserName = userName || "المشرف";
         document.getElementById('supervisorDisplayName').innerText = loggedInUserName;
 
-        // تطبيق الوضع الفاتح لو كان محفوظاً
         if (localStorage.getItem('theme') === 'light') {
             document.body.classList.add('light-mode');
             document.getElementById('themeToggleBtn').innerText = '🌙 الوضع الداكن';
@@ -403,7 +402,6 @@
         loadSupervisorData();
     });
 
-    // 2. إدارة المستشفيات (عرض، إضافة، حذف، تعبئة تلقائية)
     function renderHospitals() {
         const listContainer = document.getElementById('hospitalsList');
         const selectSelect = document.getElementById('hospitalNameInput');
@@ -466,7 +464,6 @@
         }
     }
 
-    // 3. التحكم بالوضع الداكن والفاتح وتنسيق الجلسة
     function toggleTheme() {
         document.body.classList.toggle('light-mode');
         const isLight = document.body.classList.contains('light-mode');
@@ -479,13 +476,13 @@
             localStorage.removeItem('userSession');
             localStorage.removeItem('userName');
             localStorage.removeItem('userRole');
+            localStorage.removeItem('authToken');
             window.location.href = './index.html';
         }
     }
 
-    // 4. جلب وعرض بيانات المناديب والعمليات
     function loadSupervisorData() {
-        fetch(SUPERVISOR_SCRIPT_URL)
+        fetch(`${SUPERVISOR_SCRIPT_URL}?token=${encodeURIComponent(authToken)}`)
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
@@ -504,6 +501,9 @@
                         const updated = couriersData.find(c => c.name === activeCourier.name);
                         if (updated) selectCourier(updated);
                     }
+                } else if (data.result === "error" && data.message && data.message.includes("Unauthorized")) {
+                    alert("⚠️ تنبيه: غير مصرح لك بالوصول أو انتهت صلاحية الجلسة!");
+                    window.location.href = './index.html';
                 }
             })
             .catch(err => console.error("خطأ في جلب بيانات المشرف:", err));
@@ -527,7 +527,7 @@
             if (c.status === 'مشغول') statusClass = 'status-busy';
 
             card.innerHTML = `
-                <img src="assets/avatar-courier-default.png" class="avatar" alt="avatar">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${c.name}" class="avatar" alt="avatar">
                 <div class="courier-info">
                     <div class="courier-name">${c.name}</div>
                     <span class="courier-status ${statusClass}">${c.status}</span>
@@ -595,8 +595,8 @@
         if (confirm(`هل أنت تأكد من تسوية عهدة المندوب (${activeCourier.name}) وتصفيرها؟`)) {
             const payload = {
                 action: "settle_custody",
-                courierName: activeCourier.name,
-                supervisorName: loggedInUserName
+                token: authToken,
+                courierName: activeCourier.name
             };
 
             fetch(SUPERVISOR_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
@@ -605,12 +605,13 @@
                     if (res.result === 'success') {
                         alert(`✅ تم تسوية عهدة المندوب ${activeCourier.name} وتصفيرها إلى 0 ج.م بنجاح!`);
                         loadSupervisorData();
+                    } else {
+                        alert(`❌ خطأ: ${res.message || "تعذر تسوية العهدة"}`);
                     }
                 });
         }
     }
 
-    // 5. إدارة النوافذ المنبثقة (Modals)
     function openTaskModal() {
         if (!activeCourier) { alert("⚠️ اختر مندوباً أولاً من القائمة الجانبية!"); return; }
         document.getElementById('taskCourierNameInput').value = activeCourier.name;
@@ -625,17 +626,16 @@
     }
     function closeCustodyModal() { document.getElementById('custodyModal').style.display = 'none'; }
 
-    // 6. أحداث إرسال النماذج (Forms Submissions)
     document.getElementById('assignTaskForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const payload = {
             action: "assign_task",
+            token: authToken,
             courierName: activeCourier.name,
             hospitalName: document.getElementById('hospitalNameInput').value,
             caseType: document.getElementById('caseTypeInput').value,
             opNumber: document.getElementById('opNumberInput').value,
-            locationUrl: document.getElementById('locationUrlInput').value,
-            supervisorName: loggedInUserName
+            locationUrl: document.getElementById('locationUrlInput').value
         };
 
         fetch(SUPERVISOR_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
@@ -645,6 +645,8 @@
                     alert(`✅ تم إسناد المهمة للمندوب ${activeCourier.name} بنجاح!`);
                     closeTaskModal();
                     loadSupervisorData();
+                } else {
+                    alert(`❌ خطأ: ${res.message || "تعذر إسناد المهمة"}`);
                 }
             });
     });
@@ -653,10 +655,10 @@
         e.preventDefault();
         const payload = {
             action: "add_custody",
+            token: authToken,
             courierName: activeCourier.name,
             amount: document.getElementById('custodyAmountInput').value,
-            notes: document.getElementById('custodyNotesInput').value,
-            supervisorName: loggedInUserName
+            notes: document.getElementById('custodyNotesInput').value
         };
 
         fetch(SUPERVISOR_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
@@ -666,9 +668,11 @@
                     alert(`✅ تم تسليم مبلغ ${payload.amount} ج.م للمندوب ${activeCourier.name} بنجاح!`);
                     closeCustodyModal();
                     loadSupervisorData();
+                } else {
+                    alert(`❌ خطأ: ${res.message || "تعذر تسليم العهدة"}`);
                 }
             });
     });
 </script>
-        </body>
+</body>
 </html>
