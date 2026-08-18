@@ -4,22 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vita Shop | Portal</title>
-  <!-- Web App Manifest embedded inline (data URL) -->
+ <!-- إعدادات التثبيت كـ PWA وأيقونة التطبيق -->
+  <meta name="theme-color" content="#06110d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Vita Shop">
+
+  <link rel="icon" type="image/png" sizes="512x512" href="icon512.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="icon512.png">
+
   <link rel="manifest" href='data:application/manifest+json,{
     "name": "Vita Shop Portal",
     "short_name": "Vita Shop",
-    "start_url": "./index.html",
+    "start_url": "./",
     "display": "standalone",
     "background_color": "#06110d",
-    "theme_color": "#10b981",
-    "orientation": "portrait",
+    "theme_color": "#06110d",
     "icons": [
-      {
-        "src": "icon512.png",
-        "sizes": "192x192",
-        "type": "image/png",
-        "purpose": "any maskable"
-      },
       {
         "src": "icon512.png",
         "sizes": "512x512",
@@ -28,19 +30,6 @@
       }
     ]
   }'>
-
-  <!-- iOS / Apple Meta Tags -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Vita Shop">
-  <link rel="apple-touch-icon" href="icon512.png">
-
-  <!-- Android & Theme Color Tags -->
-  <meta name="theme-color" content="#10b981">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon512.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="icon512.png">
-  <style>
     :root {
       --bg-dark: #06110d;
       --panel-bg: rgba(12, 31, 24, 0.65);
