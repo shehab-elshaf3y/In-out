@@ -1,0 +1,16 @@
+{
+  "name": "Vita Shop Portal",
+  "short_name": "Vita Shop",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#06110d",
+  "theme_color": "#06110d",
+  "icons": [
+    {
+      "src": "./icon512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
