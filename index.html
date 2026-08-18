@@ -15,301 +15,272 @@
 <!-- Manifest Link -->
 <link rel="manifest" href="./manifest.json">  
   
-  <style>
-    :root {
-      --bg-dark: #06110d;
-      --panel-bg: rgba(12, 31, 24, 0.65);
-      --emerald-primary: #10b981;
-      --emerald-glow: #059669;
-      --emerald-dark: #022c22;
-      --text-main: #ecfdf5;
-      --text-muted: #6ee7b7;
-      --glass-border: rgba(16, 185, 129, 0.2);
-    }
+ <style>
+  :root {
+    --bg-dark: #06110d;
+    --panel-bg: rgba(12, 31, 24, 0.65);
+    --emerald-primary: #10b981;
+    --emerald-glow: #059669;
+    --emerald-dark: #022c22;
+    --text-main: #ecfdf5;
+    --text-muted: #6ee7b7;
+    --glass-border: rgba(16, 185, 129, 0.2);
+  }
 
-    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
-    
+  * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+  
+  body {
+    background: #040d0a;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.12) 0px, transparent 50%);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    padding: 15px;
+  }
+
+  /* 1. الشاشة الترحيبية (Splash Screen) */
+  #splash-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-dark);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.8s ease, visibility 0.8s;
+  }
+  .splash-logo {
+    width: 110px;
+    height: 110px;
+    background: linear-gradient(135deg, var(--emerald-primary), var(--emerald-dark));
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 50px rgba(16, 185, 129, 0.5);
+    animation: pulseGlow 2s infinite alternate ease-in-out;
+  }
+  .splash-title {
+    margin-top: 24px;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    color: var(--text-main);
+    font-weight: 700;
+    opacity: 0;
+    animation: fadeInUp 1s 0.3s forwards;
+  }
+
+  /* 2. الحاوية الرئيسية */
+  .app-card {
+    width: 100%;
+    max-width: 950px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.1);
+    display: flex;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .company-logo-top {
+    position: absolute;
+    top: 20px;
+    left: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+  }
+  .logo-icon-small {
+    width: 38px;
+    height: 38px;
+    background: var(--emerald-primary);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #000;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+  }
+
+  .art-side {
+    flex: 1;
+    background: linear-gradient(180deg, rgba(6, 78, 59, 0.3) 0%, rgba(2, 44, 34, 0.6) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    border-left: 1px solid var(--glass-border);
+  }
+  .avatar-preview-box {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 3px solid var(--emerald-primary);
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
+    overflow: hidden;
+    margin-bottom: 20px;
+    background: #021f18;
+    transition: transform 0.3s ease;
+  }
+  .avatar-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+
+  .form-side {
+    flex: 1.2;
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding-bottom: 6px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s;
+  }
+  .tab-btn.active { color: var(--emerald-primary); }
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--emerald-primary);
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--emerald-primary);
+  }
+
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+  input, select {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(4, 20, 15, 0.7);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s;
+  }
+  input:focus, select:focus {
+    border-color: var(--emerald-primary);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .avatar-selector { display: flex; gap: 10px; margin-top: 8px; }
+  .avatar-opt {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    overflow: hidden;
+    opacity: 0.6;
+    transition: all 0.2s;
+  }
+  .avatar-opt.selected, .avatar-opt:hover {
+    border-color: var(--emerald-primary);
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+  .avatar-opt img { width: 100%; height: 100%; object-fit: cover; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 13px;
+    margin-top: 15px;
+    background: linear-gradient(135deg, var(--emerald-primary), var(--emerald-glow));
+    border: none;
+    border-radius: 12px;
+    color: #022c22;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+    transition: all 0.3s;
+  }
+
+  .id-badge {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px dashed var(--emerald-primary);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--emerald-primary);
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  #status-msg {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    text-align: center;
+    display: none;
+  }
+  .msg-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid var(--emerald-primary); }
+  .msg-error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .msg-info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+
+  @keyframes pulseGlow {
+    from { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); transform: scale(0.98); }
+    to { box-shadow: 0 0 60px rgba(16, 185, 129, 0.7); transform: scale(1.05); }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Responsive Fix للموبايل */
+  @media (max-width: 850px) {
     body {
-      background: #040d0a;
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.12) 0px, transparent 50%);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow-x: hidden;
+      align-items: flex-start;
+      padding: 10px;
     }
-
-    /* 1. الشاشة الترحيبية المتحركة (Splash Screen) */
-    #splash-screen {
-      position: fixed;
-      inset: 0;
-      background: var(--bg-dark);
-      z-index: 999;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      transition: opacity 0.8s ease, visibility 0.8s;
-    }
-    .splash-logo {
-      width: 110px;
-      height: 110px;
-      background: linear-gradient(135deg, var(--emerald-primary), var(--emerald-dark));
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 50px rgba(16, 185, 129, 0.5);
-      animation: pulseGlow 2s infinite alternate ease-in-out;
-    }
-    .splash-title {
-      margin-top: 24px;
-      font-size: 1.8rem;
-      letter-spacing: 2px;
-      color: var(--text-main);
-      font-weight: 700;
-      opacity: 0;
-      animation: fadeInUp 1s 0.3s forwards;
-    }
-
-    /* 2. الحاوية الرئيسية (Main Glass Card) */
-    ./* 2. الحاوية الرئيسية (Main Glass Card) */
-    .app-card {
-      width: 92%;
-      max-width: 1000px;
-      min-height: 620px;
-      background: var(--panel-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 28px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.1);
-      display: flex;
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* الشعار أعلى يسار الكارت */
-    .company-logo-top {
-      position: absolute;
-      top: 20px;
-      left: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      z-index: 10;
-    }
-    .company-logo-top img, .logo-icon-small {
-      width: 38px;
-      height: 38px;
-      background: var(--emerald-primary);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: #000;
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-    }
-
-    /* القسم الأيمن والأنير (Split Layout) */
-    .art-side {
-      flex: 1;
-      background: linear-gradient(180deg, rgba(6, 78, 59, 0.3) 0%, rgba(2, 44, 34, 0.6) 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
-      border-left: 1px solid var(--glass-border);
-      position: relative;
-    }
-    .avatar-preview-box {
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      border: 3px solid var(--emerald-primary);
-      box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
-      overflow: hidden;
-      margin-bottom: 20px;
-      background: #021f18;
-      transition: transform 0.3s ease;
-    }
-    .avatar-preview-box:hover { transform: scale(1.03); }
-    .avatar-preview-box img { width: 100%; height: 100%; object-fit: cover; }
-
-    .form-side {
-      flex: 1.2;
-      padding: 50px 40px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .nav-tabs {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 30px;
-    }
-    .tab-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.1rem;
-      font-weight: 600;
-      padding-bottom: 6px;
-      cursor: pointer;
-      position: relative;
-      transition: color 0.3s;
-    }
-    .tab-btn.active {
-      color: var(--emerald-primary);
-    }
-    .tab-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 100%;
-      height: 3px;
-      background: var(--emerald-primary);
-      border-radius: 2px;
-      box-shadow: 0 0 10px var(--emerald-primary);
-    }
-
-    .form-group { margin-bottom: 18px; }
-    label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
-    input, select {
-      width: 100%;
-      padding: 13px 16px;
-      background: rgba(4, 20, 15, 0.7);
-      border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      color: #fff;
-      font-size: 0.95rem;
-      outline: none;
-      transition: all 0.3s;
-    }
-    input:focus, select:focus {
-      border-color: var(--emerald-primary);
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
-    }
-
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-    /* شبكة اختيار الأفاتار */
-    .avatar-selector {
-      display: flex;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .avatar-opt {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      border: 2px solid transparent;
-      cursor: pointer;
-      overflow: hidden;
-      opacity: 0.6;
-      transition: all 0.2s;
-    }
-    .avatar-opt.selected, .avatar-opt:hover {
-      border-color: var(--emerald-primary);
-      opacity: 1;
-      transform: translateY(-2px);
-    }
-    .avatar-opt img { width: 100%; height: 100%; object-fit: cover; }
-
-    .btn-submit {
-      width: 100%;
-      padding: 14px;
-      margin-top: 15px;
-      background: linear-gradient(135deg, var(--emerald-primary), var(--emerald-glow));
-      border: none;
-      border-radius: 12px;
-      color: #022c22;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-      transition: all 0.3s;
-    }
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      border: 1px solid var(--glass-border);
-      color: var(--text-muted);
+    .app-card { 
+      flex-direction: column; 
+      border-radius: 20px;
       margin-top: 10px;
     }
-    .btn-secondary:hover {
-      background: rgba(16, 185, 129, 0.1);
-      color: #fff;
+    .art-side { 
+      border-left: none; 
+      border-bottom: 1px solid var(--glass-border); 
+      padding: 25px 15px; 
     }
-
-    .id-badge {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px dashed var(--emerald-primary);
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      color: var(--emerald-primary);
-      text-align: center;
-      margin-top: 6px;
+    .form-side {
+      padding: 25px 18px;
     }
-
-    #status-msg {
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 10px;
-      font-size: 0.88rem;
-      text-align: center;
-      display: none;
-    }
-    .msg-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid var(--emerald-primary); }
-    .msg-error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
-    .msg-info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
-
-    @keyframes pulseGlow {
-      from { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); transform: scale(0.98); }
-      to { box-shadow: 0 0 60px rgba(16, 185, 129, 0.7); transform: scale(1.05); }
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-   @media (max-width: 850px) {
-      body {
-        align-items: flex-start;
-        padding: 15px 10px;
-        overflow-y: auto;
-      }
-      .app-card { 
-        flex-direction: column; 
-        min-height: auto; 
-        width: 100%;
-        margin: 10px 0;
-        border-radius: 20px;
-      }
-      .art-side { 
-        border-left: none; 
-        border-bottom: 1px solid var(--glass-border); 
-        padding: 20px; 
-      }
-      .form-side {
-        padding: 25px 20px;
-      }
-      .avatar-preview-box { width: 110px; height: 110px; margin-bottom: 10px; }
-      .grid-2 { grid-template-columns: 1fr; gap: 0; } /* تحويل الحقول المزدوجة لعمود واحد على الفون لكي لا تضيق مساحة الكتابة */
-    }
-  </style>
+    .avatar-preview-box { width: 120px; height: 120px; margin-bottom: 10px; }
+    .grid-2 { grid-template-columns: 1fr; gap: 0; }
+  }
+</style>
 </head>
 <body>
 
