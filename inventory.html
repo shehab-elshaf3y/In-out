@@ -169,6 +169,47 @@
     }
     .spinner { border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--emerald); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
+    .table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #1f4232;
+  margin-top: 10px;
+}
+
+.ops-table {
+  width: 100%;
+  border-collapse: collapse;
+  direction: rtl;
+  text-align: center;
+  background-color: #0d1e17;
+  font-size: 0.88rem;
+}
+
+.ops-table th {
+  background-color: #14281f;
+  color: #dce3d8;
+  padding: 14px 8px;
+  font-weight: bold;
+  border: 1px solid #1f4232;
+  white-space: nowrap;
+}
+
+.ops-table td {
+  padding: 12px 6px;
+  color: #ffffff;
+  border: 1px solid #1f4232;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.ops-table tr:nth-child(even) {
+  background-color: #0a1812;
+}
+
+.ops-table tr:nth-child(odd) {
+  background-color: #0f241c;
+}
   </style>
 </head>
 <body>
@@ -222,6 +263,24 @@
         </div>
         <div class="card-action">⋮</div>
       </div>
+      <div class="table-wrapper">
+        <table class="ops-table">
+          <thead>
+            <tr>
+              <th>نوع المهمة</th>
+              <th>نوع الحالة</th>
+              <th>المستشفى</th>
+              <th>التاريخ</th>
+              <th>(OP) رقم العملية</th>
+            </tr>
+          </thead>
+          <tbody id="ops-table-body">
+            <!-- يتم تعبئة الجدول برمجياً -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
     </div>
   </div>
 
@@ -285,7 +344,7 @@
   </div>
 
   <script>
-    const DELIVERY_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwA0XLSV_vhZ1n7V1NZSt13-FtajQ6Ml_gn97-OXMCqnyyox0aa-Wg8huztUiHUsKJm/exec';
+    const DELIVERY_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyzMssWEsP0Pb9Tu74KvZQekwcj9tJRE9fQ5pf9lra11ZgvxqJyHf6xxe13BxwvBbbW/exec';
 
     // 1. التحقق من الصلاحيات
     const authToken = localStorage.getItem('authToken');
@@ -411,31 +470,47 @@ async function loadDashboardStats(selectedDateStr = null) {
     const cycleStartStr = formatDateStr(startDate);
     const cycleEndStr = formatDateStr(endDate);
     
-    // جلب الإجمالي للدورة كاملة (استخدام اسم المتغير DELIVERY_SCRIPT_URL)
-    const cycleUrl = `${DELIVERY_SCRIPT_URL}?action=getStats&token=${encodeURIComponent(authToken)}&start=${cycleStartStr}&end=${cycleEndStr}`;
-    const cycleResponse = await fetch(cycleUrl);
-    const cycleData = await cycleResponse.json();
+    const url = `${DELIVERY_SCRIPT_URL}?action=getStats&token=${encodeURIComponent(authToken)}&start=${cycleStartStr}&end=${cycleEndStr}`;
+    const response = await fetch(url);
+    const data = await response.json();
 
-    if (cycleData.result === "success") {
-      document.getElementById('monthly-total').innerText = `إجمالي الدورة: ${cycleData.totalOperations} عملية (${cycleStartStr} إلى ${cycleEndStr})`;
+    if (data.result === "success") {
+      // 1. تحديث بيانات الكروت القديمة
+      document.getElementById('monthly-total').innerText = `إجمالي الدورة: ${data.totalOperations} عملية (${cycleStartStr} إلى ${cycleEndStr})`;
+      
+      const targetDate = selectedDateStr || formatDateStr(new Date());
+      document.getElementById('success-count').innerText = `${data.totalOperations} Operations (${targetDate})`;
+
+      // 2. تعبئة جدول العمليات أسفل الكروت
+      const tableBody = document.getElementById('ops-table-body');
+      if (tableBody) {
+        tableBody.innerHTML = '';
+        let operations = data.operations || [];
+
+        // تصفية حسب اليوم المحدد في السلايدر (إن وجد)
+        if (selectedDateStr) {
+          operations = operations.filter(op => op.exitDate === selectedDateStr);
+        }
+
+        if (operations.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="5" style="padding: 20px; color: var(--text-muted);">لا توجد عمليات مسجلة باسمك في هذه الفترة</td></tr>`;
+        } else {
+          operations.forEach(op => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${op.stockPrep || '-'}</td>
+              <td>${op.caseType || '-'}</td>
+              <td>${op.hospitalName || '-'}</td>
+              <td>${op.exitDate || '-'}</td>
+              <td>${op.opNumber || '-'}</td>
+            `;
+            tableBody.appendChild(tr);
+          });
+        }
+      }
     } else {
-      console.error("Cycle Stats Error:", cycleData.message);
-      if (cycleData.message) alert("خطأ من الخادم: " + cycleData.message);
+      alert("خطأ من الخادم: " + (data.message || "فشل جلب البيانات"));
     }
-
-    // جلب أحداث اليوم المحدد (أو اليوم الحالي افتراضياً)
-    const targetDate = selectedDateStr || formatDateStr(new Date());
-
-    const dayUrl = `${DELIVERY_SCRIPT_URL}?action=getStats&token=${encodeURIComponent(authToken)}&start=${targetDate}&end=${targetDate}`;
-    const dayResponse = await fetch(dayUrl);
-    const dayData = await dayResponse.json();
-
-    if (dayData.result === "success") {
-      document.getElementById('success-count').innerText = `${dayData.totalOperations} Operations (${targetDate})`;
-    } else {
-      console.error("Day Stats Error:", dayData.message);
-    }
-
   } catch (error) {
     console.error("Network Error:", error);
     alert("حدث خطأ في الاتصال بالخادم عند جلب الإحصائيات.");
