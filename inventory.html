@@ -404,45 +404,46 @@
     }
 
     // 5. جلب إحصائيات الشهر واليوم المحدد
-    async function loadDashboardStats(selectedDateStr = null) {
-      showLoading(true);
-      try {
-        const { startDate, endDate } = getMonthCycle();
-        const cycleStartStr = formatDateStr(startDate);
-        const cycleEndStr = formatDateStr(endDate);
-        
-        // جلب الإجمالي للدورة كاملة (من 27 لـ 26)
-        const cycleUrl = `${https://script.google.com/macros/s/AKfycbxIy1nQxmGTP08bK-6ojnCox6-5ybaMnWYUShJM9S8PJtKjam0Z8ro4PiC8f8MnKj4J/exec}?action=getStats&token=${encodeURIComponent(authToken)}&start=${cycleStartStr}&end=${cycleEndStr}`;
-        const cycleResponse = await fetch(cycleUrl);
-        const cycleData = await cycleResponse.json();
+    // 5. جلب إحصائيات الشهر واليوم المحدد
+async function loadDashboardStats(selectedDateStr = null) {
+  showLoading(true);
+  try {
+    const { startDate, endDate } = getMonthCycle();
+    const cycleStartStr = formatDateStr(startDate);
+    const cycleEndStr = formatDateStr(endDate);
+    
+    // جلب الإجمالي للدورة كاملة (استخدام اسم المتغير DELIVERY_SCRIPT_URL)
+    const cycleUrl = `${DELIVERY_SCRIPT_URL}?action=getStats&token=${encodeURIComponent(authToken)}&start=${cycleStartStr}&end=${cycleEndStr}`;
+    const cycleResponse = await fetch(cycleUrl);
+    const cycleData = await cycleResponse.json();
 
-        if (cycleData.result === "success") {
-          document.getElementById('monthly-total').innerText = `إجمالي الدورة: ${cycleData.totalOperations} عملية (${cycleStartStr} إلى ${cycleEndStr})`;
-        } else {
-          console.error("Cycle Stats Error:", cycleData.message);
-          if (cycleData.message) alert("خطأ من الخادم: " + cycleData.message);
-        }
-
-        // جلب أحداث اليوم المحدد (أو اليوم الحالي افتراضياً)
-        const targetDate = selectedDateStr || formatDateStr(new Date());
-
-        const dayUrl = `${https://script.google.com/macros/s/AKfycbxIy1nQxmGTP08bK-6ojnCox6-5ybaMnWYUShJM9S8PJtKjam0Z8ro4PiC8f8MnKj4J/exec}?action=getStats&token=${encodeURIComponent(authToken)}&start=${targetDate}&end=${targetDate}`;
-        const dayResponse = await fetch(dayUrl);
-        const dayData = await dayResponse.json();
-
-        if (dayData.result === "success") {
-          document.getElementById('success-count').innerText = `${dayData.totalOperations} Operations (${targetDate})`;
-        } else {
-          console.error("Day Stats Error:", dayData.message);
-        }
-
-      } catch (error) {
-        console.error("Network Error:", error);
-        alert("حدث خطأ في الاتصال بالخادم عند جلب الإحصائيات.");
-      } finally {
-        showLoading(false);
-      }
+    if (cycleData.result === "success") {
+      document.getElementById('monthly-total').innerText = `إجمالي الدورة: ${cycleData.totalOperations} عملية (${cycleStartStr} إلى ${cycleEndStr})`;
+    } else {
+      console.error("Cycle Stats Error:", cycleData.message);
+      if (cycleData.message) alert("خطأ من الخادم: " + cycleData.message);
     }
+
+    // جلب أحداث اليوم المحدد (أو اليوم الحالي افتراضياً)
+    const targetDate = selectedDateStr || formatDateStr(new Date());
+
+    const dayUrl = `${DELIVERY_SCRIPT_URL}?action=getStats&token=${encodeURIComponent(authToken)}&start=${targetDate}&end=${targetDate}`;
+    const dayResponse = await fetch(dayUrl);
+    const dayData = await dayResponse.json();
+
+    if (dayData.result === "success") {
+      document.getElementById('success-count').innerText = `${dayData.totalOperations} Operations (${targetDate})`;
+    } else {
+      console.error("Day Stats Error:", dayData.message);
+    }
+
+  } catch (error) {
+    console.error("Network Error:", error);
+    alert("حدث خطأ في الاتصال بالخادم عند جلب الإحصائيات.");
+  } finally {
+    showLoading(false);
+  }
+}
 
     // 6. إرسال العملية الجديدة
     async function submitTask(e) {
