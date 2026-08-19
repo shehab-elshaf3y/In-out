@@ -351,7 +351,7 @@
     const userRole = localStorage.getItem('userRole');
     const userName = localStorage.getItem('userName');
 
-    const allowedRoles = ["مندوب توصيل", "مندوب عمليات", "admin", "أمين مخزن", "مراقب مخزون", "مخزن"];
+    const allowedRoles = ["مندوب توصيل", "مندوب عمليات", "admin", "أمين مخزن", "مراقب مخزون", "مخزن", "مسؤول الات"];
 
     if (!authToken || !allowedRoles.includes(String(userRole).trim())) {
       alert("عفواً، ليس لديك صلاحية للوصول لهذه الصفحة.");
