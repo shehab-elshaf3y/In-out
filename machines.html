@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vita Shop | لوحة العمليات والمخزون</title>
+  <style>
+    :root {
+      --bg-dark: #122c22;
+      --bg-darker: #0c1f18;
+      --primary-light: #e0f2b8;
+      --danger-red: #df3b46;
+      --grey-light: #dce3d8;
+      --text-main: #ffffff;
+      --text-muted: #8a9c92;
+      --input-bg: #0d211a;
+      --emerald: #10b981;
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* 1. Header & Date Slider (Dashboard) */
+    .header {
+      padding: 30px 20px 10px;
+      text-align: center;
+      position: relative;
+    }
+    .header .back-btn { position: absolute; left: 20px; top: 30px; font-size: 20px; color: #fff; text-decoration: none; }
+    .header .menu-btn { position: absolute; right: 20px; top: 30px; font-size: 20px; color: #fff; cursor: pointer; }
+    
+    .month-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    
+    .date-slider {
+      display: flex;
+      overflow-x: auto;
+      gap: 12px;
+      padding: 10px 10px 20px;
+      scrollbar-width: none;
+      direction: ltr;
+      scroll-behavior: smooth;
+    }
+    .date-slider::-webkit-scrollbar { display: none; }
+    
+    .date-pill {
+      min-width: 60px;
+      height: 90px;
+      border-radius: 40px;
+      background: var(--bg-darker);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.3s;
+      cursor: pointer;
+      user-select: none;
+    }
+    .date-pill .day-num { font-size: 1.4rem; font-weight: 700; color: #fff; }
+    .date-pill .day-name { font-size: 0.75rem; margin-top: 4px; }
+    
+    .date-pill.active {
+      background: var(--primary-light);
+      color: #000;
+      transform: scale(1.08);
+      box-shadow: 0 8px 18px rgba(224, 242, 184, 0.25);
+    }
+    .date-pill.active .day-num { color: #000; }
+
+    /* 2. Cards Section */
+    .cards-container {
+      flex: 1;
+      background: #143226;
+      border-radius: 30px 30px 0 0;
+      padding: 30px 20px 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .custom-card { position: relative; width: 100%; border-radius: 0 20px 20px 20px; padding: 20px; display: flex; align-items: center; justify-content: space-between; margin-top: 25px;}
+    
+    .custom-card::before {
+      content: attr(data-tab);
+      position: absolute;
+      top: -25px;
+      left: 0;
+      height: 25px;
+      padding: 0 15px;
+      border-radius: 15px 15px 0 0;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      color: #000;
+    }
+
+    .card-completed { background: var(--primary-light); color: #000; }
+    .card-completed::before { background: var(--primary-light); }
+    
+    .card-rejected { background: var(--danger-red); color: #fff; border-radius: 0 20px 20px 20px;}
+    .card-rejected::before { background: var(--danger-red); color: #fff; }
+    
+    .card-monthly { background: var(--grey-light); color: #000; }
+    .card-monthly::before { background: var(--grey-light); }
+
+    .card-icon {
+      width: 50px; height: 50px; background: rgba(0,0,0,0.15); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      transform: rotate(45deg);
+    }
+    .card-icon svg { transform: rotate(-45deg); }
+    
+    .card-content { flex: 1; margin: 0 15px; text-align: left; direction: ltr; }
+    .card-content h3 { font-size: 1.1rem; margin-bottom: 5px; }
+    .card-content p { font-size: 0.85rem; opacity: 0.8; }
+    
+    .card-action { font-size: 1.5rem; font-weight: bold; cursor: pointer; }
+
+    /* 3. Bottom Nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 15px;
+      width: 90%;
+      z-index: 100;
+    }
+    .nav-btn {
+      flex: 1; padding: 15px; border-radius: 15px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.3s;
+    }
+    .nav-btn.primary { background: var(--primary-light); color: #000; }
+    .nav-btn.secondary { background: var(--primary-light); color: #000; opacity: 0.6; }
+    .nav-btn.secondary.active { opacity: 1; }
+
+    /* 4. Form View (New OP) */
+    #form-view {
+      display: none;
+      padding: 20px;
+      background: var(--bg-dark);
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+    .form-header { text-align: center; margin-bottom: 30px; font-size: 1.2rem; color: var(--emerald); border-right: 3px solid var(--emerald); padding-right: 10px; display: inline-block; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
+    .form-group input, .form-group select {
+      width: 100%; padding: 15px; background: var(--input-bg); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; color: #fff; font-size: 1rem; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--emerald); }
+    
+    .btn-submit {
+      width: 100%; padding: 16px; background: var(--emerald); color: #fff; font-weight: bold; font-size: 1.1rem; border: none; border-radius: 12px; cursor: pointer; margin-top: 10px;
+    }
+
+    #loading-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 999; display: none; align-items: center; justify-content: center; flex-direction: column;
+    }
+    .spinner { border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--emerald); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #1f4232;
+  margin-top: 10px;
+}
+
+.ops-table {
+  width: 100%;
+  border-collapse: collapse;
+  direction: rtl;
+  text-align: center;
+  background-color: #0d1e17;
+  font-size: 0.88rem;
+}
+
+.ops-table th {
+  background-color: #14281f;
+  color: #dce3d8;
+  padding: 14px 8px;
+  font-weight: bold;
+  border: 1px solid #1f4232;
+  white-space: nowrap;
+}
+
+.ops-table td {
+  padding: 12px 6px;
+  color: #ffffff;
+  border: 1px solid #1f4232;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.ops-table tr:nth-child(even) {
+  background-color: #0a1812;
+}
+
+.ops-table tr:nth-child(odd) {
+  background-color: #0f241c;
+}
+  </style>
+</head>
+<body>
+
+  <!-- ================= Dashboard View ================= -->
+  <div id="dashboard-view">
+    <div class="header">
+      <a href="#" class="back-btn" onclick="logout()">←</a>
+      <div class="menu-btn">⋮</div>
+      <div class="month-title" id="current-month-display">تحديد الشهر <span>⌄</span></div>
+      
+      <!-- Date Slider -->
+      <div class="date-slider" id="date-slider">
+        <!-- يتم توليده برمجياً من 27 الشهر السابق حتى 26 الشهر الحالي -->
+      </div>
+    </div>
+
+    <div class="cards-container">
+      <!-- Completed -->
+      <div class="custom-card card-completed" data-tab="Completed">
+        <div class="card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <div class="card-content">
+          <h3>Successful OPs</h3>
+          <p id="success-count">اختر تاريخاً لعرض العمليات</p>
+        </div>
+        <div class="card-action">⋮</div>
+      </div>
+
+      <!-- Rejected / Issues -->
+      <div class="custom-card card-rejected" data-tab="Rejected">
+        <div class="card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <div class="card-content">
+          <h3>Failed / Duplicated</h3>
+          <p id="failed-count">0</p>
+        </div>
+        <div class="card-action">⋮</div>
+      </div>
+
+      <!-- Monthly Summary -->
+      <div class="custom-card card-monthly" data-tab="MONTHLY">
+        <div class="card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="card-content">
+          <h3>Total Operations</h3>
+          <p id="monthly-total" style="font-size: 11px;">دورة الشهر (من 27 إلى 26)</p>
+        </div>
+        <div class="card-action">⋮</div>
+      </div>
+      <div class="table-wrapper">
+        <table class="ops-table">
+          <thead>
+            <tr>
+              <th>نوع المهمة</th>
+              <th>نوع الحالة</th>
+              <th>المستشفى</th>
+              <th>التاريخ</th>
+              <th>(OP) رقم العملية</th>
+            </tr>
+          </thead>
+          <tbody id="ops-table-body">
+            <!-- يتم تعبئة الجدول برمجياً -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+    </div>
+  </div>
+
+  <!-- ================= Form View ================= -->
+  <div id="form-view">
+    <div style="text-align: right;">
+      <h2 class="form-header">نموذج تسجيل حركة جديدة</h2>
+    </div>
+    
+    <form id="op-form" onsubmit="submitTask(event)">
+      <div class="form-group">
+        <label>تاريخ العملية</label>
+        <input type="date" id="op-date" required>
+      </div>
+
+      <div class="form-group">
+        <label>اسم المستشفى</label>
+        <input type="text" id="hospital-name" placeholder="اكتب اسم المستشفى هنا" required>
+      </div>
+
+      <div class="form-group">
+        <label>نوع الحالة (Case Type)</label>
+        <select id="case-type" required>
+          <option value="" disabled selected>اختر نوع الحالة</option>
+          <option value="HIP">HIP</option>
+          <option value="KNEE">KNEE</option>
+          <option value="BIPOLAR">BIPOLAR</option>
+          <option value="TRIPOLAR">TRIPOLAR</option>
+          <option value="Spacer">Spacer</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>رقم العملية (OP)</label>
+        <input type="text" id="op-number" placeholder="أدخل رقم الـ OP يدوياً" pattern="[A-Za-z0-9\-_]{1,50}" title="حروف وأرقام فقط" required>
+      </div>
+
+      <div class="form-group">
+        <label>نوع المهمة (Stock Prep)</label>
+        <select id="stock-prep" required>
+          <option value="" disabled selected>اختر المهمة</option>
+          <option value="تحضير الات">تحضير الات</option>
+          <option value="مراجعة الات">مراجعة الات</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-submit">حفظ وإرسال الحركة للشيت</button>
+    </form>
+  </div>
+
+  <!-- ================= Bottom Navigation ================= -->
+  <div class="bottom-nav">
+    <button class="nav-btn primary" id="btn-new" onclick="switchView('form')">New OP</button>
+    <button class="nav-btn secondary active" id="btn-dash" onclick="switchView('dashboard')">Dashboard</button>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <p style="margin-top: 15px; color: var(--emerald);">جاري المعالجة...</p>
+  </div>
+
+  <script>
+    const DELIVERY_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKaiSa4TWqop1Xsdd7ZI1xYL5KT40JwIDM5kaMe0c0M3BOkvWMwXmnLGF1xb0lJch_/exec';
+
+    // 1. التحقق من الصلاحيات
+    const authToken = localStorage.getItem('authToken');
+    const userRole = localStorage.getItem('userRole');
+    const userName = localStorage.getItem('userName');
+
+    const allowedRoles = ["مندوب توصيل", "مندوب عمليات", "admin", "أمين مخزن", "مراقب مخزون", "مخزن"];
+
+    if (!authToken || !allowedRoles.includes(String(userRole).trim())) {
+      alert("عفواً، ليس لديك صلاحية للوصول لهذه الصفحة.");
+      window.location.href = 'index.html';
+    }
+
+    // 2. إدارة التبديل بين الشاشات
+    function switchView(view) {
+      document.getElementById('dashboard-view').style.display = view === 'dashboard' ? 'block' : 'none';
+      document.getElementById('form-view').style.display = view === 'form' ? 'block' : 'none';
+      
+      const btnNew = document.getElementById('btn-new');
+      const btnDash = document.getElementById('btn-dash');
+      
+      if (view === 'form') {
+        btnNew.classList.remove('secondary'); btnNew.classList.add('primary');
+        btnDash.classList.remove('primary'); btnDash.classList.add('secondary');
+        document.getElementById('op-date').valueAsDate = new Date();
+      } else {
+        btnDash.classList.remove('secondary'); btnDash.classList.add('primary');
+        btnNew.classList.remove('primary'); btnNew.classList.add('secondary');
+        loadDashboardStats();
+      }
+    }
+
+    // 3. حساب حدود الشهر (من 27 الشهر السابق حتى 26 الشهر الحالي)
+    function getMonthCycle() {
+      const now = new Date();
+      let startYear = now.getFullYear();
+      let startMonth = now.getMonth();
+      
+      if (now.getDate() < 27) {
+        startMonth -= 1;
+        if (startMonth < 0) {
+          startMonth = 11;
+          startYear -= 1;
+        }
+      }
+      
+      const startDate = new Date(startYear, startMonth, 27);
+      
+      let endMonth = startMonth + 1;
+      let endYear = startYear;
+      if (endMonth > 11) {
+        endMonth = 0;
+        endYear += 1;
+      }
+      const endDate = new Date(endYear, endMonth, 26);
+      
+      return { startDate, endDate };
+    }
+
+    function formatDateStr(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // 4. توليد شريط الأيام للشهر كامل وتجهيز الأحداث
+    function generateDateSlider() {
+      const slider = document.getElementById('date-slider');
+      const { startDate, endDate } = getMonthCycle();
+      const today = new Date();
+      const todayFormatted = formatDateStr(today);
+      
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      
+      document.getElementById('current-month-display').innerHTML = `${monthNames[today.getMonth()]} ${today.getFullYear()} <span>⌄</span>`;
+      
+      slider.innerHTML = '';
+      
+      let cur = new Date(startDate);
+      let activePill = null;
+
+      while (cur <= endDate) {
+        const d = new Date(cur);
+        const formattedDate = formatDateStr(d);
+        const isToday = (formattedDate === todayFormatted);
+        
+        const pill = document.createElement('div');
+        pill.className = 'date-pill' + (isToday ? ' active' : '');
+        pill.dataset.date = formattedDate;
+        
+        pill.innerHTML = `
+          <div class="day-num">${d.getDate()}</div>
+          <div class="day-name">${dayNames[d.getDay()]}</div>
+        `;
+        
+        pill.addEventListener('click', () => {
+          document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          loadDashboardStats(formattedDate);
+        });
+
+        slider.appendChild(pill);
+        if (isToday) activePill = pill;
+
+        cur.setDate(cur.getDate() + 1);
+      }
+
+      if (activePill) {
+        setTimeout(() => {
+          activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }, 150);
+      }
+    }
+
+    // 5. جلب إحصائيات الشهر واليوم المحدد
+    // 5. جلب إحصائيات الشهر واليوم المحدد
+async function loadDashboardStats(selectedDateStr = null) {
+  showLoading(true);
+  try {
+    const { startDate, endDate } = getMonthCycle();
+    const cycleStartStr = formatDateStr(startDate);
+    const cycleEndStr = formatDateStr(endDate);
+    
+    const url = `${DELIVERY_SCRIPT_URL}?action=getStats&token=${encodeURIComponent(authToken)}&start=${cycleStartStr}&end=${cycleEndStr}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.result === "success") {
+      // 1. تحديث بيانات الكروت القديمة
+      document.getElementById('monthly-total').innerText = `إجمالي الدورة: ${data.totalOperations} عملية (${cycleStartStr} إلى ${cycleEndStr})`;
+      
+      const targetDate = selectedDateStr || formatDateStr(new Date());
+      document.getElementById('success-count').innerText = `${data.totalOperations} Operations (${targetDate})`;
+
+      // 2. تعبئة جدول العمليات أسفل الكروت
+      const tableBody = document.getElementById('ops-table-body');
+      if (tableBody) {
+        tableBody.innerHTML = '';
+        let operations = data.operations || [];
+
+        // تصفية حسب اليوم المحدد في السلايدر (إن وجد)
+        if (selectedDateStr) {
+          operations = operations.filter(op => op.exitDate === selectedDateStr);
+        }
+
+        if (operations.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="5" style="padding: 20px; color: var(--text-muted);">لا توجد عمليات مسجلة باسمك في هذه الفترة</td></tr>`;
+        } else {
+          operations.forEach(op => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${op.stockPrep || '-'}</td>
+              <td>${op.caseType || '-'}</td>
+              <td>${op.hospitalName || '-'}</td>
+              <td>${op.exitDate || '-'}</td>
+              <td>${op.opNumber || '-'}</td>
+            `;
+            tableBody.appendChild(tr);
+          });
+        }
+      }
+    } else {
+      alert("خطأ من الخادم: " + (data.message || "فشل جلب البيانات"));
+    }
+  } catch (error) {
+    console.error("Network Error:", error);
+    alert("حدث خطأ في الاتصال بالخادم عند جلب الإحصائيات.");
+  } finally {
+    showLoading(false);
+  }
+}
+
+    // 6. إرسال العملية الجديدة
+    async function submitTask(e) {
+      e.preventDefault();
+      
+      const payload = {
+        action: "task",
+        token: authToken,
+        exitDate: document.getElementById('op-date').value,
+        hospitalName: document.getElementById('hospital-name').value,
+        caseType: document.getElementById('case-type').value,
+        opNumber: document.getElementById('op-number').value,
+        stockPrep: document.getElementById('stock-prep').value
+      };
+
+      showLoading(true);
+      try {
+        const response = await fetch(DELIVERY_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+
+        if (data.result === "success") {
+          alert("تم تسجيل العملية بنجاح!");
+          document.getElementById('op-form').reset();
+          switchView('dashboard');
+        } else if (data.result === "dispute_detected") {
+          alert("تنبيه: تم تسجيل العملية ولكن تم رصد تكرار/نزاع على رقم الـ OP.");
+          document.getElementById('failed-count').innerText = parseInt(document.getElementById('failed-count').innerText || "0") + 1;
+          document.getElementById('op-form').reset();
+          switchView('dashboard');
+        } else {
+          alert("خطأ من الخادم: " + (data.message || "فشلت العملية."));
+        }
+      } catch (error) {
+        alert("حدث خطأ في الاتصال بالخادم. يرجى التأكد من استجابة الـ Web App.");
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function showLoading(show) {
+      document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+    }
+
+    function logout() {
+      localStorage.removeItem('authToken');
+      window.location.href = 'index.html';
+    }
+
+    window.onload = () => {
+      generateDateSlider();
+      loadDashboardStats();
+    };
+  </script>
+</body>
+</html>
