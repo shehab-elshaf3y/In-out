@@ -561,6 +561,9 @@ function handleLogin(e) {
         else if (['أمين مخزن', 'مخزن'].includes(roleLower)) {
             window.location.href = './inventory.html';
         } 
+          else if (['مسؤول الات'].includes(roleLower)) {
+            window.location.href = './machines.html';
+             }
         else {
             // توجيه افتراضي لأي دور آخر
             window.location.href = './employee.html';
