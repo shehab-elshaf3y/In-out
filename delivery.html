@@ -55,7 +55,7 @@
             <img src="logo.png" alt="Logo">
         </div>
         <button class="nav-icon active" onclick="switchTab('dashboard', this)" title="لوحة المؤشرات">📊</button>
-        <button class="nav-icon" onclick="switchTab('attendance', this)" title="الحضور والانصراف">⏰</button>
+      <!--<button class="nav-icon" onclick="switchTab('attendance', this)" title="الحضور والانصراف">⏰</button>   دالة تسجيل الحضور و الانصراف زرار-->
         <button class="nav-icon" onclick="switchTab('tasks', this)" title="تسجيل العمليات">📝</button>
         <button class="nav-icon" onclick="window.location.href='./delivery_app.html'" title="فتح تطبيق المندوب المحمول">📱</button>
     </div>
@@ -218,6 +218,7 @@
 
         let isProcessing = false;
 
+        /* دالة تسجيل الحضور و الانصراف 
         function recordAttendance(statusType, event) {
             if (event && event.preventDefault) event.preventDefault();
             if (isProcessing) return;
@@ -256,7 +257,7 @@
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
-        }
+        }*/
 
         const form = document.getElementById('deliveryForm');
         const submitBtn = document.getElementById('submitBtn');
@@ -273,7 +274,7 @@
 
             fetch(scriptURL, { 
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+               
                 body: JSON.stringify(payload)
             })
             .then(response => response.json())
