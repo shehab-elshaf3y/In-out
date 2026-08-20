@@ -330,7 +330,7 @@
             window.location.replace('./index.html');
         }
 
-        const COURIER_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3h603bbQ35HMjX8v-D7Ew1_mFNewjKUdGITiZTMQskHGpa0d8wkWyCu9OAGahbJk/exec";
+        const COURIER_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwCYs5pOK0xwXSlaNX5PwJ-MR8bUzd_6AypeOqx0O73gBs4KS_cFuLjRJKbpGM_-J0/exec";
 
         let selectedTask = null;
         let selectedTransportMethod = "metro";
@@ -422,50 +422,51 @@
         }
 
         function renderCustodyList(custodies) {
-            const container = document.getElementById('custodyListContainer');
-            if (!custodies || custodies.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد سجل عهد استلمتها حالياً.</p>';
-                return;
-            }
-            container.innerHTML = custodies.map(c => {
-                const amount = c.amount || c['المبلغ'] || c['القيمة'] || 0;
-                const date = c.date || c['التاريخ'] || c['تاريخ الاستلام'] || '';
-                const notes = c.notes || c['ملاحظات'] || c['الملاحظات'] || '';
+    const container = document.getElementById('custodyListContainer');
+    if (!custodies || custodies.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد سجل عهد استلمتها حالياً.</p>';
+        return;
+    }
+    container.innerHTML = custodies.map(c => {
+        const amount = c.amount || 0;
+        const date = c.date ? new Date(c.date).toLocaleDateString('ar-EG') : '';
+        const notes = c.notes || '';
 
-                return `
-                    <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <div style="font-size:13px; font-weight:bold;">💵 استلام عهدة ${notes ? `<span style="font-size:11px; font-weight:normal; color:var(--text-muted);">(${notes})</span>` : ''}</div>
-                            <div style="font-size:11px; color:var(--text-muted);">${date}</div>
-                        </div>
-                        <span style="color:var(--accent-green); font-weight:bold;">+${amount} ج.م</span>
-                    </div>
-                `;
-            }).join('');
-        }
+        return `
+            <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:13px; font-weight:bold;">💵 استلام عهدة ${notes ? `<span style="font-size:11px; font-weight:normal; color:var(--text-muted);">(${notes})</span>` : ''}</div>
+                    <div style="font-size:11px; color:var(--text-muted);">${date}</div>
+                </div>
+                <span style="color:var(--accent-green); font-weight:bold;">+${amount} ج.م</span>
+            </div>
+        `;
+    }).join('');
+}
 
-        function renderExpensesList(expenses) {
-            const container = document.getElementById('expensesListContainer');
-            if (!expenses || expenses.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد مصاريف مسجلة حتى الآن.</p>';
-                return;
-            }
-            container.innerHTML = expenses.map(e => {
-                const category = e.category || e['بند المصروف'] || e['النوع'] || 'مصروف';
-                const details = e.details || e.transportMethod || e['وسيلة الانتقال'] || e['التفاصيل'] || '';
-                const amount = e.amount || e['المبلغ'] || 0;
+function renderExpensesList(expenses) {
+    const container = document.getElementById('expensesListContainer');
+    if (!expenses || expenses.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:12px;">لا يوجد مصاريف مسجلة حتى الآن.</p>';
+        return;
+    }
+    container.innerHTML = expenses.map(e => {
+        const category = e.category || 'مصروف';
+        const notes = e.notes || '';
+        const amount = e.amount || 0;
+        const date = e.date ? new Date(e.date).toLocaleDateString('ar-EG') : '';
 
-                return `
-                    <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <div style="font-size:13px; font-weight:bold;">${category}</div>
-                            <div style="font-size:11px; color:var(--text-muted);">${details}</div>
-                        </div>
-                        <span style="color:var(--accent-red); font-weight:bold;">-${amount} ج.م</span>
-                    </div>
-                `;
-            }).join('');
-        }
+        return `
+            <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:13px; font-weight:bold;">${category}</div>
+                    <div style="font-size:11px; color:var(--text-muted);">${notes ? notes : date}</div>
+                </div>
+                <span style="color:var(--accent-red); font-weight:bold;">-${amount} ج.م</span>
+            </div>
+        `;
+    }).join('');
+}
 
         function renderTasks(tasks) {
             const container = document.getElementById('tasksListContainer');
@@ -632,10 +633,10 @@
 
         loadCourierData();
         document.addEventListener('DOMContentLoaded', function () {
-    // استبدل fetchCourierData باسم الدالة الفعلي لديك المسؤول عن جلب المهام والعهد
-    if (typeof fetchCourierData === 'function') {
-        fetchCourierData();
+    if (typeof loadCourierData === 'function') {
+        loadCourierData();
     }
+});
 });
     </script>
 </body>
