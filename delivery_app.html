@@ -257,6 +257,9 @@
 
             <div id="transportSection">
                 <div class="transport-card" style="padding: 10px; margin-bottom: 10px;">
+                   <img id="transportImage" src="assets/cairo-metro.png" class="transport-img" alt="transport">
+    <div id="transportTitle" style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">🚇 RIDE</div> 
+                    
                     <div id="transportTitle" style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">🚇 RIDE METRO</div>
                 </div>
 
@@ -327,7 +330,7 @@
             window.location.replace('./index.html');
         }
 
-        const COURIER_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1GAEzfkjR88T3stY9rqtnki59n10F1cjTo6vL1VBpy9f72mik6iyvB42MI8yUGA/exec";
+        const COURIER_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3h603bbQ35HMjX8v-D7Ew1_mFNewjKUdGITiZTMQskHGpa0d8wkWyCu9OAGahbJk/exec";
 
         let selectedTask = null;
         let selectedTransportMethod = "metro";
@@ -364,26 +367,29 @@
             transportSec.style.display = (val === 'مواصلات وانتقالات') ? 'block' : 'none';
         }
 
-        function selectTransport(type, btnElement) {
-            selectedTransportMethod = type;
-            const title = document.getElementById('transportTitle');
-            const reasonBox = document.getElementById('uberReasonBox');
+      function selectTransport(type, btnElement) {
+    selectedTransportMethod = type;
+    const title = document.getElementById('transportTitle');
+    const reasonBox = document.getElementById('uberReasonBox');
+    const transportImg = document.getElementById('transportImage');
 
-            document.querySelectorAll('.btn-option').forEach(btn => btn.classList.remove('selected'));
-            if (btnElement) btnElement.classList.add('selected');
+    document.querySelectorAll('.btn-option').forEach(btn => btn.classList.remove('selected'));
+    if (btnElement) btnElement.classList.add('selected');
 
-            if (type === 'metro') {
-                title.innerText = '🚇 RIDE METRO';
-                reasonBox.style.display = 'none';
-            } else if (type === 'microbus') {
-                title.innerText = '🚐 MICROBUS / VAN';
-                reasonBox.style.display = 'none';
-            } else if (type === 'uber') {
-                title.innerText = '🚗 UBER RIDE';
-                reasonBox.style.display = 'block';
-            }
-        }
-
+    if (type === 'metro') {
+        title.innerText = '🚇 RIDE METRO';
+        transportImg.src = 'assets/cairo-metro.png';
+        reasonBox.style.display = 'none';
+    } else if (type === 'microbus') {
+        title.innerText = '🚐 MICROBUS / VAN';
+        transportImg.src = 'assets/van-transport.png';
+        reasonBox.style.display = 'none';
+    } else if (type === 'uber') {
+        title.innerText = '🚗 UBER RIDE';
+        transportImg.src = 'assets/uber-icon.png';
+        reasonBox.style.display = 'block';
+    }
+}
         function loadCourierData() {
             document.getElementById('courierNameDisplay').innerText = currentCourierName;
 
