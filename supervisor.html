@@ -590,27 +590,35 @@
     }
 
     function confirmCustodySettlement() {
-        if (!activeCourier) { alert("⚠️ اختر مندوباً أولاً من القائمة الجانبية!"); return; }
-        
-        if (confirm(`هل أنت تأكد من تسوية عهدة المندوب (${activeCourier.name}) وتصفيرها؟`)) {
-            const payload = {
-                action: "settle_custody",
-                token: authToken,
-                courierName: activeCourier.name
-            };
+    if (!activeCourier) { alert("⚠️ اختر مندوباً أولاً من القائمة الجانبية!"); return; }
+    
+    if (confirm(`هل أنت تأكد من تسوية عهدة المندوب (${activeCourier.name}) وتصفيرها؟`)) {
+        const payload = {
+            action: "settle_custody",
+            token: authToken,
+            courierName: activeCourier.name
+        };
 
-            fetch(SUPERVISOR_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.result === 'success') {
-                        alert(`✅ تم تسوية عهدة المندوب ${activeCourier.name} وتصفيرها إلى 0 ج.م بنجاح!`);
-                        loadSupervisorData();
-                    } else {
-                        alert(`❌ خطأ: ${res.message || "تعذر تسوية العهدة"}`);
-                    }
-                });
-        }
+        fetch(SUPERVISOR_SCRIPT_URL, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload) 
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.result === 'success' || res.status === 'success') {
+                alert(`✅ تم تسوية عهدة المندوب ${activeCourier.name} وتصفيرها إلى 0 ج.م بنجاح!`);
+                loadSupervisorData();
+            } else {
+                alert(`❌ خطأ: ${res.message || "تعذر تسوية العهدة"}`);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("❌ حدث خطأ في الاتصال بالسيرفر!");
+        });
     }
+}
 
     function openTaskModal() {
         if (!activeCourier) { alert("⚠️ اختر مندوباً أولاً من القائمة الجانبية!"); return; }
@@ -627,52 +635,69 @@
     function closeCustodyModal() { document.getElementById('custodyModal').style.display = 'none'; }
 
     document.getElementById('assignTaskForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const payload = {
-            action: "assign_task",
-            token: authToken,
-            courierName: activeCourier.name,
-            hospitalName: document.getElementById('hospitalNameInput').value,
-            caseType: document.getElementById('caseTypeInput').value,
-            opNumber: document.getElementById('opNumberInput').value,
-            locationUrl: document.getElementById('locationUrlInput').value
-        };
+    e.preventDefault();
+    const payload = {
+        action: "assign_task",
+        token: authToken,
+        courierName: activeCourier.name,
+        hospitalName: document.getElementById('hospitalNameInput').value,
+        caseType: document.getElementById('caseTypeInput').value,
+        opNumber: document.getElementById('opNumberInput').value,
+        locationUrl: document.getElementById('locationUrlInput').value
+    };
 
-        fetch(SUPERVISOR_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.json())
-            .then(res => {
-                if (res.result === 'success') {
-                    alert(`✅ تم إسناد المهمة للمندوب ${activeCourier.name} بنجاح!`);
-                    closeTaskModal();
-                    loadSupervisorData();
-                } else {
-                    alert(`❌ خطأ: ${res.message || "تعذر إسناد المهمة"}`);
-                }
-            });
+    // استخدام text/plain بيمنع الـ CORS Preflight Request في Google Apps Script
+    fetch(SUPERVISOR_SCRIPT_URL, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload) 
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.result === 'success' || res.status === 'success') {
+            alert(`✅ تم إسناد المهمة للمندوب ${activeCourier.name} بنجاح!`);
+            closeTaskModal();
+            loadSupervisorData();
+        } else {
+            alert(`❌ خطأ: ${res.message || "تعذر إسناد المهمة"}`);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("❌ حدث خطأ في الاتصال بالسيرفر!");
     });
+});
 
     document.getElementById('addCustodyForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const payload = {
-            action: "add_custody",
-            token: authToken,
-            courierName: activeCourier.name,
-            amount: document.getElementById('custodyAmountInput').value,
-            notes: document.getElementById('custodyNotesInput').value
-        };
+    e.preventDefault();
+    const payload = {
+        action: "add_custody",
+        token: authToken,
+        courierName: activeCourier.name,
+        amount: document.getElementById('custodyAmountInput').value,
+        notes: document.getElementById('custodyNotesInput').value
+    };
 
-        fetch(SUPERVISOR_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.json())
-            .then(res => {
-                if (res.result === 'success') {
-                    alert(`✅ تم تسليم مبلغ ${payload.amount} ج.م للمندوب ${activeCourier.name} بنجاح!`);
-                    closeCustodyModal();
-                    loadSupervisorData();
-                } else {
-                    alert(`❌ خطأ: ${res.message || "تعذر تسليم العهدة"}`);
-                }
-            });
+    fetch(SUPERVISOR_SCRIPT_URL, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload) 
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.result === 'success' || res.status === 'success') {
+            alert(`✅ تم تسليم مبلغ ${payload.amount} ج.م للمندوب ${activeCourier.name} بنجاح!`);
+            closeCustodyModal();
+            loadSupervisorData();
+        } else {
+            alert(`❌ خطأ: ${res.message || "تعذر تسليم العهدة"}`);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("❌ حدث خطأ في الاتصال بالسيرفر!");
     });
+});
 </script>
 </body>
 </html>
