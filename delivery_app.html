@@ -631,6 +631,12 @@
         }
 
         loadCourierData();
+        document.addEventListener('DOMContentLoaded', function () {
+    // استبدل fetchCourierData باسم الدالة الفعلي لديك المسؤول عن جلب المهام والعهد
+    if (typeof fetchCourierData === 'function') {
+        fetchCourierData();
+    }
+});
     </script>
 </body>
 </html>
