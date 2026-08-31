@@ -92,16 +92,41 @@
             </div>
         </div>
 
-        <div id="attendance" class="tab-content">
-            <div class="card" style="max-width: 500px; margin: 0 auto;">
-                <div class="card-title">تسجيل الحضور والانصراف اليومي</div>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">سجل حالتك مباشرة (يجب أن تكون داخل نطاق الشركة)</p>
-                <div class="btn-row">
-                    <button type="button" class="action-btn btn-in" onclick="recordAttendance('حضور', event)">تسجيل حضور</button>
-                    <button type="button" class="action-btn btn-out" onclick="recordAttendance('انصراف', event)">تسجيل انصراف</button>
+       <div id="attendance" class="tab-content">
+    <div class="card" style="max-width: 500px; margin: 0 auto;">
+        <div class="card-title">تسجيل ساعات العمل اليومية</div>
+        <form id="overtimeForm">
+            <div class="form-group">
+                <label>وقت الحضور</label>
+                <div style="display: flex; gap: 10px;">
+                    <select id="inHour" required>
+                        <!-- أضف الخيارات من 1 إلى 12 -->
+                        <option value="1">1</option><option value="2">2</option><option value="8" selected>8</option><option value="9">9</option>
+                    </select>
+                    <select id="inAmPm">
+                        <option value="AM">صباحاً (AM)</option>
+                        <option value="PM">مساءً (PM)</option>
+                    </select>
                 </div>
             </div>
-        </div>
+            
+            <div class="form-group">
+                <label>وقت الانصراف</label>
+                <div style="display: flex; gap: 10px;">
+                    <select id="outHour" required>
+                         <!-- أضف الخيارات من 1 إلى 12 -->
+                        <option value="4">4</option><option value="5" selected>5</option>
+                    </select>
+                    <select id="outAmPm">
+                        <option value="AM">صباحاً (AM)</option>
+                        <option value="PM">مساءً (PM)</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn" id="submitOvertimeBtn">حفظ وتلوين الشيت</button>
+        </form>
+    </div>
+</div>
 
         <div id="tasks" class="tab-content">
             <div class="card" style="max-width: 600px; margin: 0 auto;">
@@ -180,7 +205,7 @@
             window.location.href = './index.html';
         }
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyJTRgqYN2dW6NX9AdeopSfeFZGq2VZBnGDJf6qs3AhJ5D3JgQxif4-lwzRRyfOroKl/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyLtWNKCY1uWV6CVVeQ5tcQwgdaFL5sj5PheCF6uOatomyJ3Z3oO13aQT4vQYTOhyUL/exec';
 
         const ctx = document.getElementById('dailyActivityChart').getContext('2d');
         let dailyChart = new Chart(ctx, {
@@ -218,46 +243,31 @@
 
         let isProcessing = false;
 
-        /* دالة تسجيل الحضور و الانصراف 
-        function recordAttendance(statusType, event) {
-            if (event && event.preventDefault) event.preventDefault();
-            if (isProcessing) return;
-            if (!navigator.geolocation) { alert('⚠️ متصفحك لا يدعم خاصية الموقع!'); return; }
+       document.getElementById('overtimeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formatTo24 = (hour, ampm) => {
+        let h = parseInt(hour);
+        if (ampm === "PM" && h < 12) h += 12;
+        if (ampm === "AM" && h === 12) h = 0;
+        return h; 
+    };
 
-            isProcessing = true;
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    const payload = {
-                        action: 'attendance',
-                        token: authToken,
-                        status: statusType,
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
+    const inTime = formatTo24(document.getElementById('inHour').value, document.getElementById('inAmPm').value);
+    const outTime = formatTo24(document.getElementById('outHour').value, document.getElementById('outAmPm').value);
 
-                    fetch(SUPERVISOR_SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify(payload)
-})
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.result === 'success') {
-                            alert(`✅ تم تسجيل ${statusType} بنجاح.`);
-                        } else {
-                            if (data.message && data.message.includes('Unauthorized')) logout();
-                            alert(`⚠️ ${data.message}`);
-                        }
-                    })
-                    .catch(err => alert(`❌ حدث خطأ في الاتصال بالسيرفر.`))
-                    .finally(() => { setTimeout(() => { isProcessing = false; }, 1500); });
-                },
-                function(error) {
-                    alert('⚠️ لم نتمكن من تحديد موقعك. يرجى تفعيل الـ GPS.');
-                    isProcessing = false;
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
-        }*/
+    const payload = {
+        action: 'manual_attendance',
+        token: authToken,
+        inTime: inTime,
+        outTime: outTime
+    };
+
+    fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(res => res.json())
+        .then(data => alert('تم التسجيل بنجاح!'))
+        .catch(err => alert('خطأ في التسجيل'));
+});
 
         const form = document.getElementById('deliveryForm');
         const submitBtn = document.getElementById('submitBtn');
