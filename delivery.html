@@ -101,7 +101,65 @@
                 <div style="display: flex; gap: 10px;">
                     <select id="inHour" required>
                         <!-- أضف الخيارات من 1 إلى 12 -->
-                        <option value="1">1</option><option value="2">2</option><option value="8" selected>8</option><option value="9">9</option>
+                        <option value="1:00">1:00</option>
+<option value="1:15">1:15</option>
+<option value="1:30">1:30</option>
+<option value="1:45">1:45</option>
+
+<option value="2:00">2:00</option>
+<option value="2:15">2:15</option>
+<option value="2:30">2:30</option>
+<option value="2:45">2:45</option>
+
+<option value="3:00">3:00</option>
+<option value="3:15">3:15</option>
+<option value="3:30">3:30</option>
+<option value="3:45">3:45</option>
+
+<option value="4:00">4:00</option>
+<option value="4:15">4:15</option>
+<option value="4:30">4:30</option>
+<option value="4:45">4:45</option>
+
+<option value="5:00">5:00</option>
+<option value="5:15">5:15</option>
+<option value="5:30">5:30</option>
+<option value="5:45">5:45</option>
+
+<option value="6:00">6:00</option>
+<option value="6:15">6:15</option>
+<option value="6:30">6:30</option>
+<option value="6:45">6:45</option>
+
+<option value="7:00">7:00</option>
+<option value="7:15">7:15</option>
+<option value="7:30">7:30</option>
+<option value="7:45">7:45</option>
+
+<option value="8:00" selected>8:00</option>
+<option value="8:15">8:15</option>
+<option value="8:30">8:30</option>
+<option value="8:45">8:45</option>
+
+<option value="9:00">9:00</option>
+<option value="9:15">9:15</option>
+<option value="9:30">9:30</option>
+<option value="9:45">9:45</option>
+
+<option value="10:00">10:00</option>
+<option value="10:15">10:15</option>
+<option value="10:30">10:30</option>
+<option value="10:45">10:45</option>
+
+<option value="11:00">11:00</option>
+<option value="11:15">11:15</option>
+<option value="11:30">11:30</option>
+<option value="11:45">11:45</option>
+
+<option value="12:00">12:00</option>
+<option value="12:15">12:15</option>
+<option value="12:30">12:30</option>
+<option value="12:45">12:45</option>
                     </select>
                     <select id="inAmPm">
                         <option value="AM">صباحاً (AM)</option>
@@ -115,7 +173,65 @@
                 <div style="display: flex; gap: 10px;">
                     <select id="outHour" required>
                          <!-- أضف الخيارات من 1 إلى 12 -->
-                        <option value="4">4</option><option value="5" selected>5</option>
+                       <option value="1:00">1:00</option>
+<option value="1:15">1:15</option>
+<option value="1:30">1:30</option>
+<option value="1:45">1:45</option>
+
+<option value="2:00">2:00</option>
+<option value="2:15">2:15</option>
+<option value="2:30">2:30</option>
+<option value="2:45">2:45</option>
+
+<option value="3:00">3:00</option>
+<option value="3:15">3:15</option>
+<option value="3:30">3:30</option>
+<option value="3:45">3:45</option>
+
+<option value="4:00">4:00</option>
+<option value="4:15">4:15</option>
+<option value="4:30">4:30</option>
+<option value="4:45">4:45</option>
+
+<option value="5:00">5:00</option>
+<option value="5:15">5:15</option>
+<option value="5:30">5:30</option>
+<option value="5:45">5:45</option>
+
+<option value="6:00">6:00</option>
+<option value="6:15">6:15</option>
+<option value="6:30">6:30</option>
+<option value="6:45">6:45</option>
+
+<option value="7:00">7:00</option>
+<option value="7:15">7:15</option>
+<option value="7:30">7:30</option>
+<option value="7:45">7:45</option>
+
+<option value="8:00" selected>8:00</option>
+<option value="8:15">8:15</option>
+<option value="8:30">8:30</option>
+<option value="8:45">8:45</option>
+
+<option value="9:00">9:00</option>
+<option value="9:15">9:15</option>
+<option value="9:30">9:30</option>
+<option value="9:45">9:45</option>
+
+<option value="10:00">10:00</option>
+<option value="10:15">10:15</option>
+<option value="10:30">10:30</option>
+<option value="10:45">10:45</option>
+
+<option value="11:00">11:00</option>
+<option value="11:15">11:15</option>
+<option value="11:30">11:30</option>
+<option value="11:45">11:45</option>
+
+<option value="12:00">12:00</option>
+<option value="12:15">12:15</option>
+<option value="12:30">12:30</option>
+<option value="12:45">12:45</option>
                     </select>
                     <select id="outAmPm">
                         <option value="AM">صباحاً (AM)</option>
@@ -123,7 +239,7 @@
                     </select>
                 </div>
             </div>
-            <button type="submit" class="submit-btn" id="submitOvertimeBtn">حفظ وتلوين الشيت</button>
+            <button type="submit" class="submit-btn" id="submitOvertimeBtn">حفظ</button>
         </form>
     </div>
 </div>
@@ -246,13 +362,16 @@
        document.getElementById('overtimeForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    const formatTo24 = (hour, ampm) => {
-        let h = parseInt(hour);
-        if (ampm === "PM" && h < 12) h += 12;
-        if (ampm === "AM" && h === 12) h = 0;
-        return h; 
-    };
-
+    const formatTo24 = (timeStr, ampm) => {
+    let parts = timeStr.split(':');
+    let h = parseInt(parts[0]);
+    let m = parts[1];
+    
+    if (ampm === "PM" && h < 12) h += 12;
+    if (ampm === "AM" && h === 12) h = 0;
+    
+    return `${h.toString().padStart(2, '0')}:${m}`; 
+};
     const inTime = formatTo24(document.getElementById('inHour').value, document.getElementById('inAmPm').value);
     const outTime = formatTo24(document.getElementById('outHour').value, document.getElementById('outAmPm').value);
 
