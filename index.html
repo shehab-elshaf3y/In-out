@@ -288,6 +288,41 @@
     .avatar-preview-box { width: 120px; height: 120px; margin-bottom: 10px; }
     .grid-2 { grid-template-columns: 1fr; gap: 0; }
   }
+/* Farvex Badge Styling (Desktop - Bottom Left) */
+.farvex-badge {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  z-index: 9999;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.85;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  text-decoration: none;
+}
+.farvex-badge img {
+  height: 24px;
+  width: auto;
+  display: block;
+}
+.farvex-badge:hover {
+  opacity: 1;
+}
+
+/* Farvex Badge Responsive (Mobile - Bottom Center) */
+@media (max-width: 768px) {
+  .farvex-badge {
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .farvex-badge:hover {
+    opacity: 0.85;
+  }
+  .farvex-badge img {
+    height: 20px;
+  }
+}
 </style>
 </head>
 <body>
@@ -424,7 +459,10 @@
     </div>
 
   </div>
-
+<!-- Farvex Badge -->
+<a href="https://farvex.com" target="_blank" rel="noopener noreferrer" class="farvex-badge">
+  <img src="powered_by_farvex.png" alt="Powered by Farvex">
+</a>  
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzA2MrVa_IXt_RHlVhpYnCTTEgjz5_LvrUKaflRFOnCL7Qy3QQOLGSBd7Y7AxCrQto/exec";
     let selectedAvatarSeed = 'Cyber1';
