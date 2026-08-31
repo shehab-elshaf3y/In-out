@@ -321,7 +321,7 @@
             window.location.href = './index.html';
         }
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyLtWNKCY1uWV6CVVeQ5tcQwgdaFL5sj5PheCF6uOatomyJ3Z3oO13aQT4vQYTOhyUL/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxa3sYPqmiTcgSgUGzjfS7a4MO2q5bBEReHXrMb1tBmdkwyRLzFCMxm9u7onYgmaphv/exec';
 
         const ctx = document.getElementById('dailyActivityChart').getContext('2d');
         let dailyChart = new Chart(ctx, {
@@ -382,10 +382,16 @@
         outTime: outTime
     };
 
-    fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
-        .then(res => res.json())
-        .then(data => alert('تم التسجيل بنجاح!'))
-        .catch(err => alert('خطأ في التسجيل'));
+   fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
+    .then(res => res.json())
+    .then(data => {
+        if (data.result === 'success') {
+            alert('تم التسجيل بنجاح!');
+        } else {
+            alert('خطأ: ' + (data.message || 'فشل التسجيل'));
+        }
+    })
+    .catch(err => alert('خطأ في الاتصال بالخادم'));
 });
 
         const form = document.getElementById('deliveryForm');
