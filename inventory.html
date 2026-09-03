@@ -382,7 +382,7 @@
       let startYear = now.getFullYear();
       let startMonth = now.getMonth();
       
-      if (now.getDate() < 27) {
+      if (now.getDate() < 29) {
         startMonth -= 1;
         if (startMonth < 0) {
           startMonth = 11;
@@ -390,7 +390,7 @@
         }
       }
       
-      const startDate = new Date(startYear, startMonth, 27);
+      const startDate = new Date(startYear, startMonth, 29);
       
       let endMonth = startMonth + 1;
       let endYear = startYear;
@@ -398,7 +398,7 @@
         endMonth = 0;
         endYear += 1;
       }
-      const endDate = new Date(endYear, endMonth, 26);
+      const endDate = new Date(endYear, endMonth, 29);
       
       return { startDate, endDate };
     }
