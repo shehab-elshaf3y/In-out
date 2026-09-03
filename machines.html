@@ -227,7 +227,12 @@
       </div>
     </div>
 
-    <div class="cards-container">
+   <div class="cards-container">
+      <!-- BANNER: حالة المراجعة والنظام -->
+      <div id="review-status-banner" style="display: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; text-align: center; font-size: 0.9rem;"></div>
+
+      <!-- Completed -->
+      <div class="custom-card card-completed" data-tab="Completed">
       <!-- Completed -->
       <div class="custom-card card-completed" data-tab="Completed">
         <div class="card-icon">
@@ -344,7 +349,7 @@
   </div>
 
   <script>
-    const DELIVERY_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyJTRgqYN2dW6NX9AdeopSfeFZGq2VZBnGDJf6qs3AhJ5D3JgQxif4-lwzRRyfOroKl/exec';
+    const DELIVERY_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwudKK-V6-uHGJu72Kzxd0yV-5sqYHolSLXERqGCTvIXZ4at8qwOonwrJtru0BrkBNI/exec';
 
     // 1. التحقق من الصلاحيات
     const authToken = localStorage.getItem('authToken');
@@ -474,7 +479,26 @@ async function loadDashboardStats(selectedDateStr = null) {
     const response = await fetch(url);
     const data = await response.json();
 
-    if (data.result === "success") {
+   if (data.result === "success") {
+      // ==================== [ بداية كود عرض حالة المراجعة ] ====================
+      const banner = document.getElementById('review-status-banner');
+      if (banner) {
+        if (data.globalReview) {
+          banner.style.display = 'block';
+          banner.style.backgroundColor = '#fef3c7';
+          banner.style.color = '#92400e';
+          banner.style.border = '1px solid #f59e0b';
+          banner.innerText = '⚠️ النظام تحت المراجعة العامة حالياً من قبل الإدارة.';
+        } else if (data.userReviewed) {
+          banner.style.display = 'block';
+          banner.style.backgroundColor = '#d1fae5';
+          banner.style.color = '#065f46';
+          banner.style.border = '1px solid #10b981';
+          banner.innerText = `✅ تمت مراجعة حسابك بنجاح. إجمالي حالاتك: ${data.userCaseCount}`;
+        } else {
+          banner.style.display = 'none';
+        }
+      }
       // 1. تحديث بيانات الكروت القديمة
       document.getElementById('monthly-total').innerText = `إجمالي الدورة: ${data.totalOperations} عملية (${cycleStartStr} إلى ${cycleEndStr})`;
       
