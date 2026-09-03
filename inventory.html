@@ -169,47 +169,43 @@
     }
     .spinner { border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--emerald); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
+    
     .table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  border-radius: 8px;
-  border: 1px solid #1f4232;
-  margin-top: 10px;
-}
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid #1f4232;
+      margin-top: 10px;
+    }
 
-.ops-table {
-  width: 100%;
-  border-collapse: collapse;
-  direction: rtl;
-  text-align: center;
-  background-color: #0d1e17;
-  font-size: 0.88rem;
-}
+    .ops-table {
+      width: 100%;
+      border-collapse: collapse;
+      direction: rtl;
+      text-align: center;
+      background-color: #0d1e17;
+      font-size: 0.88rem;
+    }
 
-.ops-table th {
-  background-color: #14281f;
-  color: #dce3d8;
-  padding: 14px 8px;
-  font-weight: bold;
-  border: 1px solid #1f4232;
-  white-space: nowrap;
-}
+    .ops-table th {
+      background-color: #14281f;
+      color: #dce3d8;
+      padding: 14px 8px;
+      font-weight: bold;
+      border: 1px solid #1f4232;
+      white-space: nowrap;
+    }
 
-.ops-table td {
-  padding: 12px 6px;
-  color: #ffffff;
-  border: 1px solid #1f4232;
-  font-weight: 700;
-  font-size: 0.9rem;
-}
+    .ops-table td {
+      padding: 12px 6px;
+      color: #ffffff;
+      border: 1px solid #1f4232;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
 
-.ops-table tr:nth-child(even) {
-  background-color: #0a1812;
-}
-
-.ops-table tr:nth-child(odd) {
-  background-color: #0f241c;
-}
+    .ops-table tr:nth-child(even) { background-color: #0a1812; }
+    .ops-table tr:nth-child(odd) { background-color: #0f241c; }
   </style>
 </head>
 <body>
@@ -227,12 +223,10 @@
       </div>
     </div>
 
-      <div class="cards-container">
-     <!-- BANNER: حالة المراجعة والنظام -->
-<div id="review-status-banner" style="display: none; width: 100%; box-sizing: border-box; padding: 12px 20px; border-radius: 12px; font-weight: bold; text-align: center; font-size: 0.9rem; margin-bottom: 10px;"></div>
+<!-- BANNER: حالة المراجعة والنظام (خارج الحاوية لتفادي أي تداخل) -->
+    <div id="review-status-banner" style="display: none; margin: 15px 20px 5px; padding: 12px 20px; border-radius: 12px; font-weight: bold; text-align: center; font-size: 0.9rem;"></div>
 
-      <!-- Completed -->
-      <div class="custom-card card-completed" data-tab="Completed">
+    <div class="cards-container">
       <!-- Completed -->
       <div class="custom-card card-completed" data-tab="Completed">
         <div class="card-icon">
@@ -268,6 +262,7 @@
         </div>
         <div class="card-action">⋮</div>
       </div>
+
       <div class="table-wrapper">
         <table class="ops-table">
           <thead>
@@ -285,7 +280,6 @@
         </table>
       </div>
 
-    </div>
     </div>
   </div>
 
@@ -467,81 +461,82 @@
     }
 
     // 5. جلب إحصائيات الشهر واليوم المحدد
-    // 5. جلب إحصائيات الشهر واليوم المحدد
-async function loadDashboardStats(selectedDateStr = null) {
-  showLoading(true);
-  try {
-    const { startDate, endDate } = getMonthCycle();
-    const cycleStartStr = formatDateStr(startDate);
-    const cycleEndStr = formatDateStr(endDate);
-    
-    const url = `${DELIVERY_SCRIPT_URL}?action=getStats&token=${encodeURIComponent(authToken)}&start=${cycleStartStr}&end=${cycleEndStr}`;
-    const response = await fetch(url);
-    const data = await response.json();
+    async function loadDashboardStats(selectedDateStr = null) {
+      showLoading(true);
+      try {
+        const { startDate, endDate } = getMonthCycle();
+        const cycleStartStr = formatDateStr(startDate);
+        const cycleEndStr = formatDateStr(endDate);
+        
+        const url = `${DELIVERY_SCRIPT_URL}?action=getStats&token=${encodeURIComponent(authToken)}&start=${cycleStartStr}&end=${cycleEndStr}`;
+        const response = await fetch(url);
+        const data = await response.json();
 
-     if (data.result === "success") {
-      // ==================== [ بداية كود عرض حالة المراجعة ] ====================
-      const banner = document.getElementById('review-status-banner');
-      if (banner) {
-        if (data.globalReview) {
-          banner.style.display = 'block';
-          banner.style.backgroundColor = '#fef3c7';
-          banner.style.color = '#92400e';
-          banner.style.border = '1px solid #f59e0b';
-          banner.innerText = '⚠️ النظام تحت المراجعة العامة حالياً من قبل الإدارة.';
-        } else if (data.userReviewed) {
-          banner.style.display = 'block';
-          banner.style.backgroundColor = '#d1fae5';
-          banner.style.color = '#065f46';
-          banner.style.border = '1px solid #10b981';
-          banner.innerText = `✅ تمت مراجعة حسابك بنجاح. إجمالي حالاتك: ${data.userCaseCount}`;
+        if (data.result === "success") {
+          // ==================== [ بداية كود عرض حالة المراجعة ] ====================
+          const banner = document.getElementById('review-status-banner');
+          if (banner) {
+            if (data.globalReview) {
+              banner.style.display = 'block';
+              banner.style.backgroundColor = '#fef3c7';
+              banner.style.color = '#92400e';
+              banner.style.border = '1px solid #f59e0b';
+              banner.innerText = '⚠️ النظام تحت المراجعة العامة حالياً من قبل الإدارة.';
+            } else if (data.userReviewed) {
+              banner.style.display = 'block';
+              banner.style.backgroundColor = '#d1fae5';
+              banner.style.color = '#065f46';
+              banner.style.border = '1px solid #10b981';
+              banner.innerText = `✅ تمت مراجعة حسابك بنجاح. إجمالي حالاتك: ${data.userCaseCount}`;
+            } else {
+              banner.style.display = 'none';
+            }
+          }
+          // ==================== [ نهاية كود عرض حالة المراجعة ] ====================
+
+          // 1. تحديث بيانات الكروت القديمة
+          document.getElementById('monthly-total').innerText = `إجمالي الدورة: ${data.totalOperations} عملية (${cycleStartStr} إلى ${cycleEndStr})`;
+          
+          const targetDate = selectedDateStr || formatDateStr(new Date());
+          document.getElementById('success-count').innerText = `${data.totalOperations} Operations (${targetDate})`;
+
+          // 2. تعبئة جدول العمليات أسفل الكروت
+          const tableBody = document.getElementById('ops-table-body');
+          if (tableBody) {
+            tableBody.innerHTML = '';
+            let operations = data.operations || [];
+
+            // تصفية حسب اليوم المحدد في السلايدر (إن وجد)
+            if (selectedDateStr) {
+              operations = operations.filter(op => op.exitDate === selectedDateStr);
+            }
+
+            if (operations.length === 0) {
+              tableBody.innerHTML = `<tr><td colspan="5" style="padding: 20px; color: var(--text-muted);">لا توجد عمليات مسجلة باسمك في هذه الفترة</td></tr>`;
+            } else {
+              operations.forEach(op => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <td>${op.stockPrep || '-'}</td>
+                  <td>${op.caseType || '-'}</td>
+                  <td>${op.hospitalName || '-'}</td>
+                  <td>${op.exitDate || '-'}</td>
+                  <td>${op.opNumber || '-'}</td>
+                `;
+                tableBody.appendChild(tr);
+              });
+            }
+          }
         } else {
-          banner.style.display = 'none';
+          alert("خطأ من الخادم: " + (data.message || "فشل جلب البيانات"));
         }
+      } catch (error) {
+        console.error("Network Error:", error);
+        alert("حدث خطأ في الاتصال بالخادم عند جلب الإحصائيات.");
+      } finally {
+        showLoading(false);
       }
-      // 1. تحديث بيانات الكروت القديمة
-      document.getElementById('monthly-total').innerText = `إجمالي الدورة: ${data.totalOperations} عملية (${cycleStartStr} إلى ${cycleEndStr})`;
-      
-      const targetDate = selectedDateStr || formatDateStr(new Date());
-      document.getElementById('success-count').innerText = `${data.totalOperations} Operations (${targetDate})`;
-
-      // 2. تعبئة جدول العمليات أسفل الكروت
-      const tableBody = document.getElementById('ops-table-body');
-      if (tableBody) {
-        tableBody.innerHTML = '';
-        let operations = data.operations || [];
-
-        // تصفية حسب اليوم المحدد في السلايدر (إن وجد)
-        if (selectedDateStr) {
-          operations = operations.filter(op => op.exitDate === selectedDateStr);
-        }
-
-        if (operations.length === 0) {
-          tableBody.innerHTML = `<tr><td colspan="5" style="padding: 20px; color: var(--text-muted);">لا توجد عمليات مسجلة باسمك في هذه الفترة</td></tr>`;
-        } else {
-          operations.forEach(op => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${op.stockPrep || '-'}</td>
-              <td>${op.caseType || '-'}</td>
-              <td>${op.hospitalName || '-'}</td>
-              <td>${op.exitDate || '-'}</td>
-              <td>${op.opNumber || '-'}</td>
-            `;
-            tableBody.appendChild(tr);
-          });
-        }
-      }
-    } else {
-      alert("خطأ من الخادم: " + (data.message || "فشل جلب البيانات"));
     }
-  } catch (error) {
-    console.error("Network Error:", error);
-    alert("حدث خطأ في الاتصال بالخادم عند جلب الإحصائيات.");
-  } finally {
-    showLoading(false);
-  }
-}
 
     // 6. إرسال العملية الجديدة
     async function submitTask(e) {
