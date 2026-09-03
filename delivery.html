@@ -7,17 +7,21 @@
     <link rel="icon" type="image/png" href="logo.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --bg-dark: #0b0f19;
-            --sidebar-bg: #111827;
-            --card-bg: rgba(17, 24, 39, 0.7);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --accent-green: #34d399;
-            --accent-blue: #3b82f6;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-        }
-        /* تعديل الأساسيات للـ body */
+:root {
+    --bg-dark: #0b0f19;
+    --sidebar-bg: #111827;
+    --card-bg: rgba(17, 24, 39, 0.7);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --accent-green: #34d399;
+    --accent-blue: #3b82f6;
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Segoe UI', sans-serif;
     background-color: var(--bg-dark);
@@ -25,15 +29,138 @@ body {
     margin: 0;
     display: flex;
     min-height: 100vh;
-    height: auto;
     overflow-x: hidden;
 }
 
-/* تعديل الميديا كويري الخاصة بالشاشات الصغيرة */
+/* التنسيق الأساسي للشريط الجانبي في الشاشات الكبيرة */
+.sidebar {
+    width: 80px;
+    background-color: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    border-left: 1px solid var(--border-color);
+    z-index: 100;
+}
+
+.sidebar-logo img { 
+    width: 40px; 
+    height: 40px; 
+    object-fit: contain; 
+    margin-bottom: 20px; 
+}
+
+.nav-icon { 
+    width: 45px; 
+    height: 45px; 
+    border-radius: 12px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+    color: var(--text-muted); 
+    transition: all 0.3s ease; 
+    font-size: 20px; 
+    background: transparent; 
+    border: none; 
+    margin-bottom: 10px;
+}
+
+.nav-icon:hover, .nav-icon.active { 
+    background-color: rgba(52, 211, 153, 0.15); 
+    color: var(--accent-green); 
+}
+
+.main-container { 
+    flex: 1; 
+    padding: 25px; 
+    overflow-y: auto; 
+    background: radial-gradient(circle at top right, #064e3b15, transparent 50%); 
+}
+
+.header-bar { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 25px; 
+    background: var(--card-bg); 
+    backdrop-filter: blur(10px); 
+    padding: 15px 25px; 
+    border-radius: 16px; 
+    border: 1px solid var(--border-color); 
+}
+
+.header-title h2 { margin: 0; font-size: 20px; color: var(--text-main); }
+.header-title p { margin: 5px 0 0 0; font-size: 13px; color: var(--text-muted); }
+
+.tab-content { display: none; } 
+.tab-content.active { display: block; }
+
+.grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+.card { 
+    background: var(--card-bg); 
+    backdrop-filter: blur(12px); 
+    border: 1px solid var(--border-color); 
+    border-radius: 16px; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); 
+}
+
+.card-title { 
+    font-size: 16px; 
+    font-weight: bold; 
+    color: var(--accent-green); 
+    margin-bottom: 15px; 
+    border-right: 3px solid var(--accent-green); 
+    padding-right: 10px; 
+}
+
+.form-group { margin-bottom: 15px; }
+
+label { 
+    display: block; 
+    font-size: 13px; 
+    font-weight: 600; 
+    margin-bottom: 6px; 
+    color: var(--text-muted); 
+}
+
+input, select { 
+    width: 100%; 
+    padding: 12px; 
+    background-color: rgba(2, 44, 34, 0.4); 
+    border: 1px solid var(--border-color); 
+    border-radius: 10px; 
+    color: white; 
+    font-size: 14px; 
+}
+
+input:focus, select:focus { outline: none; border-color: var(--accent-green); }
+
+.submit-btn { 
+    width: 100%; 
+    padding: 14px; 
+    background: linear-gradient(135deg, #059669, #34d399); 
+    color: #0b0f19; 
+    border: none; 
+    border-radius: 10px; 
+    font-weight: bold; 
+    font-size: 16px; 
+    cursor: pointer; 
+    margin-top: 10px; 
+}
+
+.chart-container { position: relative; height: 260px; width: 100%; }
+
+/* --- تعديلات الشاشات الصغيرة (الهواتف) --- */
 @media (max-width: 768px) {
     body {
-        flex-direction: column-reverse;
+        flex-direction: column;
     }
+    
     .sidebar {
         position: fixed;
         bottom: 0;
@@ -43,58 +170,43 @@ body {
         height: 60px;
         flex-direction: row;
         justify-content: space-around;
+        align-items: center;
         border-left: none;
         border-top: 1px solid var(--border-color);
-        padding: 0 10px;
+        padding: 0;
         background-color: var(--sidebar-bg);
         z-index: 1000;
-        box-shadow: 0 -4px 15px rgba(0,0,0,0.5);
     }
+
+    .nav-icon {
+        margin-bottom: 0;
+    }
+
     .sidebar-logo { 
         display: none; 
     }
+
     .main-container {
-        padding: 15px 15px 85px 15px; /* مسافة من الأسفل حتى لا يغطي الشريط السكلي على المحتوى */
-        height: auto;
-        min-height: calc(100vh - 60px);
-        overflow-y: visible;
+        padding: 15px 15px 80px 15px; /* هامش سفلي لمنع تغطية الشريط السفلي للمحتوى */
+        width: 100%;
     }
+
     .grid-2 {
         grid-template-columns: 1fr;
         gap: 15px;
     }
+
     .header-bar {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
-        padding: 12px 18px;
+        padding: 15px;
     }
+
     .chart-container {
-        height: 200px !important;
+        height: 200px;
     }
 }
-        .sidebar-logo img { width: 40px; height: 40px; object-fit: contain; margin-bottom: 20px; }
-        .nav-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.3s ease; font-size: 20px; background: transparent; border: none; }
-        .nav-icon:hover, .nav-icon.active { background-color: rgba(52, 211, 153, 0.15); color: var(--accent-green); }
-        .main-container { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top right, #064e3b15, transparent 50%); }
-        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: var(--card-bg); backdrop-filter: blur(10px); padding: 15px 25px; border-radius: 16px; border: 1px solid var(--border-color); }
-        .header-title h2 { margin: 0; font-size: 20px; color: var(--text-main); }
-        .header-title p { margin: 5px 0 0 0; font-size: 13px; color: var(--text-muted); }
-        .tab-content { display: none; } .tab-content.active { display: block; }
-        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-        .card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }
-        .card-title { font-size: 16px; font-weight: bold; color: var(--accent-green); margin-bottom: 15px; border-right: 3px solid var(--accent-green); padding-right: 10px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
-        input, select { width: 100%; padding: 12px; background-color: rgba(2, 44, 34, 0.4); border: 1px solid var(--border-color); border-radius: 10px; color: white; font-size: 14px; box-sizing: border-box; }
-        input:focus, select:focus { outline: none; border-color: var(--accent-green); }
-        .btn-row { display: flex; gap: 15px; }
-        .action-btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; color: white; }
-        .btn-in { background: linear-gradient(135deg, #059669, #10b981); } .btn-out { background: linear-gradient(135deg, #dc2626, #ef4444); }
-        .submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #059669, #34d399); color: #0b0f19; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        .chart-container { position: relative; height: 240px; width: 100%; }
-        @media (min-width: 768px) { .chart-container { height: 320px; } }
-    </style>
 </head>
 <body>
     <div class="sidebar">
